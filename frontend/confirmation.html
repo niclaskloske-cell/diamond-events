@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anfrage erhalten — Diamond Events</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#packages">Pakete</a></li>
+      <li><a href="/booking.html">Event buchen</a></li>
+      <li><a href="/login.html">Admin</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<section class="confirmation">
+  <div class="container confirmation-card">
+    <div class="confirmation-icon">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h2>Vielen Dank für deine <span class="gradient-text">Anfrage</span></h2>
+    <p>
+      Wir haben deine Buchungsanfrage erhalten und melden uns innerhalb von 24
+      Stunden mit einem maßgeschneiderten Vorschlag bei dir.
+    </p>
+    <p id="refLine" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2rem;"></p>
+    <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+      <a href="/" class="btn btn-primary">Zurück zur Startseite</a>
+      <a href="/booking.html" class="btn btn-outline">Weitere Anfrage</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script>
+  const id = new URLSearchParams(location.search).get("id");
+  if (id) {
+    document.getElementById("refLine").textContent = "Referenz: " + id;
+  }
+</script>
+</body>
+</html>

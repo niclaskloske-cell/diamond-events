@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard — Diamond Events</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/">Website</a></li>
+      <li><a href="/admin.html" class="active">Dashboard</a></li>
+      <li><a href="#" id="logoutLink">Logout</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="admin-shell">
+  <div class="container">
+
+    <div class="admin-header">
+      <h1>
+        <small>Admin Dashboard</small>
+        Buchungen verwalten
+      </h1>
+      <div style="color: var(--text-muted); font-size: 0.85rem;">
+        Eingeloggt als <strong style="color: var(--text);">DJ DIAMOND</strong>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="admin-stats">
+      <div class="stat-card cyan">
+        <span class="label">Gesamt</span>
+        <div class="value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <span class="label">Offen</span>
+        <div class="value" id="statOpen">0</div>
+      </div>
+      <div class="stat-card green">
+        <span class="label">Angenommen</span>
+        <div class="value" id="statAccepted">0</div>
+      </div>
+      <div class="stat-card red">
+        <span class="label">Abgelehnt</span>
+        <div class="value" id="statRejected">0</div>
+      </div>
+    </div>
+
+    <!-- Toolbar: filters + view toggle -->
+    <div class="admin-toolbar">
+      <div class="admin-tabs" id="filterTabs">
+        <div class="admin-tab active" data-filter="all">Alle</div>
+        <div class="admin-tab" data-filter="offen">Offen</div>
+        <div class="admin-tab" data-filter="angenommen">Angenommen</div>
+        <div class="admin-tab" data-filter="abgelehnt">Abgelehnt</div>
+        <div class="admin-tab" data-filter="storniert">Storniert</div>
+      </div>
+
+      <div class="view-toggle" id="viewToggle">
+        <button class="active" data-view="list">Liste</button>
+        <button data-view="calendar">Kalender</button>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div id="listView">
+      <div class="bookings-card">
+        <div id="bookingsContent">
+          <div class="empty-state">
+            <h3>Lade Buchungen...</h3>
+            <p>Einen Moment bitte.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar View -->
+    <div id="calendarView" style="display:none;">
+      <div class="calendar-card">
+        <div class="calendar-header">
+          <h3 id="calMonthLabel">—</h3>
+          <div class="calendar-nav">
+            <button id="calPrev" aria-label="Vorheriger Monat">‹</button>
+            <button id="calToday">Heute</button>
+            <button id="calNext" aria-label="Nächster Monat">›</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calGrid"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal">
+    <h3>Buchung bearbeiten</h3>
+    <form id="editForm">
+      <input type="hidden" id="editId" />
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editName">Name</label>
+          <input type="text" id="editName" required />
+        </div>
+        <div class="form-group">
+          <label for="editEmail">E-Mail</label>
+          <input type="email" id="editEmail" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editDate">Event Datum</label>
+          <input type="date" id="editDate" required />
+        </div>
+        <div class="form-group">
+          <label for="editLocation">Ort</label>
+          <input type="text" id="editLocation" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editPackage">Paket</label>
+          <select id="editPackage" required>
+            <option value="Diamond Lite">Diamond Lite</option>
+            <option value="Diamond Premium">Diamond Premium</option>
+            <option value="Diamond Exclusive">Diamond Exclusive</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editStatus">Status</label>
+          <select id="editStatus" required>
+            <option value="offen">Offen</option>
+            <option value="angenommen">Angenommen</option>
+            <option value="abgelehnt">Abgelehnt</option>
+            <option value="storniert">Storniert</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-row" for="editPhoto" style="margin:0; text-transform:none; letter-spacing:0; font-size:0.95rem; font-weight:500; color:var(--text);">
+          <input type="checkbox" id="editPhoto" />
+          Fotografie hinzugebucht
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="editMessage">Nachricht</label>
+        <textarea id="editMessage" rows="3"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="closeEdit">Abbrechen</button>
+        <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Day Detail Modal (calendar) -->
+<div class="modal-backdrop" id="dayModal">
+  <div class="modal">
+    <h3 id="dayTitle">Termine</h3>
+    <div id="dayContent"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline btn-sm" id="closeDay">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

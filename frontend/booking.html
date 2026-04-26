@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Event buchen — Diamond Events" />
+<title>Event buchen — Diamond Events</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#packages">Pakete</a></li>
+      <li><a href="/booking.html" class="active">Event buchen</a></li>
+      <li><a href="/login.html">Admin</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="section-subtitle reveal">Event buchen</span>
+    <h1 class="reveal">Erzähl uns von deinem <span class="gradient-text">Event</span></h1>
+    <p class="reveal">
+      Fülle das Formular aus — wir melden uns innerhalb von 24 Stunden mit
+      einem maßgeschneiderten Vorschlag.
+    </p>
+  </div>
+</section>
+
+<section style="padding-top: 0;">
+  <div class="container">
+    <div class="form-card reveal">
+      <form id="bookingForm" novalidate>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required placeholder="Dein Name" />
+          </div>
+          <div class="form-group">
+            <label for="email">E-Mail *</label>
+            <input type="email" id="email" name="email" required placeholder="dein@email.de" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="eventDate">Event Datum *</label>
+            <input type="date" id="eventDate" name="eventDate" required />
+          </div>
+          <div class="form-group">
+            <label for="eventLocation">Event Ort *</label>
+            <input type="text" id="eventLocation" name="eventLocation" required placeholder="z. B. Berlin, Club XYZ" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="package">Paket auswählen *</label>
+            <select id="package" name="package" required>
+              <option value="">Bitte wählen</option>
+              <option value="Diamond Lite">Diamond Lite</option>
+              <option value="Diamond Premium">Diamond Premium</option>
+              <option value="Diamond Exclusive">Diamond Exclusive</option>
+            </select>
+          </div>
+          <div class="form-group" style="display:flex; align-items:flex-end;">
+            <label class="checkbox-row" for="photography" style="margin:0; text-transform:none; letter-spacing:0; font-size:0.95rem; font-weight:500; color:var(--text);">
+              <input type="checkbox" id="photography" name="photography" />
+              Fotografie hinzubuchen
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Nachricht</label>
+          <textarea id="message" name="message" rows="5" placeholder="Erzähl uns mehr über dein Event — Anlass, erwartete Gäste, besondere Wünsche..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;" id="submitBtn">Anfrage senden</button>
+        <div class="form-status" id="formStatus" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="footer-links">
+      <a href="/">Start</a>
+      <a href="/#services">Services</a>
+      <a href="/#packages">Pakete</a>
+      <a href="/booking.html">Event buchen</a>
+      <a href="/login.html">Admin</a>
+    </div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/booking.js"></script>
+</body>
+</html>

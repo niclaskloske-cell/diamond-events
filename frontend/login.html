@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Login — Diamond Events</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="login-shell">
+  <div class="login-card">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <div class="login-tag">Admin Bereich</div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="username">Benutzername</label>
+        <input type="text" id="username" name="username" required autocomplete="username" placeholder="DJ DIAMOND" />
+      </div>
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;" id="loginBtn">Einloggen</button>
+      <div class="form-status" id="loginStatus" aria-live="polite"></div>
+    </form>
+
+    <div class="login-hint">
+      <a href="/" style="color: var(--text-muted);">← Zurück zur Website</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("loginForm");
+  const status = document.getElementById("loginStatus");
+  const btn = document.getElementById("loginBtn");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = form.username.value.trim();
+    const password = form.password.value;
+
+    if (!username || !password) {
+      status.textContent = "Bitte alle Felder ausfüllen.";
+      status.className = "form-status error";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Anmelden...";
+    status.className = "form-status";
+    status.textContent = "";
+
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const json = await res.json();
+
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || "Login fehlgeschlagen");
+      }
+
+      window.location.href = "/admin.html";
+    } catch (err) {
+      status.textContent = err.message;
+      status.className = "form-status error";
+      btn.disabled = false;
+      btn.textContent = "Einloggen";
+    }
+  });
+</script>
+</body>
+</html>
