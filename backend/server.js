@@ -10,9 +10,13 @@ const path = require("path");
 
 // ---------- Config ----------
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, "..", "data", "bookings.json");
-const PRESETS_FILE = path.join(__dirname, "..", "data", "presets.json");
-const TEMPLATES_FILE = path.join(__dirname, "..", "data", "templates.json");
+// DATA_DIR: where to persist JSON files. Defaults to /data on Render (persistent disk),
+// falls back to local ../data folder when developing on your computer.
+const DATA_DIR =
+  process.env.DATA_DIR || path.join(__dirname, "..", "data");
+const DATA_FILE = path.join(DATA_DIR, "bookings.json");
+const PRESETS_FILE = path.join(DATA_DIR, "presets.json");
+const TEMPLATES_FILE = path.join(DATA_DIR, "templates.json");
 const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
 
 const ADMIN_USER = process.env.ADMIN_USER || "DJ DIAMOND";
