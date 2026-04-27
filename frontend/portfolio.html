@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="DJ Diamond — Premium Event Entertainment. Über mich und meine Geschichte." />
+<title>Über mich — Diamond Events</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  /* Portfolio-spezifische Styles — nur auf dieser Seite genutzt */
+
+  .portrait-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    padding: 6rem 0 4rem;
+  }
+
+  .portrait-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+  }
+
+  .portrait-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    filter: brightness(0.95) contrast(1.05) saturate(1.1);
+  }
+
+  /* Multi-layer RGB gradient overlay */
+  .portrait-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(ellipse at 25% 20%, rgba(0, 240, 255, 0.25), transparent 55%),
+      radial-gradient(ellipse at 80% 70%, rgba(255, 0, 230, 0.28), transparent 55%),
+      radial-gradient(ellipse at 60% 40%, rgba(168, 85, 247, 0.18), transparent 60%);
+    mix-blend-mode: overlay;
+  }
+
+  /* Dark fade at the bottom so text is readable */
+  .portrait-fade {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(180deg, rgba(5, 5, 7, 0.3) 0%, transparent 25%, transparent 50%, rgba(5, 5, 7, 0.85) 85%, var(--bg) 100%);
+  }
+
+  .portrait-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .portrait-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text);
+    padding: 0.5rem 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 50px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  .portrait-tag::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--neon-cyan);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  .portrait-name {
+    font-size: clamp(3.5rem, 11vw, 8.5rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+    margin: 0 0 1rem;
+  }
+
+  .portrait-name .last {
+    background: var(--gradient-rgb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+  }
+
+  .portrait-role {
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    color: var(--text);
+    max-width: 560px;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .portrait-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Bio section */
+  .bio {
+    padding: 7rem 0;
+  }
+
+  .bio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .bio-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .bio-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .bio-heading {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+  }
+
+  .bio-text p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+  }
+
+  .bio-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .bio-text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Stats section */
+  .stats {
+    background: var(--bg-soft);
+    padding: 5rem 0;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  .stat-block {
+    text-align: center;
+  }
+
+  .stat-block .num {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    background: var(--gradient-rgb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-block .lbl {
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 0.75rem;
+  }
+
+  /* Highlights section */
+  .highlights {
+    padding: 7rem 0;
+    text-align: center;
+  }
+
+  .highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 4rem;
+    text-align: left;
+  }
+
+  @media (max-width: 768px) {
+    .highlights-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .highlight-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    padding: 2.25rem 2rem;
+    border-radius: 18px;
+    transition: all 0.4s var(--ease);
+  }
+
+  .highlight-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .highlight-card .icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .highlight-card:nth-child(1) .icon { color: var(--neon-cyan); }
+  .highlight-card:nth-child(2) .icon { color: var(--neon-purple); }
+  .highlight-card:nth-child(3) .icon { color: var(--neon-magenta); }
+
+  .highlight-card h3 {
+    font-size: 1.35rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .highlight-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Closing CTA */
+  .closing-cta {
+    background: var(--bg-soft);
+    text-align: center;
+    padding: 7rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .closing-cta h2 {
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+  }
+
+  .closing-cta p {
+    color: var(--text-muted);
+    max-width: 540px;
+    margin: 0 auto 2.5rem;
+    font-size: 1.05rem;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/portfolio.html" class="active">Über mich</a></li>
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#packages">Pakete</a></li>
+      <li><a href="/booking.html">Event buchen</a></li>
+      <li><a href="/login.html">Admin</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Portrait Hero -->
+<header class="portrait-hero">
+  <div class="portrait-bg">
+    <img src="https://i.ibb.co/PZQRKCRz/6ff00cbf-c148-4b7a-ad99-9dbeaf816a89.jpg" alt="Niclas Justvan — DJ Diamond" />
+  </div>
+  <div class="portrait-overlay"></div>
+  <div class="portrait-fade"></div>
+
+  <div class="portrait-content">
+    <span class="portrait-tag">DJ &amp; Event-Entertainer</span>
+    <h1 class="portrait-name">Niclas <span class="last">Justvan</span></h1>
+    <p class="portrait-role">
+      Hinter Diamond Events steckt mehr als nur Musik. Es geht um Atmosphäre,
+      Energie und unvergessliche Momente.
+    </p>
+    <div class="portrait-cta">
+      <a href="/booking.html" class="btn btn-primary">Event mit mir buchen</a>
+      <a href="#bio" class="btn btn-outline">Mehr über mich</a>
+    </div>
+  </div>
+</header>
+
+<!-- Bio -->
+<section class="bio" id="bio">
+  <div class="container">
+    <div class="bio-grid">
+      <div>
+        <div class="bio-label reveal">Wer ich bin</div>
+        <h2 class="bio-heading reveal">
+          Musik. Emotion. <span class="gradient-text">Du im Mittelpunkt.</span>
+        </h2>
+      </div>
+
+      <div class="bio-text">
+        <p class="reveal">
+          Mein Name ist <strong>Niclas Justvan</strong> — und seit mehreren
+          Jahren stehe ich hinter den Decks. Was als Leidenschaft begann, ist
+          heute mein Beruf: Menschen zusammenbringen, Stimmungen lesen, und mit
+          dem richtigen Track im richtigen Moment Magie erzeugen.
+        </p>
+        <p class="reveal">
+          Ich glaube nicht an Standardprogramm. Jedes Event ist anders, jede
+          Crowd hat ihren eigenen Vibe. Mein Job ist es, den zu spüren — und
+          den Soundtrack dafür zu liefern. Ob Hochzeit, Geburtstag, Firmenevent
+          oder Club-Night.
+        </p>
+        <p class="reveal">
+          Mit Diamond Events verbinde ich beides: <strong>professionelles DJing
+          und hochwertige Event-Fotografie</strong>. So bekommst du nicht nur
+          eine perfekte Stimmung, sondern auch die Bilder dazu — alles aus einer
+          Hand, alles auf demselben Premium-Niveau.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-block reveal">
+        <div class="num"><span data-target="120">0</span>+</div>
+        <div class="lbl">Events</div>
+      </div>
+      <div class="stat-block reveal">
+        <div class="num"><span data-target="6">0</span></div>
+        <div class="lbl">Jahre Erfahrung</div>
+      </div>
+      <div class="stat-block reveal">
+        <div class="num"><span data-target="100">0</span>%</div>
+        <div class="lbl">Happy Clients</div>
+      </div>
+      <div class="stat-block reveal">
+        <div class="num"><span data-target="48">0</span>h</div>
+        <div class="lbl">Antwortzeit Max.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Highlights -->
+<section class="highlights">
+  <div class="container">
+    <span class="section-subtitle reveal">Was mich auszeichnet</span>
+    <h2 class="section-title reveal">Mein <span class="gradient-text">Anspruch</span></h2>
+
+    <div class="highlights-grid">
+      <div class="highlight-card reveal">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <h3>Lese die Crowd</h3>
+        <p>
+          Kein vorgefertigtes Set. Ich passe mich live an die Stimmung an —
+          und liefere genau den Track, der jetzt gerade passt.
+        </p>
+      </div>
+
+      <div class="highlight-card reveal">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L9 9l-7 1 5 5-1 7 6-3 6 3-1-7 5-5-7-1z"/>
+          </svg>
+        </div>
+        <h3>Premium Equipment</h3>
+        <p>
+          Hochwertiges Sound- und Lichtequipment, das nicht nur klingt, sondern
+          auch optisch ein Statement setzt. Profi-Niveau ist kein Aufpreis.
+        </p>
+      </div>
+
+      <div class="highlight-card reveal">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 7h3l2-3h8l2 3h3v13H3z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <h3>Alles aus einer Hand</h3>
+        <p>
+          Musik und Fotografie kombiniert — ohne Koordinationsstress mit
+          mehreren Dienstleistern. Ein Ansprechpartner, eine Vision, ein
+          Ergebnis.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Closing CTA -->
+<section class="closing-cta">
+  <div class="container">
+    <h2 class="reveal">Lass uns dein <span class="gradient-text">Event</span> besonders machen.</h2>
+    <p class="reveal">
+      Ob Hochzeit, Geburtstag oder Firmenevent — erzähl mir von deiner Idee, und
+      ich liefere den passenden Sound dazu.
+    </p>
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;" class="reveal">
+      <a href="/booking.html" class="btn btn-primary">Anfrage senden</a>
+      <a href="/#packages" class="btn btn-outline">Pakete ansehen</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="footer-links">
+      <a href="/">Start</a>
+      <a href="/portfolio.html">Über mich</a>
+      <a href="/#services">Services</a>
+      <a href="/#packages">Pakete</a>
+      <a href="/booking.html">Event buchen</a>
+    </div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
