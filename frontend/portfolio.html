@@ -179,24 +179,26 @@
 
   .team-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-top: 3.5rem;
     text-align: left;
   }
 
-  @media (max-width: 768px) {
-    .team-grid { grid-template-columns: 1fr; }
+  @media (max-width: 968px) {
+    .team-grid { grid-template-columns: 1fr; max-width: 520px; margin-left: auto; margin-right: auto; }
   }
 
   .team-member {
     background: var(--bg-card);
     border: 1px solid var(--line);
-    padding: 2rem;
+    padding: 2.25rem 2rem;
     border-radius: 20px;
     display: flex;
-    gap: 1.5rem;
+    flex-direction: column;
+    gap: 1.25rem;
     align-items: center;
+    text-align: center;
     transition: all 0.4s var(--ease);
   }
 
@@ -204,14 +206,6 @@
     transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.18);
     box-shadow: var(--shadow-card);
-  }
-
-  @media (max-width: 480px) {
-    .team-member {
-      flex-direction: column;
-      text-align: center;
-      padding: 2rem 1.5rem;
-    }
   }
 
   .member-photo {
@@ -259,6 +253,7 @@
 
   .team-member:nth-child(1) .member-role { color: var(--neon-cyan); }
   .team-member:nth-child(2) .member-role { color: var(--neon-magenta); }
+  .team-member:nth-child(3) .member-role { color: var(--neon-purple); }
 
   .member-info h3 {
     font-size: 1.5rem;
@@ -508,11 +503,24 @@
         <div class="member-photo placeholder">J</div>
         <div class="member-info">
           <span class="member-role">Crew &amp; Customer Support</span>
-          <h3>Jason</h3>
+          <h3>Jason <span class="gradient-text">Tesch</span></h3>
           <p>
             Das Rückgrat im Hintergrund. Sorgt für reibungslosen Auf- und
             Abbau, hat ein Auge auf die Technik und ist erster Ansprechpartner
             für alle Gäste vor Ort.
+          </p>
+        </div>
+      </div>
+
+      <div class="team-member reveal">
+        <div class="member-photo placeholder">L</div>
+        <div class="member-info">
+          <span class="member-role">Buchhaltung &amp; Finanzen</span>
+          <h3>Lukas <span class="gradient-text">Thämlitz</span></h3>
+          <p>
+            Hat die Zahlen im Blick. Kümmert sich um Buchhaltung, Verträge und
+            alles Administrative — damit wir uns voll auf die Events
+            konzentrieren können.
           </p>
         </div>
       </div>
