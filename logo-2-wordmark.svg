@@ -1,0 +1,11 @@
+<svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rgbB" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ff00e6"/>
+    </linearGradient>
+  </defs>
+  <text x="340" y="115" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="62" font-weight="700" fill="#f5f5f7" letter-spacing="-2">Diamond<tspan fill="url(#rgbB)" font-weight="800">.</tspan>Events</text>
+  <text x="340" y="158" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="13" font-weight="500" fill="#8e8e93" letter-spacing="11">PREMIUM ENTERTAINMENT &#x2022; PHOTOGRAPHY</text>
+</svg>
