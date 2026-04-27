@@ -182,6 +182,7 @@
         <td data-label="Aktionen" style="text-align:right;">
           <div class="row-actions" style="justify-content:flex-end;">
             <button data-action="detail" data-id="${b.id}">Details</button>
+            <button data-action="email" data-id="${b.id}">E-Mail</button>
             ${
               b.status !== "angenommen"
                 ? `<button class="success" data-action="accept" data-id="${b.id}">Annehmen</button>`
@@ -215,6 +216,7 @@
     if (action === "edit") return openEditModal(b);
     if (action === "delete") return deleteBooking(id, b);
     if (action === "detail") return openDetailModal(b);
+    if (action === "email") return openEmailModal(b);
   }
 
   async function setStatus(id, status) {
@@ -516,6 +518,399 @@
     if (currentView === "calendar") renderCalendar();
   }
 
+  // ---------- Email Modal & Presets ----------
+  let presets = [];
+
+  async function loadPresets() {
+    try {
+      const res = await fetch("/api/presets");
+      if (!res.ok) return;
+      presets = await res.json();
+      refreshPresetSelect();
+      renderPresetsList();
+    } catch (err) {
+      console.error("Presets load failed:", err);
+    }
+  }
+
+  function refreshPresetSelect() {
+    const sel = document.getElementById("presetSelect");
+    sel.innerHTML =
+      '<option value="">— Leere Nachricht —</option>' +
+      presets
+        .map(
+          (p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`
+        )
+        .join("");
+  }
+
+  // ---- Email modal ----
+  const emailModal = document.getElementById("emailModal");
+  const emailForm = document.getElementById("emailForm");
+  const emailStatus = document.getElementById("emailStatus");
+
+  function openEmailModal(b) {
+    document.getElementById("emailBookingId").value = b.id;
+    document.getElementById("emailTo").innerHTML = `
+      <strong>${escapeHtml(b.name)}</strong>
+      <span style="color: var(--text-muted);"> · ${escapeHtml(b.email)}</span>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+        ${escapeHtml(b.package)} · ${fmtDate(b.eventDate)} · ${escapeHtml(b.eventLocation || "—")}
+      </div>
+    `;
+    document.getElementById("emailSubject").value = "";
+    document.getElementById("emailBody").value = "";
+    document.getElementById("presetSelect").value = "";
+    emailStatus.className = "form-status";
+    emailStatus.textContent = "";
+    emailModal.classList.add("open");
+  }
+
+  document.getElementById("closeEmail").addEventListener("click", () =>
+    emailModal.classList.remove("open")
+  );
+  emailModal.addEventListener("click", (e) => {
+    if (e.target === emailModal) emailModal.classList.remove("open");
+  });
+
+  // Load preset into editor when selected
+  document.getElementById("presetSelect").addEventListener("change", (e) => {
+    const id = e.target.value;
+    if (!id) return;
+    const p = presets.find((x) => x.id === id);
+    if (!p) return;
+    document.getElementById("emailSubject").value = p.subject || "";
+    document.getElementById("emailBody").value = p.body || "";
+  });
+
+  // Send email
+  emailForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("emailBookingId").value;
+    const subject = document.getElementById("emailSubject").value.trim();
+    const body = document.getElementById("emailBody").value.trim();
+    if (!subject || !body) {
+      emailStatus.textContent = "Betreff und Text sind Pflichtfelder.";
+      emailStatus.className = "form-status error";
+      return;
+    }
+    const btn = document.getElementById("sendEmailBtn");
+    btn.disabled = true;
+    btn.textContent = "Senden...";
+    emailStatus.className = "form-status";
+    emailStatus.textContent = "";
+    try {
+      const res = await fetch(`/api/bookings/${id}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Versand fehlgeschlagen");
+      emailModal.classList.remove("open");
+      window.showToast("E-Mail gesendet", "success");
+    } catch (err) {
+      emailStatus.textContent = err.message;
+      emailStatus.className = "form-status error";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Senden";
+    }
+  });
+
+  // Save current draft as preset
+  document.getElementById("saveAsPreset").addEventListener("click", () => {
+    const subject = document.getElementById("emailSubject").value.trim();
+    const body = document.getElementById("emailBody").value.trim();
+    if (!subject || !body) {
+      emailStatus.textContent = "Betreff und Text ausfüllen, bevor du speicherst.";
+      emailStatus.className = "form-status error";
+      return;
+    }
+    openPresetEdit({ name: "", subject, body });
+  });
+
+  // ---- Presets management ----
+  const presetsModal = document.getElementById("presetsModal");
+  const presetEditModal = document.getElementById("presetEditModal");
+  const presetEditForm = document.getElementById("presetEditForm");
+
+  document.getElementById("openPresetsBtn").addEventListener("click", () => {
+    renderPresetsList();
+    presetsModal.classList.add("open");
+  });
+
+  document.getElementById("closePresets").addEventListener("click", () =>
+    presetsModal.classList.remove("open")
+  );
+  presetsModal.addEventListener("click", (e) => {
+    if (e.target === presetsModal) presetsModal.classList.remove("open");
+  });
+
+  document.getElementById("newPresetBtn").addEventListener("click", () => {
+    openPresetEdit({ name: "", subject: "", body: "" });
+  });
+
+  function renderPresetsList() {
+    const container = document.getElementById("presetsList");
+    if (!presets.length) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:2rem 1rem; color:var(--text-muted);">
+          <p>Noch keine Vorlagen.</p>
+          <p style="font-size:0.85rem; margin-top:0.5rem;">Klicke auf "+ Neue Vorlage" um anzufangen.</p>
+        </div>`;
+      return;
+    }
+    container.innerHTML = presets
+      .map(
+        (p) => `
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:1rem 1.25rem; margin-bottom:0.6rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:600;">${escapeHtml(p.name)}</div>
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.subject)}</div>
+          </div>
+          <div class="row-actions">
+            <button data-preset-action="edit" data-id="${p.id}">Bearbeiten</button>
+            <button class="danger" data-preset-action="delete" data-id="${p.id}">Löschen</button>
+          </div>
+        </div>`
+      )
+      .join("");
+
+    container.querySelectorAll("[data-preset-action]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const action = btn.dataset.presetAction;
+        const id = btn.dataset.id;
+        const p = presets.find((x) => x.id === id);
+        if (action === "edit") openPresetEdit(p);
+        else if (action === "delete") deletePreset(p);
+      });
+    });
+  }
+
+  function openPresetEdit(p) {
+    document.getElementById("presetEditTitle").textContent = p.id
+      ? "Vorlage bearbeiten"
+      : "Neue Vorlage";
+    document.getElementById("presetEditId").value = p.id || "";
+    document.getElementById("presetName").value = p.name || "";
+    document.getElementById("presetSubject").value = p.subject || "";
+    document.getElementById("presetBody").value = p.body || "";
+    presetEditModal.classList.add("open");
+  }
+
+  document.getElementById("closePresetEdit").addEventListener("click", () =>
+    presetEditModal.classList.remove("open")
+  );
+  presetEditModal.addEventListener("click", (e) => {
+    if (e.target === presetEditModal) presetEditModal.classList.remove("open");
+  });
+
+  presetEditForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("presetEditId").value;
+    const data = {
+      name: document.getElementById("presetName").value.trim(),
+      subject: document.getElementById("presetSubject").value.trim(),
+      body: document.getElementById("presetBody").value,
+    };
+    if (!data.name || !data.subject || !data.body) {
+      window.showToast("Bitte alle Felder ausfüllen.", "error");
+      return;
+    }
+    try {
+      const url = id ? `/api/presets/${id}` : "/api/presets";
+      const method = id ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Speichern fehlgeschlagen");
+      await loadPresets();
+      presetEditModal.classList.remove("open");
+      window.showToast("Vorlage gespeichert", "success");
+    } catch (err) {
+      window.showToast("Fehler: " + err.message, "error");
+    }
+  });
+
+  async function deletePreset(p) {
+    if (!confirm(`Vorlage "${p.name}" wirklich löschen?`)) return;
+    try {
+      const res = await fetch(`/api/presets/${p.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Löschen fehlgeschlagen");
+      await loadPresets();
+      window.showToast("Vorlage gelöscht", "success");
+    } catch (err) {
+      window.showToast("Fehler: " + err.message, "error");
+    }
+  }
+
+  // ---------- Auto-Templates Editor ----------
+  let templates = [];
+  const templatesModal = document.getElementById("templatesModal");
+  const templateEditModal = document.getElementById("templateEditModal");
+
+  async function loadTemplates() {
+    try {
+      const res = await fetch("/api/templates");
+      if (!res.ok) return;
+      templates = await res.json();
+      renderTemplatesList();
+    } catch (err) {
+      console.error("Templates load failed:", err);
+    }
+  }
+
+  function renderTemplatesList() {
+    const container = document.getElementById("templatesList");
+    if (!templates.length) {
+      container.innerHTML = `<div class="empty-state"><p>Keine Templates verfügbar.</p></div>`;
+      return;
+    }
+    container.innerHTML = templates
+      .map(
+        (t) => `
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:1rem 1.25rem; margin-bottom:0.6rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:4px;">
+                <strong>${escapeHtml(t.label)}</strong>
+                ${
+                  t.isCustomized
+                    ? '<span style="font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; padding:2px 8px; border-radius:50px; background:rgba(0, 240, 255, 0.1); color:var(--neon-cyan); font-weight:600;">Angepasst</span>'
+                    : '<span style="font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; padding:2px 8px; border-radius:50px; background:rgba(255,255,255,0.05); color:var(--text-muted); font-weight:600;">Standard</span>'
+                }
+              </div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">${escapeHtml(t.description)}</div>
+              <div style="font-size:0.85rem; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><em>"${escapeHtml(t.subject)}"</em></div>
+            </div>
+            <div class="row-actions">
+              <button data-template-action="edit" data-key="${t.key}">Bearbeiten</button>
+            </div>
+          </div>
+        </div>`
+      )
+      .join("");
+
+    container.querySelectorAll("[data-template-action]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.key;
+        const t = templates.find((x) => x.key === key);
+        if (t) openTemplateEdit(t);
+      });
+    });
+  }
+
+  function openTemplateEdit(t) {
+    document.getElementById("templateEditTitle").textContent = t.label;
+    document.getElementById("templateEditDesc").textContent = t.description;
+    document.getElementById("templateEditKey").value = t.key;
+    document.getElementById("templateSubject").value = t.subject;
+    document.getElementById("templateBody").value = t.body;
+    document.getElementById("templatePreview").style.display = "none";
+    templateEditModal.classList.add("open");
+  }
+
+  document.getElementById("openTemplatesBtn").addEventListener("click", () => {
+    loadTemplates().then(() => templatesModal.classList.add("open"));
+  });
+
+  document.getElementById("closeTemplates").addEventListener("click", () =>
+    templatesModal.classList.remove("open")
+  );
+  templatesModal.addEventListener("click", (e) => {
+    if (e.target === templatesModal) templatesModal.classList.remove("open");
+  });
+
+  document.getElementById("closeTemplateEdit").addEventListener("click", () =>
+    templateEditModal.classList.remove("open")
+  );
+  templateEditModal.addEventListener("click", (e) => {
+    if (e.target === templateEditModal) templateEditModal.classList.remove("open");
+  });
+
+  // Save template
+  document.getElementById("templateEditForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const key = document.getElementById("templateEditKey").value;
+    const data = {
+      subject: document.getElementById("templateSubject").value.trim(),
+      body: document.getElementById("templateBody").value,
+    };
+    if (!data.subject || !data.body) {
+      window.showToast("Betreff und Text ausfüllen.", "error");
+      return;
+    }
+    try {
+      const res = await fetch(`/api/templates/${key}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Speichern fehlgeschlagen");
+      await loadTemplates();
+      templateEditModal.classList.remove("open");
+      window.showToast("Auto-Nachricht gespeichert", "success");
+    } catch (err) {
+      window.showToast("Fehler: " + err.message, "error");
+    }
+  });
+
+  // Reset to default
+  document.getElementById("resetTemplateBtn").addEventListener("click", async () => {
+    if (!confirm("Diese Nachricht wirklich auf den Standardtext zurücksetzen?")) return;
+    const key = document.getElementById("templateEditKey").value;
+    try {
+      const res = await fetch(`/api/templates/${key}/reset`, { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Zurücksetzen fehlgeschlagen");
+      // Reload and reopen with defaults
+      await loadTemplates();
+      const t = templates.find((x) => x.key === key);
+      if (t) openTemplateEdit(t);
+      window.showToast("Auf Standard zurückgesetzt", "success");
+    } catch (err) {
+      window.showToast("Fehler: " + err.message, "error");
+    }
+  });
+
+  // Preview
+  document.getElementById("previewTemplateBtn").addEventListener("click", async () => {
+    const key = document.getElementById("templateEditKey").value;
+    const data = {
+      subject: document.getElementById("templateSubject").value,
+      body: document.getElementById("templateBody").value,
+    };
+    try {
+      const res = await fetch(`/api/templates/${key}/preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Vorschau fehlgeschlagen");
+      document.getElementById("templatePreviewSubject").textContent = json.subject;
+      const frame = document.getElementById("templatePreviewFrame");
+      frame.srcdoc = json.html;
+      document.getElementById("templatePreview").style.display = "block";
+      // Scroll preview into view
+      setTimeout(
+        () =>
+          document
+            .getElementById("templatePreview")
+            .scrollIntoView({ behavior: "smooth", block: "nearest" }),
+        50
+      );
+    } catch (err) {
+      window.showToast("Fehler: " + err.message, "error");
+    }
+  });
+
   // ---------- Init ----------
   loadBookings();
+  loadPresets();
 })();
