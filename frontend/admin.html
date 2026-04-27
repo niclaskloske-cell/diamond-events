@@ -65,9 +65,13 @@
         <div class="admin-tab" data-filter="storniert">Storniert</div>
       </div>
 
-      <div class="view-toggle" id="viewToggle">
-        <button class="active" data-view="list">Liste</button>
-        <button data-view="calendar">Kalender</button>
+      <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" id="openTemplatesBtn">Auto-Nachrichten</button>
+        <button class="btn btn-outline btn-sm" id="openPresetsBtn">E-Mail-Vorlagen</button>
+        <div class="view-toggle" id="viewToggle">
+          <button class="active" data-view="list">Liste</button>
+          <button data-view="calendar">Kalender</button>
+        </div>
       </div>
     </div>
 
@@ -187,6 +191,173 @@
     <div class="modal-actions">
       <button type="button" class="btn btn-outline btn-sm" id="closeDay">Schließen</button>
     </div>
+  </div>
+</div>
+
+<!-- Send Email Modal -->
+<div class="modal-backdrop" id="emailModal">
+  <div class="modal" style="max-width:680px;">
+    <h3>E-Mail an Kunde senden</h3>
+    <form id="emailForm">
+      <input type="hidden" id="emailBookingId" />
+
+      <div class="form-group">
+        <label>An</label>
+        <div id="emailTo" style="padding:0.85rem 1rem; background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; font-size:0.95rem;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="presetSelect">Vorlage wählen <span style="text-transform:none; letter-spacing:0; color:var(--text-muted); font-weight:400;">(optional)</span></label>
+        <select id="presetSelect">
+          <option value="">— Leere Nachricht —</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="emailSubject">Betreff</label>
+        <input type="text" id="emailSubject" required />
+      </div>
+
+      <div class="form-group">
+        <label for="emailBody">Nachricht</label>
+        <textarea id="emailBody" rows="9" required placeholder="Hallo {{firstName}},..."></textarea>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.5;">
+          Platzhalter:
+          <code style="color:var(--neon-cyan);">{{name}}</code>
+          <code style="color:var(--neon-cyan);">{{firstName}}</code>
+          <code style="color:var(--neon-cyan);">{{date}}</code>
+          <code style="color:var(--neon-cyan);">{{location}}</code>
+          <code style="color:var(--neon-cyan);">{{package}}</code>
+          <code style="color:var(--neon-cyan);">{{id}}</code>
+          <code style="color:var(--neon-cyan);">{{email}}</code>
+        </div>
+      </div>
+
+      <div class="form-status" id="emailStatus"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="closeEmail">Abbrechen</button>
+        <button type="button" class="btn btn-outline btn-sm" id="saveAsPreset">Als Vorlage speichern</button>
+        <button type="submit" class="btn btn-primary btn-sm" id="sendEmailBtn">Senden</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Presets Management Modal -->
+<div class="modal-backdrop" id="presetsModal">
+  <div class="modal" style="max-width:680px;">
+    <h3>E-Mail-Vorlagen</h3>
+    <div id="presetsList" style="margin-bottom:1.25rem;"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline btn-sm" id="closePresets">Schließen</button>
+      <button type="button" class="btn btn-primary btn-sm" id="newPresetBtn">+ Neue Vorlage</button>
+    </div>
+  </div>
+</div>
+
+<!-- Preset Edit Modal -->
+<div class="modal-backdrop" id="presetEditModal">
+  <div class="modal" style="max-width:680px;">
+    <h3 id="presetEditTitle">Vorlage bearbeiten</h3>
+    <form id="presetEditForm">
+      <input type="hidden" id="presetEditId" />
+      <div class="form-group">
+        <label for="presetName">Name</label>
+        <input type="text" id="presetName" required placeholder="z. B. Bestätigung mit Anzahlungs-Hinweis" />
+      </div>
+      <div class="form-group">
+        <label for="presetSubject">Betreff</label>
+        <input type="text" id="presetSubject" required />
+      </div>
+      <div class="form-group">
+        <label for="presetBody">Text</label>
+        <textarea id="presetBody" rows="9" required></textarea>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.5;">
+          Platzhalter:
+          <code style="color:var(--neon-cyan);">{{name}}</code>
+          <code style="color:var(--neon-cyan);">{{firstName}}</code>
+          <code style="color:var(--neon-cyan);">{{date}}</code>
+          <code style="color:var(--neon-cyan);">{{location}}</code>
+          <code style="color:var(--neon-cyan);">{{package}}</code>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="closePresetEdit">Abbrechen</button>
+        <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Auto-Templates Modal (list of system messages) -->
+<div class="modal-backdrop" id="templatesModal">
+  <div class="modal" style="max-width:680px;">
+    <h3>Automatische Nachrichten</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">
+      Diese Nachrichten werden automatisch versendet — entweder bei einer neuen Buchung oder wenn du den Status einer Buchung änderst.
+    </p>
+    <div id="templatesList" style="margin-bottom:1.25rem;"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline btn-sm" id="closeTemplates">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Template Edit Modal -->
+<div class="modal-backdrop" id="templateEditModal">
+  <div class="modal" style="max-width:780px;">
+    <h3 id="templateEditTitle">Auto-Nachricht bearbeiten</h3>
+    <p id="templateEditDesc" style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;"></p>
+    <form id="templateEditForm">
+      <input type="hidden" id="templateEditKey" />
+
+      <div class="form-group">
+        <label for="templateSubject">Betreff</label>
+        <input type="text" id="templateSubject" required />
+      </div>
+
+      <div class="form-group">
+        <label for="templateBody">Text</label>
+        <textarea id="templateBody" rows="12" required style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:0.88rem;"></textarea>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.6;">
+          <strong style="color:var(--text);">Platzhalter:</strong>
+          <code style="color:var(--neon-cyan);">{{firstName}}</code>
+          <code style="color:var(--neon-cyan);">{{lastName}}</code>
+          <code style="color:var(--neon-cyan);">{{name}}</code>
+          <code style="color:var(--neon-cyan);">{{date}}</code>
+          <code style="color:var(--neon-cyan);">{{location}}</code>
+          <code style="color:var(--neon-cyan);">{{package}}</code>
+          <code style="color:var(--neon-cyan);">{{id}}</code>
+          <code style="color:var(--neon-cyan);">{{email}}</code>
+          <br/>
+          <strong style="color:var(--text);">Mit Gradient (RGB-Verlauf wie auf der Website):</strong>
+          <code style="background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{nameStyled}}</code>
+          <code style="background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{lastNameStyled}}</code>
+          <code style="background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{firstNameStyled}}</code>
+          <br/>
+          <strong style="color:var(--text);">Spezial:</strong>
+          <code style="color:var(--neon-cyan);">{{summary}}</code>
+          <span style="color:var(--text-muted);">— fügt eine Karte mit allen Buchungsdaten ein</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button type="button" class="btn btn-outline btn-sm" id="previewTemplateBtn">Vorschau anzeigen</button>
+      </div>
+
+      <div id="templatePreview" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:1rem; margin-bottom:1rem;">
+        <div style="font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:0.5rem;">Vorschau (mit Beispieldaten)</div>
+        <div id="templatePreviewSubject" style="font-weight:600; margin-bottom:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--line);"></div>
+        <iframe id="templatePreviewFrame" style="width:100%; min-height:400px; border:none; background:#050507; border-radius:8px;"></iframe>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="resetTemplateBtn">Auf Standard zurücksetzen</button>
+        <button type="button" class="btn btn-outline btn-sm" id="closeTemplateEdit">Abbrechen</button>
+        <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+      </div>
+    </form>
   </div>
 </div>
 
