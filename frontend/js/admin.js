@@ -27,6 +27,34 @@
     });
   }
 
+  function fmtDateTime(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function fmtRelative(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    const diffMs = Date.now() - d.getTime();
+    const min = Math.round(diffMs / 60000);
+    if (min < 1) return "gerade eben";
+    if (min < 60) return `vor ${min} Min`;
+    const hrs = Math.round(min / 60);
+    if (hrs < 24) return `vor ${hrs} Std`;
+    const days = Math.round(hrs / 24);
+    if (days < 7) return `vor ${days} Tagen`;
+    return fmtDate(iso);
+  }
+
   function escapeHtml(str) {
     if (str == null) return "";
     return String(str).replace(/[&<>"']/g, (c) =>
@@ -104,6 +132,7 @@
             <th>Kunde</th>
             <th>Event</th>
             <th>Paket</th>
+            <th>Eingegangen</th>
             <th>Status</th>
             <th style="text-align:right;">Aktionen</th>
           </tr>
@@ -125,8 +154,13 @@
   }
 
   function rowHtml(b) {
+    const messagePreview = b.message
+      ? `<div class="email" style="margin-top:4px; font-style:italic;">"${escapeHtml(
+          b.message.length > 50 ? b.message.slice(0, 50) + "…" : b.message
+        )}"</div>`
+      : "";
     return `
-      <tr>
+      <tr data-id="${b.id}" style="cursor:pointer;">
         <td data-label="Kunde">
           <div class="name">${escapeHtml(b.name)}</div>
           <div class="email">${escapeHtml(b.email)}</div>
@@ -134,14 +168,20 @@
         <td data-label="Event">
           <div>${fmtDate(b.eventDate)}</div>
           <div class="email">${escapeHtml(b.eventLocation || "—")}</div>
+          ${messagePreview}
         </td>
         <td data-label="Paket">
           <div>${escapeHtml(b.package)}</div>
           ${b.photography ? '<div class="email">+ Fotografie</div>' : ""}
         </td>
+        <td data-label="Eingegangen">
+          <div style="font-size:0.85rem;">${fmtRelative(b.createdAt)}</div>
+          <div class="email" style="font-size:0.75rem;">${fmtDateTime(b.createdAt)}</div>
+        </td>
         <td data-label="Status">${statusPill(b.status)}</td>
         <td data-label="Aktionen" style="text-align:right;">
           <div class="row-actions" style="justify-content:flex-end;">
+            <button data-action="detail" data-id="${b.id}">Details</button>
             ${
               b.status !== "angenommen"
                 ? `<button class="success" data-action="accept" data-id="${b.id}">Annehmen</button>`
@@ -174,6 +214,7 @@
     if (action === "cancel") return setStatus(id, "storniert");
     if (action === "edit") return openEditModal(b);
     if (action === "delete") return deleteBooking(id, b);
+    if (action === "detail") return openDetailModal(b);
   }
 
   async function setStatus(id, status) {
@@ -206,6 +247,62 @@
       window.showToast("Fehler: " + err.message, "error");
     }
   }
+
+  // ---------- Detail Modal ----------
+  const detailModal = document.getElementById("detailModal");
+
+  function openDetailModal(b) {
+    document.getElementById("detailTitle").textContent = b.name;
+    document.getElementById("detailStatusPill").innerHTML = statusPill(b.status);
+    const content = document.getElementById("detailContent");
+    content.innerHTML = `
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:1.25rem; margin-bottom:1.25rem;">
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; width:40%;">E-Mail</td>
+              <td style="padding:6px 0;"><a href="mailto:${escapeHtml(b.email)}" style="color:var(--neon-cyan); text-decoration:none;">${escapeHtml(b.email)}</a></td></tr>
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Datum</td>
+              <td style="padding:6px 0;">${fmtDate(b.eventDate)}</td></tr>
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Ort</td>
+              <td style="padding:6px 0;">${escapeHtml(b.eventLocation || "—")}</td></tr>
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Paket</td>
+              <td style="padding:6px 0;">${escapeHtml(b.package)}</td></tr>
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Fotografie</td>
+              <td style="padding:6px 0;">${b.photography ? "Ja" : "Nein"}</td></tr>
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Eingegangen</td>
+              <td style="padding:6px 0;">${fmtDateTime(b.createdAt)}</td></tr>
+          ${b.updatedAt ? `<tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Geändert</td>
+              <td style="padding:6px 0;">${fmtDateTime(b.updatedAt)}</td></tr>` : ""}
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Referenz</td>
+              <td style="padding:6px 0; font-family:monospace; font-size:0.8rem; color:var(--text-muted);">${b.id}</td></tr>
+        </table>
+      </div>
+      ${
+        b.message
+          ? `<div style="background:rgba(168, 85, 247, 0.05); border-left:2px solid var(--neon-purple); padding:1rem 1.25rem; border-radius:8px; margin-bottom:1.25rem;">
+              <div style="font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:0.5rem;">Nachricht des Kunden</div>
+              <div style="white-space:pre-wrap; line-height:1.5;">${escapeHtml(b.message)}</div>
+            </div>`
+          : ""
+      }
+    `;
+    document.getElementById("editFromDetail").dataset.id = b.id;
+    detailModal.classList.add("open");
+  }
+
+  document.getElementById("closeDetail").addEventListener("click", () =>
+    detailModal.classList.remove("open")
+  );
+  detailModal.addEventListener("click", (e) => {
+    if (e.target === detailModal) detailModal.classList.remove("open");
+  });
+  document.getElementById("editFromDetail").addEventListener("click", () => {
+    const id = document.getElementById("editFromDetail").dataset.id;
+    const b = bookings.find((x) => x.id === id);
+    if (b) {
+      detailModal.classList.remove("open");
+      openEditModal(b);
+    }
+  });
 
   // ---------- Edit Modal ----------
   const editModal = document.getElementById("editModal");
