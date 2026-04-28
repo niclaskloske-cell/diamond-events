@@ -872,6 +872,297 @@ footer .logo img {
   width: 100%;
 }
 
+/* ---------- Configurator ---------- */
+.configurator {
+  background: var(--bg-soft);
+  text-align: center;
+}
+
+.config-layout {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 1.75rem;
+  margin-top: 4rem;
+  text-align: left;
+  align-items: start;
+}
+
+@media (max-width: 968px) {
+  .config-layout { grid-template-columns: 1fr; }
+}
+
+.config-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.config-block {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 1.75rem;
+  border-radius: 16px;
+}
+
+.config-block .config-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.config-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.config-buttons button {
+  padding: 0.7rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.config-buttons button:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.config-buttons button.selected {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(168, 85, 247, 0.12), rgba(255, 0, 230, 0.12));
+  border-color: rgba(0, 240, 255, 0.6);
+  color: #fff;
+}
+
+.config-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+@media (max-width: 600px) {
+  .config-cards { grid-template-columns: 1fr; }
+}
+
+.config-cards button {
+  padding: 1.1rem 1rem;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 110px;
+}
+
+.config-cards button strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.config-cards button span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.config-cards button em {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: auto;
+  background: var(--gradient-rgb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.config-cards button:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.config-cards button.selected {
+  border-color: rgba(0, 240, 255, 0.6);
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.06), rgba(168, 85, 247, 0.04));
+}
+
+.config-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.config-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.config-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.config-toggle input {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--neon-cyan);
+  cursor: pointer;
+}
+
+.config-toggle .toggle-label {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.config-toggle .toggle-price {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.config-toggle.checked {
+  border-color: rgba(0, 240, 255, 0.5);
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.06), rgba(168, 85, 247, 0.04));
+}
+
+.config-toggle.checked .toggle-price {
+  background: var(--gradient-rgb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Result Card */
+.config-result {
+  position: sticky;
+  top: 90px;
+}
+
+@media (max-width: 968px) {
+  .config-result { position: static; }
+}
+
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 2rem;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gradient-rgb);
+}
+
+.result-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.result-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+#configPrice {
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: var(--gradient-rgb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+.result-currency {
+  font-size: 1.75rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.result-breakdown {
+  margin-bottom: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  min-height: 60px;
+}
+
+.breakdown-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.45rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  gap: 1rem;
+  animation: breakdownFadeIn 0.3s ease;
+}
+
+@keyframes breakdownFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.breakdown-line .b-label {
+  color: var(--text);
+}
+
+.breakdown-line .b-price {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.result-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.result-card .btn {
+  width: 100%;
+}
+
 /* ---------- Forms ---------- */
 .form-card {
   background: var(--bg-card);
