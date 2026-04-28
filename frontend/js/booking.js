@@ -3,7 +3,7 @@
  */
 
 (function () {
-  // Pre-select package from ?package= query param
+  // Pre-fill from query params (package, occasion, configMessage)
   const params = new URLSearchParams(window.location.search);
   const pkgParam = params.get("package");
   if (pkgParam) {
@@ -11,6 +11,30 @@
     if (sel) {
       const opt = Array.from(sel.options).find((o) => o.value === pkgParam);
       if (opt) sel.value = pkgParam;
+    }
+  }
+
+  const occasionParam = params.get("occasion");
+  if (occasionParam) {
+    const eventSel = document.getElementById("event");
+    if (eventSel) {
+      const opt = Array.from(eventSel.options).find(
+        (o) => o.value.toLowerCase() === occasionParam.toLowerCase()
+      );
+      if (opt) eventSel.value = opt.value;
+    }
+  }
+
+  const configMessage = params.get("configMessage");
+  if (configMessage) {
+    const messageField = document.getElementById("message");
+    if (messageField) {
+      messageField.value = configMessage + "\n\n";
+    }
+    // Also enable photography checkbox if config includes Fotografie
+    if (/Fotografie/i.test(configMessage)) {
+      const photoCb = document.getElementById("photography");
+      if (photoCb) photoCb.checked = true;
     }
   }
 
