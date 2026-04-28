@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Stell dir dein Event-Paket selbst zusammen — der Preis wird live berechnet. Diamond Events Konfigurator." />
+<link rel="canonical" href="https://eventsdiamond.de/configurator.html" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://eventsdiamond.de/configurator.html" />
+<meta property="og:title" content="Konfigurator — Diamond Events" />
+<meta property="og:description" content="Bau dir dein Event-Paket selbst zusammen mit live-berechnetem Preis." />
+<meta property="og:image" content="https://i.ibb.co/PZQRKCRz/6ff00cbf-c148-4b7a-ad99-9dbeaf816a89.jpg" />
+<meta property="og:locale" content="de_DE" />
+<meta property="og:site_name" content="Diamond Events" />
+
+<meta name="theme-color" content="#050507" />
+<title>Konfigurator — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/portfolio.html">Über mich</a></li>
+      <li><a href="/#services">Services</a></li>
+      <li><a href="/#packages">Pakete</a></li>
+      <li><a href="/configurator.html" class="active">Konfigurator</a></li>
+      <li><a href="/booking.html">Event buchen</a></li>
+      <li><a href="/login.html">Admin</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="section-subtitle reveal">Konfigurator</span>
+    <h1 class="reveal">Bau dir dein <span class="gradient-text">Event</span></h1>
+    <p class="reveal">
+      Wähle Setup, Dauer und Extras — der Preis wird live berechnet.
+      Ohne Anmeldung, ohne Verbindlichkeit.
+    </p>
+  </div>
+</section>
+
+<section class="configurator" style="padding-top: 0; background: var(--bg);" id="configurator">
+  <div class="container">
+    <div class="config-layout">
+
+      <!-- LEFT: Options -->
+      <div class="config-options">
+
+        <!-- Anlass -->
+        <div class="config-block reveal">
+          <span class="config-label">Anlass <span style="text-transform:none; letter-spacing:0; color:var(--text-muted); font-weight:400;">(optional)</span></span>
+          <div class="config-buttons" data-key="occasion">
+            <button type="button" data-value="geburtstag">Geburtstag</button>
+            <button type="button" data-value="hochzeit">Hochzeit</button>
+            <button type="button" data-value="firmenevent">Firmenevent</button>
+            <button type="button" data-value="club">Club / Festival</button>
+            <button type="button" data-value="sonstiges">Sonstiges</button>
+          </div>
+        </div>
+
+        <!-- Setup -->
+        <div class="config-block reveal">
+          <span class="config-label">Setup</span>
+          <div class="config-cards" data-key="setup">
+            <button type="button" data-value="basic">
+              <strong>Basis</strong>
+              <span>DJ + Sound</span>
+              <em>349 €</em>
+            </button>
+            <button type="button" data-value="extended">
+              <strong>Sound + Licht</strong>
+              <span>DJ + Lichtshow</span>
+              <em>549 €</em>
+            </button>
+            <button type="button" data-value="complete">
+              <strong>Komplett</strong>
+              <span>Volles Setup</span>
+              <em>749 €</em>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dauer -->
+        <div class="config-block reveal">
+          <span class="config-label">Dauer</span>
+          <div class="config-buttons" data-key="duration">
+            <button type="button" data-value="4">4 Stunden</button>
+            <button type="button" data-value="6">6 Stunden &nbsp;<span style="opacity:0.6;">+150 €</span></button>
+            <button type="button" data-value="8">8 Stunden &nbsp;<span style="opacity:0.6;">+300 €</span></button>
+            <button type="button" data-value="open">Open End &nbsp;<span style="opacity:0.6;">+500 €</span></button>
+          </div>
+        </div>
+
+        <!-- Extras -->
+        <div class="config-block reveal">
+          <span class="config-label">Extras</span>
+          <div class="config-toggles">
+            <label class="config-toggle">
+              <input type="checkbox" data-addon="foto" />
+              <span class="toggle-label">Event-Fotografie</span>
+              <span class="toggle-price">+250 €</span>
+            </label>
+            <label class="config-toggle">
+              <input type="checkbox" data-addon="moderation" />
+              <span class="toggle-label">Moderation</span>
+              <span class="toggle-price">+100 €</span>
+            </label>
+            <label class="config-toggle">
+              <input type="checkbox" data-addon="premiumLight" />
+              <span class="toggle-label">Premium Licht-Upgrade</span>
+              <span class="toggle-price">+180 €</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Live price card -->
+      <aside class="config-result reveal">
+        <div class="result-card">
+          <span class="result-label">Dein Paket</span>
+          <div class="result-price">
+            <span id="configPrice">0</span>
+            <span class="result-currency">€</span>
+          </div>
+          <div class="result-breakdown" id="configBreakdown"></div>
+          <p class="result-disclaimer">
+            Unverbindlicher Richtpreis. Genaues Angebot nach Absprache —
+            inkl. Anfahrt und individueller Anpassungen.
+          </p>
+          <a href="/booking.html" class="btn btn-primary" id="configBook">Diese Konfiguration anfragen</a>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="footer-links">
+      <a href="/">Start</a>
+      <a href="/portfolio.html">Über mich</a>
+      <a href="/#services">Services</a>
+      <a href="/#packages">Pakete</a>
+      <a href="/configurator.html">Konfigurator</a>
+      <a href="/booking.html">Event buchen</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/datenschutz.html">Datenschutz</a>
+    </div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/config.js"></script>
+</body>
+</html>
