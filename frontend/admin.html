@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
 <title>Admin Dashboard — Diamond Events</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="/css/style.css" />
@@ -67,6 +68,7 @@
       </div>
 
       <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" id="openGalleriesBtn">Galerien</button>
         <button class="btn btn-outline btn-sm" id="openTemplatesBtn">Auto-Nachrichten</button>
         <button class="btn btn-outline btn-sm" id="openPresetsBtn">E-Mail-Vorlagen</button>
         <div class="view-toggle" id="viewToggle">
@@ -362,7 +364,79 @@
   </div>
 </div>
 
+<!-- Galleries List Modal -->
+<div class="modal-backdrop" id="galleriesModal">
+  <div class="modal" style="max-width: 760px;">
+    <h3>Geschützte Galerien</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 1.5rem;">
+      Erstelle Galerien für deine Kunden. Jede Galerie hat einen Link + Passwort, das du dem Kunden weiterleitest.
+    </p>
+    <div id="galleriesList" style="margin-bottom: 1.25rem;"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline btn-sm" id="closeGalleries">Schließen</button>
+      <button type="button" class="btn btn-primary btn-sm" id="newGalleryBtn">+ Neue Galerie</button>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery Edit Modal -->
+<div class="modal-backdrop" id="galleryEditModal">
+  <div class="modal" style="max-width: 760px;">
+    <h3 id="galleryEditTitle">Galerie bearbeiten</h3>
+
+    <form id="galleryEditForm">
+      <input type="hidden" id="galleryEditId" />
+      <div class="form-row">
+        <div class="form-group">
+          <label for="galleryName">Name *</label>
+          <input type="text" id="galleryName" required placeholder="z. B. Hochzeit Maria & Tom" />
+        </div>
+        <div class="form-group">
+          <label for="galleryDate">Event-Datum</label>
+          <input type="date" id="galleryDate" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="galleryPassword">Passwort *</label>
+        <input type="text" id="galleryPassword" required placeholder="z. B. tom2024" />
+      </div>
+      <div class="form-group">
+        <label for="galleryDescription">Beschreibung (optional)</label>
+        <textarea id="galleryDescription" rows="2" placeholder="Kurzer Text, den der Kunde sieht"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="closeGalleryEdit">Abbrechen</button>
+        <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+      </div>
+    </form>
+
+    <!-- Image manager (only when editing existing gallery) -->
+    <div id="galleryImageManager" style="display:none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--line);">
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap:wrap; gap: 0.5rem;">
+        <h4 style="font-size: 1.05rem; margin: 0;">Bilder</h4>
+        <div style="display:flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline btn-sm" id="copyShareLinkBtn">🔗 Kunden-Link kopieren</button>
+        </div>
+      </div>
+
+      <div id="galleryShareInfo" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; line-height: 1.6;"></div>
+
+      <div id="galleryUploadZone" style="border: 2px dashed var(--line); border-radius: 14px; padding: 2rem; text-align: center; margin-bottom: 1.25rem; cursor: pointer; transition: border-color 0.2s ease;">
+        <div style="font-size: 0.95rem; color: var(--text); margin-bottom: 0.5rem;">📤 Bilder hierher ziehen oder klicken</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">JPG, PNG, WebP — bis 50 MB pro Bild</div>
+        <input type="file" id="galleryFileInput" multiple accept="image/*" style="display:none;" />
+      </div>
+
+      <div id="galleryUploadProgress" style="display:none; margin-bottom: 1rem; padding: 0.85rem 1rem; background: rgba(255,255,255,0.04); border-radius: 10px; font-size: 0.9rem;"></div>
+
+      <div id="galleryImagesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.6rem;"></div>
+    </div>
+  </div>
+</div>
+
 <script src="/js/main.js"></script>
 <script src="/js/admin.js"></script>
+<script src="/js/admin-galleries.js"></script>
 </body>
 </html>
