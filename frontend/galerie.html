@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Geschützte Event-Galerie — Diamond Events" />
+<meta name="robots" content="noindex" />
+<title>Galerie — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  .gallery-shell {
+    min-height: 100vh;
+    padding: 6rem 0 4rem;
+  }
+  .gallery-info {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .gallery-info h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.5rem;
+  }
+  .gallery-info p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+  }
+  .gallery-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+  .gallery-actions {
+    text-align: center;
+    margin: 1.5rem 0 3rem;
+  }
+  .gallery-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.85rem;
+  }
+  .gallery-tile {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--bg-card);
+    cursor: pointer;
+    border: 1px solid var(--line);
+  }
+  .gallery-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s var(--ease);
+  }
+  .gallery-tile:hover img {
+    transform: scale(1.05);
+  }
+  .tile-actions {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .gallery-tile:hover .tile-actions {
+    opacity: 1;
+  }
+  .tile-action {
+    background: rgba(5, 5, 7, 0.8);
+    backdrop-filter: blur(10px);
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .tile-action:hover {
+    background: var(--neon-cyan);
+    color: #000;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 7, 0.95);
+    backdrop-filter: blur(14px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 2rem;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 95vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+  }
+  .lb-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  .lb-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 50%;
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lb-prev { left: 1.25rem; }
+  .lb-next { right: 1.25rem; }
+
+  /* Password gate */
+  .pw-gate {
+    max-width: 420px;
+    margin: 4rem auto 0;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 2.5rem;
+    text-align: center;
+  }
+  .pw-gate h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .pw-gate p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .empty-gallery {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/portfolio.html">Über mich</a></li>
+      <li><a href="/#packages">Pakete</a></li>
+      <li><a href="/configurator.html">Konfigurator</a></li>
+      <li><a href="/booking.html">Event buchen</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="container gallery-shell">
+  <div id="galleryRoot">
+    <div class="empty-gallery">Lade...</div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose" aria-label="Schließen">×</button>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Vorheriges">‹</button>
+  <img id="lbImage" src="" alt="" />
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Nächstes">›</button>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="footer-contact">
+      <a href="mailto:hallo@eventsdiamond.de">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        hallo@eventsdiamond.de
+      </a>
+      <a href="tel:+4901638557552">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        0163 8557552
+      </a>
+    </div>
+    <div class="footer-links">
+      <a href="/">Start</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/datenschutz.html">Datenschutz</a>
+    </div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/galerie.js"></script>
+</body>
+</html>
