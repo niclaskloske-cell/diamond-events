@@ -1,5 +1,5 @@
 /* =========================================================
-   DIAMOND EVENTS — Global Stylesheet
+   DIAMOND EVENTS â€” Global Stylesheet
    Dark, modern, Apple-style typography, subtle neon RGB accents
    ========================================================= */
 
@@ -543,7 +543,7 @@ footer .logo img {
 }
 
 .service-features li::before {
-  content: "→";
+  content: "â†’";
   position: absolute;
   left: 0;
   background: var(--gradient-rgb);
@@ -1286,6 +1286,36 @@ footer {
   font-size: 0.85rem;
 }
 
+.footer-contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 1rem 0 1.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.footer-contact a:hover {
+  color: var(--text);
+}
+
+.footer-contact svg {
+  width: 16px;
+  height: 16px;
+  color: var(--neon-cyan);
+}
+
 footer .logo { margin-bottom: 1rem; color: var(--text); }
 
 footer .footer-links {
@@ -1568,7 +1598,7 @@ footer .footer-links a:hover {
   color: var(--text);
 }
 
-/* Mobile table → cards */
+/* Mobile table â†’ cards */
 @media (max-width: 768px) {
   .bookings-table thead { display: none; }
   .bookings-table, .bookings-table tbody, .bookings-table tr, .bookings-table td {
