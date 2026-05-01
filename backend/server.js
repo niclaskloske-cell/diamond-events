@@ -1,5 +1,5 @@
 /**
- * Diamond Events — Backend Server
+ * Diamond Events â€” Backend Server
  * Express + JSON file storage + session-based admin auth + Brevo email
  */
 
@@ -7,6 +7,8 @@ const express = require("express");
 const session = require("express-session");
 const fs = require("fs");
 const path = require("path");
+const multer = require("multer");
+const archiver = require("archiver");
 
 // ---------- Config ----------
 const PORT = process.env.PORT || 3000;
@@ -17,6 +19,8 @@ const DATA_DIR =
 const DATA_FILE = path.join(DATA_DIR, "bookings.json");
 const PRESETS_FILE = path.join(DATA_DIR, "presets.json");
 const TEMPLATES_FILE = path.join(DATA_DIR, "templates.json");
+const GALLERIES_FILE = path.join(DATA_DIR, "galleries.json");
+const GALLERIES_DIR = path.join(DATA_DIR, "galleries");
 const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
 
 const ADMIN_USER = process.env.ADMIN_USER || "DJ DIAMOND";
@@ -25,7 +29,7 @@ const ADMIN_PASS = process.env.ADMIN_PASS || "passwort";
 const VALID_STATUSES = ["offen", "angenommen", "abgelehnt", "storniert"];
 const VALID_PACKAGES = ["Diamond Lite", "Diamond Premium", "Diamond Exclusive"];
 
-// Email config (via env vars on Render) — RESEND
+// Email config (via env vars on Render) â€” RESEND
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || ""; // Where you receive notifications
 const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev"; // Resend test sender; replace once domain is verified
@@ -113,14 +117,14 @@ function summaryCardHtml(b) {
     <div style="font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase; color:#8e8e93; font-weight:600; margin-bottom:16px;">Deine Buchung</div>
     <table style="width:100%; border-collapse:collapse;">
       <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem; width:120px;">Datum</td><td style="padding:8px 0; color:#f5f5f7;">${fmtDate(b.eventDate)}</td></tr>
-      <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Ort</td><td style="padding:8px 0; color:#f5f5f7;">${escapeHtmlServer(b.eventLocation || "—")}</td></tr>
-      <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Paket</td><td style="padding:8px 0; color:#f5f5f7;">${escapeHtmlServer(b.package || "—")}</td></tr>
+      <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Ort</td><td style="padding:8px 0; color:#f5f5f7;">${escapeHtmlServer(b.eventLocation || "â€”")}</td></tr>
+      <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Paket</td><td style="padding:8px 0; color:#f5f5f7;">${escapeHtmlServer(b.package || "â€”")}</td></tr>
       <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Referenz</td><td style="padding:8px 0; color:#f5f5f7; font-family:monospace; font-size:0.85rem;">${escapeHtmlServer(b.id || "")}</td></tr>
     </table>
   </div>`;
 }
 
-// Replace {{placeholders}} in templates — returns HTML (escapes user text, injects HTML for special placeholders)
+// Replace {{placeholders}} in templates â€” returns HTML (escapes user text, injects HTML for special placeholders)
 function fillPlaceholdersHtml(text, b) {
   if (!text) return "";
   const firstName = (b.name || "").trim().split(/\s+/)[0] || "";
@@ -186,7 +190,7 @@ function renderEmailFrame(htmlBody) {
       <div style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; color:#8e8e93; margin-bottom:32px;">Premium Event Brand</div>
       <div style="color:#f5f5f7; line-height:1.65;">${htmlBody}</div>
       <div style="margin-top:40px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.07); color:#8e8e93; font-size:0.75rem; text-align:center;">
-        Diamond Events — Premium Entertainment & Photography
+        Diamond Events â€” Premium Entertainment & Photography
       </div>
     </div>
   </div>`;
@@ -197,7 +201,7 @@ const TEMPLATE_KEYS = ["booking_received", "status_angenommen", "status_abgelehn
 
 const TEMPLATE_META = {
   booking_received: {
-    label: "Bestätigung beim Eingang einer Buchung",
+    label: "BestÃ¤tigung beim Eingang einer Buchung",
     description: "Wird automatisch an den Kunden gesendet, sobald er das Buchungsformular abschickt.",
   },
   status_angenommen: {
@@ -219,7 +223,7 @@ const DEFAULT_TEMPLATES = {
     subject: "Deine Anfrage bei Diamond Events",
     body: `Hallo {{firstName}} {{lastNameStyled}},
 
-vielen Dank für deine Anfrage! Wir haben sie erhalten und melden uns innerhalb von 24 Stunden mit einem maßgeschneiderten Vorschlag bei dir.
+vielen Dank fÃ¼r deine Anfrage! Wir haben sie erhalten und melden uns innerhalb von 24 Stunden mit einem maÃŸgeschneiderten Vorschlag bei dir.
 
 {{summary}}
 
@@ -229,38 +233,38 @@ Bis bald!
 Diamond Events`,
   },
   status_angenommen: {
-    subject: "Deine Buchung ist bestätigt — Diamond Events",
+    subject: "Deine Buchung ist bestÃ¤tigt â€” Diamond Events",
     body: `Hallo {{firstName}} {{lastNameStyled}},
 
-deine Buchung für das Event am {{date}} ist bestätigt! Wir freuen uns sehr und melden uns in den nächsten Tagen für die Detailplanung.
+deine Buchung fÃ¼r das Event am {{date}} ist bestÃ¤tigt! Wir freuen uns sehr und melden uns in den nÃ¤chsten Tagen fÃ¼r die Detailplanung.
 
 {{summary}}
 
 Bei Fragen einfach auf diese E-Mail antworten.
 
-Beste Grüße
+Beste GrÃ¼ÃŸe
 Diamond Events`,
   },
   status_abgelehnt: {
     subject: "Zu deiner Anfrage bei Diamond Events",
     body: `Hallo {{firstName}} {{lastNameStyled}},
 
-leider müssen wir dir absagen — an deinem Wunschtermin sind wir bereits ausgebucht. Wir hätten dich gerne unterstützt.
+leider mÃ¼ssen wir dir absagen â€” an deinem Wunschtermin sind wir bereits ausgebucht. Wir hÃ¤tten dich gerne unterstÃ¼tzt.
 
-Falls du Flexibilität beim Datum hast, melde dich gerne — vielleicht finden wir noch eine Lösung. Antworte einfach auf diese E-Mail.
+Falls du FlexibilitÃ¤t beim Datum hast, melde dich gerne â€” vielleicht finden wir noch eine LÃ¶sung. Antworte einfach auf diese E-Mail.
 
-Beste Grüße
+Beste GrÃ¼ÃŸe
 Diamond Events`,
   },
   status_storniert: {
-    subject: "Stornierung deiner Buchung — Diamond Events",
+    subject: "Stornierung deiner Buchung â€” Diamond Events",
     body: `Hallo {{firstName}} {{lastNameStyled}},
 
-wir bestätigen hiermit die Stornierung deiner Buchung. Falls das ein Versehen war oder du noch Fragen hast, antworte gerne direkt auf diese E-Mail.
+wir bestÃ¤tigen hiermit die Stornierung deiner Buchung. Falls das ein Versehen war oder du noch Fragen hast, antworte gerne direkt auf diese E-Mail.
 
 {{summary}}
 
-Beste Grüße
+Beste GrÃ¼ÃŸe
 Diamond Events`,
   },
 };
@@ -308,7 +312,7 @@ function renderEmailFromTemplate(key, b) {
 // ---------- Email (Resend REST API) ----------
 async function sendEmail({ to, subject, html, replyTo }) {
   if (!RESEND_API_KEY) {
-    console.log("[mail] Skipped — RESEND_API_KEY not configured");
+    console.log("[mail] Skipped â€” RESEND_API_KEY not configured");
     return;
   }
   try {
@@ -341,7 +345,7 @@ async function sendEmail({ to, subject, html, replyTo }) {
 }
 
 function fmtDate(iso) {
-  if (!iso) return "—";
+  if (!iso) return "â€”";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("de-DE", {
@@ -391,6 +395,60 @@ function adminEmailHtml(b) {
   </div>`;
 }
 
+// ---------- Gallery Storage ----------
+function ensureGalleriesFile() {
+  const dir = path.dirname(GALLERIES_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(GALLERIES_FILE))
+    fs.writeFileSync(GALLERIES_FILE, "[]", "utf8");
+  if (!fs.existsSync(GALLERIES_DIR)) fs.mkdirSync(GALLERIES_DIR, { recursive: true });
+}
+
+function readGalleries() {
+  ensureGalleriesFile();
+  try {
+    return JSON.parse(fs.readFileSync(GALLERIES_FILE, "utf8") || "[]");
+  } catch (err) {
+    console.error("Error reading galleries:", err);
+    return [];
+  }
+}
+
+function writeGalleries(g) {
+  ensureGalleriesFile();
+  fs.writeFileSync(GALLERIES_FILE, JSON.stringify(g, null, 2), "utf8");
+}
+
+function getGallery(id) {
+  return readGalleries().find((g) => g.id === id);
+}
+
+function listGalleryFiles(galleryId) {
+  const dir = path.join(GALLERIES_DIR, galleryId);
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter((f) => /\.(jpe?g|png|webp|gif|heic|tiff?)$/i.test(f))
+    .sort();
+}
+
+// Multer setup for image uploads
+const galleryUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const dir = path.join(GALLERIES_DIR, req.params.id);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+      const safe = (file.originalname || "image").replace(/[^a-zA-Z0-9._-]/g, "_");
+      const unique = Date.now() + "_" + Math.random().toString(36).slice(2, 8) + "_" + safe;
+      cb(null, unique);
+    },
+  }),
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB per file
+});
+
 // ---------- Auth Middleware ----------
 function requireAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
@@ -415,7 +473,7 @@ app.post("/api/login", (req, res) => {
     req.session.user = username;
     return res.json({ ok: true });
   }
-  return res.status(401).json({ ok: false, error: "Ungültige Zugangsdaten" });
+  return res.status(401).json({ ok: false, error: "UngÃ¼ltige Zugangsdaten" });
 });
 
 app.post("/api/logout", (req, res) => {
@@ -447,11 +505,11 @@ app.post("/api/bookings", async (req, res) => {
       .json({ error: "Name, E-Mail, Datum, Ort und Paket sind Pflichtfelder." });
   }
   if (!VALID_PACKAGES.includes(pkg)) {
-    return res.status(400).json({ error: "Ungültiges Paket." });
+    return res.status(400).json({ error: "UngÃ¼ltiges Paket." });
   }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: "Ungültige E-Mail-Adresse." });
+    return res.status(400).json({ error: "UngÃ¼ltige E-Mail-Adresse." });
   }
 
   const booking = {
@@ -486,7 +544,7 @@ app.post("/api/bookings", async (req, res) => {
   if (ADMIN_EMAIL) {
     sendEmail({
       to: ADMIN_EMAIL,
-      subject: `Neue Buchung: ${booking.name} — ${booking.package}`,
+      subject: `Neue Buchung: ${booking.name} â€” ${booking.package}`,
       html: adminEmailHtml(booking),
       replyTo: booking.email,
     });
@@ -530,10 +588,10 @@ app.patch("/api/bookings/:id", requireAuth, (req, res) => {
   for (const key of allowed) {
     if (key in req.body) {
       if (key === "status" && !VALID_STATUSES.includes(req.body.status)) {
-        return res.status(400).json({ error: "Ungültiger Status" });
+        return res.status(400).json({ error: "UngÃ¼ltiger Status" });
       }
       if (key === "package" && !VALID_PACKAGES.includes(req.body.package)) {
-        return res.status(400).json({ error: "Ungültiges Paket" });
+        return res.status(400).json({ error: "UngÃ¼ltiges Paket" });
       }
       bookings[idx][key] = req.body[key];
     }
@@ -541,7 +599,7 @@ app.patch("/api/bookings/:id", requireAuth, (req, res) => {
   bookings[idx].updatedAt = new Date().toISOString();
   writeBookings(bookings);
 
-  // If status changed AND it's a customer-relevant status → notify customer using template
+  // If status changed AND it's a customer-relevant status â†’ notify customer using template
   const newStatus = bookings[idx].status;
   const notifyStatuses = ["angenommen", "abgelehnt", "storniert"];
   if (newStatus !== oldStatus && notifyStatuses.includes(newStatus)) {
@@ -682,7 +740,7 @@ app.get("/api/templates", requireAuth, (req, res) => {
 app.put("/api/templates/:key", requireAuth, (req, res) => {
   const { key } = req.params;
   if (!TEMPLATE_KEYS.includes(key)) {
-    return res.status(400).json({ error: "Ungültiger Template-Key" });
+    return res.status(400).json({ error: "UngÃ¼ltiger Template-Key" });
   }
   const { subject, body } = req.body || {};
   if (!subject || !body) {
@@ -701,7 +759,7 @@ app.put("/api/templates/:key", requireAuth, (req, res) => {
 app.post("/api/templates/:key/reset", requireAuth, (req, res) => {
   const { key } = req.params;
   if (!TEMPLATE_KEYS.includes(key)) {
-    return res.status(400).json({ error: "Ungültiger Template-Key" });
+    return res.status(400).json({ error: "UngÃ¼ltiger Template-Key" });
   }
   const stored = readTemplatesStorage();
   delete stored[key];
@@ -726,6 +784,177 @@ app.post("/api/templates/:key/preview", requireAuth, (req, res) => {
     html: renderEmailFrame(fillPlaceholdersHtml(String(body || ""), sampleBooking)),
   });
 });
+
+// ============================================================
+// ---------- API: Galleries ----------
+// ============================================================
+
+// Public: gallery info (without password protection â€” minimal info only)
+app.get("/api/galleries/:id/info", (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  res.json({
+    id: g.id,
+    name: g.name,
+    eventDate: g.eventDate,
+    description: g.description,
+    imageCount: listGalleryFiles(g.id).length,
+    requiresPassword: !!g.password,
+  });
+});
+
+// Public: submit password to unlock a gallery (sets session)
+app.post("/api/galleries/:id/access", (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  const { password } = req.body || {};
+  if (g.password && g.password !== password) {
+    return res.status(401).json({ error: "Falsches Passwort" });
+  }
+  if (!req.session.galleries) req.session.galleries = {};
+  req.session.galleries[g.id] = true;
+  res.json({ ok: true });
+});
+
+function checkGalleryAccess(req, res, next) {
+  const id = req.params.id;
+  if (req.session.isAdmin) return next();
+  if (req.session.galleries && req.session.galleries[id]) return next();
+  return res.status(401).json({ error: "Nicht freigeschaltet" });
+}
+
+// List images in a gallery (after access)
+app.get("/api/galleries/:id/images", checkGalleryAccess, (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  const files = listGalleryFiles(g.id);
+  res.json({
+    name: g.name,
+    description: g.description,
+    eventDate: g.eventDate,
+    images: files,
+  });
+});
+
+// Serve a single image (after access)
+app.get("/api/galleries/:id/img/:filename", checkGalleryAccess, (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).end();
+  // Prevent directory traversal
+  const safeName = path.basename(req.params.filename);
+  const filepath = path.join(GALLERIES_DIR, g.id, safeName);
+  if (!fs.existsSync(filepath)) return res.status(404).end();
+  res.sendFile(filepath);
+});
+
+// Download all images as ZIP
+app.get("/api/galleries/:id/download", checkGalleryAccess, (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  const dir = path.join(GALLERIES_DIR, g.id);
+  if (!fs.existsSync(dir))
+    return res.status(404).json({ error: "Keine Bilder vorhanden" });
+
+  const safeName = (g.name || g.id).replace(/[^a-zA-Z0-9._-]/g, "_");
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="diamond-events-${safeName}.zip"`
+  );
+  const archive = archiver("zip", { zlib: { level: 6 } });
+  archive.on("error", (err) => {
+    console.error("ZIP error:", err);
+    res.end();
+  });
+  archive.pipe(res);
+  archive.directory(dir, false);
+  archive.finalize();
+});
+
+// ---------- API: Galleries (Admin) ----------
+app.get("/api/admin/galleries", requireAuth, (req, res) => {
+  const list = readGalleries().map((g) => ({
+    ...g,
+    imageCount: listGalleryFiles(g.id).length,
+  }));
+  list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  res.json(list);
+});
+
+app.post("/api/admin/galleries", requireAuth, (req, res) => {
+  const { name, password, eventDate, description } = req.body || {};
+  if (!name) return res.status(400).json({ error: "Name ist Pflicht." });
+  const galleries = readGalleries();
+  const gallery = {
+    id: genId(),
+    name: String(name).trim(),
+    password: password ? String(password) : "",
+    eventDate: eventDate || "",
+    description: description ? String(description).trim() : "",
+    createdAt: new Date().toISOString(),
+  };
+  galleries.push(gallery);
+  writeGalleries(galleries);
+  res.json({ ok: true, gallery });
+});
+
+app.patch("/api/admin/galleries/:id", requireAuth, (req, res) => {
+  const galleries = readGalleries();
+  const idx = galleries.findIndex((x) => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  ["name", "password", "eventDate", "description"].forEach((k) => {
+    if (k in req.body) galleries[idx][k] = String(req.body[k] || "");
+  });
+  galleries[idx].updatedAt = new Date().toISOString();
+  writeGalleries(galleries);
+  res.json({ ok: true, gallery: galleries[idx] });
+});
+
+app.delete("/api/admin/galleries/:id", requireAuth, (req, res) => {
+  let galleries = readGalleries();
+  const before = galleries.length;
+  galleries = galleries.filter((x) => x.id !== req.params.id);
+  if (galleries.length === before)
+    return res.status(404).json({ error: "Galerie nicht gefunden" });
+  writeGalleries(galleries);
+  // Delete files
+  const dir = path.join(GALLERIES_DIR, req.params.id);
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  res.json({ ok: true });
+});
+
+// Upload images
+app.post(
+  "/api/admin/galleries/:id/upload",
+  requireAuth,
+  galleryUpload.array("images", 50),
+  (req, res) => {
+    const g = getGallery(req.params.id);
+    if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
+    res.json({
+      ok: true,
+      uploaded: (req.files || []).map((f) => f.filename),
+    });
+  }
+);
+
+// Delete a single image
+app.delete(
+  "/api/admin/galleries/:id/images/:filename",
+  requireAuth,
+  (req, res) => {
+    const g = getGallery(req.params.id);
+    if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
+    const safe = path.basename(req.params.filename);
+    const filepath = path.join(GALLERIES_DIR, g.id, safe);
+    if (!fs.existsSync(filepath))
+      return res.status(404).json({ error: "Bild nicht gefunden" });
+    fs.unlinkSync(filepath);
+    res.json({ ok: true });
+  }
+);
 
 // ---------- Fallback 404 for API ----------
 app.use("/api", (req, res) => res.status(404).json({ error: "Not Found" }));
