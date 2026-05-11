@@ -5,12 +5,12 @@
  * - Reveal animations on scroll
  * - Year in footer
  */
-
+ 
 (function () {
   // Year in footer(s)
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
-
+ 
   // Navbar scroll
   const nav = document.getElementById("nav");
   if (nav) {
@@ -21,7 +21,7 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
   }
-
+ 
   // Mobile menu
   const toggle = document.getElementById("menuToggle");
   const links = document.getElementById("navLinks");
@@ -37,7 +37,7 @@
       })
     );
   }
-
+ 
   // Reveal on scroll (generic)
   const reveals = document.querySelectorAll(".reveal");
   if (reveals.length) {
@@ -54,7 +54,7 @@
     );
     reveals.forEach((el) => obs.observe(el));
   }
-
+ 
   // Package cards staggered reveal
   const packageCards = document.querySelectorAll(".package-card");
   if (packageCards.length) {
@@ -73,7 +73,7 @@
     );
     packageCards.forEach((card) => pObs.observe(card));
   }
-
+ 
   // Smooth anchor scroll w/ offset
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
     link.addEventListener("click", function (e) {
@@ -86,7 +86,41 @@
       window.scrollTo({ top, behavior: "smooth" });
     });
   });
-
+ 
+  // Timeline scroll animation — fills the line + reveals steps
+  const timeline = document.getElementById("timeline");
+  const timelineFill = document.getElementById("timelineFill");
+  const timelineSteps = document.querySelectorAll(".timeline-step");
+ 
+  if (timeline && timelineFill && timelineSteps.length) {
+    // Reveal steps with IntersectionObserver
+    const stepObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            stepObs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.4, rootMargin: "0px 0px -80px 0px" }
+    );
+    timelineSteps.forEach((s) => stepObs.observe(s));
+ 
+    // Fill the gradient line based on scroll position within timeline
+    const updateFill = () => {
+      const rect = timeline.getBoundingClientRect();
+      const viewportH = window.innerHeight;
+      const start = viewportH * 0.7; // line starts filling when timeline top is 70% down viewport
+      const distance = rect.height;
+      const scrolled = start - rect.top;
+      const progress = Math.max(0, Math.min(1, scrolled / distance));
+      timelineFill.style.height = (progress * 100).toFixed(1) + "%";
+    };
+    window.addEventListener("scroll", updateFill, { passive: true });
+    updateFill();
+  }
+ 
   // Hero parallax
   const heroBg = document.querySelector(".hero-bg");
   if (heroBg) {
@@ -101,7 +135,7 @@
       { passive: true }
     );
   }
-
+ 
   // Special-offer countdown: number drops from data-from to data-to and turns colored at end
   const specialNumbers = document.querySelectorAll("[data-from][data-to]");
   if (specialNumbers.length) {
@@ -113,7 +147,7 @@
       const startTime = performance.now();
       const formatter = new Intl.NumberFormat("de-DE");
       el.textContent = formatter.format(from);
-
+ 
       function tick(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
@@ -129,7 +163,7 @@
       }
       requestAnimationFrame(tick);
     };
-
+ 
     const specialObs = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -144,7 +178,7 @@
     );
     specialNumbers.forEach((c) => specialObs.observe(c));
   }
-
+ 
   // Counter animation for prices (numbers count up when visible)
   const counters = document.querySelectorAll("[data-target]");
   if (counters.length) {
@@ -154,7 +188,7 @@
       const duration = 1500;
       const startTime = performance.now();
       const formatter = new Intl.NumberFormat("de-DE");
-
+ 
       function tick(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
@@ -167,7 +201,7 @@
       }
       requestAnimationFrame(tick);
     };
-
+ 
     const counterObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -182,7 +216,7 @@
     counters.forEach((c) => counterObserver.observe(c));
   }
 })();
-
+ 
 // Simple toast helper (used across pages)
 window.showToast = function (msg, type = "success") {
   let toast = document.querySelector(".toast");
@@ -195,4 +229,3 @@ window.showToast = function (msg, type = "success") {
   toast.className = "toast " + type;
   requestAnimationFrame(() => toast.classList.add("visible"));
   setTimeout(() => toast.classList.remove("visible"), 3500);
-};
