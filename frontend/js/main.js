@@ -229,3 +229,4 @@ window.showToast = function (msg, type = "success") {
   toast.className = "toast " + type;
   requestAnimationFrame(() => toast.classList.add("visible"));
   setTimeout(() => toast.classList.remove("visible"), 3500);
+};
