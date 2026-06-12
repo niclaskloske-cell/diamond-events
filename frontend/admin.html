@@ -55,6 +55,10 @@
         <span class="label">Abgelehnt</span>
         <div class="value" id="statRejected">0</div>
       </div>
+      <div class="stat-card" style="border-color: rgba(245,158,11,0.25);">
+        <span class="label">Fotografie</span>
+        <div class="value" id="statFoto">0</div>
+      </div>
     </div>
 
     <!-- Toolbar: filters + view toggle -->
@@ -71,6 +75,8 @@
         <button class="btn btn-outline btn-sm" id="openGalleriesBtn">Galerien</button>
         <button class="btn btn-outline btn-sm" id="openTemplatesBtn">Auto-Nachrichten</button>
         <button class="btn btn-outline btn-sm" id="openPresetsBtn">E-Mail-Vorlagen</button>
+        <button class="btn btn-outline btn-sm" id="openAvailabilityBtn">Verfügbarkeit</button>
+        <button class="btn btn-outline btn-sm" id="csvExportBtn">CSV Export</button>
         <div class="view-toggle" id="viewToggle">
           <button class="active" data-view="list">Liste</button>
           <button data-view="calendar">Kalender</button>
@@ -141,6 +147,9 @@
             <option value="Diamond Lite">Diamond Lite</option>
             <option value="Diamond Premium">Diamond Premium</option>
             <option value="Diamond Exclusive">Diamond Exclusive</option>
+            <option value="Foto Portrait">Foto Portrait</option>
+            <option value="Foto Reportage">Foto Reportage</option>
+            <option value="Foto Premium">Foto Premium</option>
           </select>
         </div>
         <div class="form-group">
@@ -152,6 +161,14 @@
             <option value="storniert">Storniert</option>
           </select>
         </div>
+      </div>
+      <div class="form-group">
+        <label for="editServiceType">Service-Typ</label>
+        <select id="editServiceType">
+          <option value="dj">DJ Service</option>
+          <option value="fotografie">Fotografie</option>
+          <option value="beides">Beides</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="checkbox-row" for="editPhoto" style="margin:0; text-transform:none; letter-spacing:0; font-size:0.95rem; font-weight:500; color:var(--text);">
@@ -431,6 +448,64 @@
       <div id="galleryUploadProgress" style="display:none; margin-bottom: 1rem; padding: 0.85rem 1rem; background: rgba(255,255,255,0.04); border-radius: 10px; font-size: 0.9rem;"></div>
 
       <div id="galleryImagesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.6rem;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Availability Modal -->
+<div class="modal-backdrop" id="availabilityModal">
+  <div class="modal" style="max-width:680px;">
+    <h3>Verfügbarkeit verwalten</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.25rem;">
+      Klicke auf einen Tag um ihn als verfügbar oder blockiert zu markieren.
+    </p>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <strong id="availAdminMonthLabel" style="font-size:1rem; letter-spacing:-0.02em;">—</strong>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn btn-outline btn-sm" id="availAdminPrev">‹</button>
+        <button class="btn btn-outline btn-sm" id="availAdminToday">Heute</button>
+        <button class="btn btn-outline btn-sm" id="availAdminNext">›</button>
+      </div>
+    </div>
+
+    <div class="avail-admin-calendar" id="availAdminGrid"></div>
+
+    <div class="avail-legend" style="margin-top:1rem; margin-bottom:0;">
+      <div class="avail-legend-item">
+        <span class="avail-legend-dot frei"></span>
+        <span>Frei markiert</span>
+      </div>
+      <div class="avail-legend-item">
+        <span class="avail-legend-dot blockiert"></span>
+        <span>Blockiert</span>
+      </div>
+      <div class="avail-legend-item">
+        <span class="avail-legend-dot belegt"></span>
+        <span>Buchung vorhanden</span>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:1.5rem;">
+      <button type="button" class="btn btn-outline btn-sm" id="closeAvailability">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Availability Day Action Modal -->
+<div class="modal-backdrop" id="availDayModal">
+  <div class="modal" style="max-width:420px;">
+    <h3 id="availDayTitle">Tag markieren</h3>
+    <p id="availDayInfo" style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem;"></p>
+    <div class="form-group">
+      <label for="availDayNote">Notiz (optional)</label>
+      <input type="text" id="availDayNote" placeholder="z. B. Urlaub, andere Veranstaltung..." />
+    </div>
+    <div class="modal-actions" style="flex-wrap:wrap; gap:0.5rem;">
+      <button type="button" class="btn btn-outline btn-sm" id="closeAvailDay">Abbrechen</button>
+      <button type="button" class="btn btn-outline btn-sm" id="availDayRemove" style="color:var(--text-muted);">Markierung entfernen</button>
+      <button type="button" class="btn btn-outline btn-sm" id="availDayBlockieren" style="color:#9ca3af; border-color:rgba(156,163,175,0.3);">Blockieren</button>
+      <button type="button" class="btn btn-primary btn-sm" id="availDayFrei">Als frei markieren</button>
     </div>
   </div>
 </div>

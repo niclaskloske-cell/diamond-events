@@ -50,11 +50,18 @@
     applyService("dj");
   }
 
-  // Pre-fill DJ package from ?package=...
+  // Pre-fill package from ?package=... — auto-detect DJ vs Foto
   const pkgParam = params.get("package");
-  if (pkgParam && djSelect) {
-    const opt = Array.from(djSelect.options).find((o) => o.value === pkgParam);
-    if (opt) djSelect.value = pkgParam;
+  if (pkgParam) {
+    const djOpt = djSelect && Array.from(djSelect.options).find((o) => o.value === pkgParam);
+    const photoOpt = photoSelect && Array.from(photoSelect.options).find((o) => o.value === pkgParam);
+    if (photoOpt && !djOpt) {
+      // It's a photo package — switch to fotografie mode
+      applyService("fotografie");
+      photoSelect.value = pkgParam;
+    } else if (djOpt) {
+      djSelect.value = pkgParam;
+    }
   }
 
   // Pre-fill from configurator

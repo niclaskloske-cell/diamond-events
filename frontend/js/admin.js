@@ -105,6 +105,12 @@
     document.getElementById("statRejected").textContent = bookings.filter(
       (b) => b.status === "abgelehnt"
     ).length;
+    const fotoEl = document.getElementById("statFoto");
+    if (fotoEl) {
+      fotoEl.textContent = bookings.filter(
+        (b) => b.serviceType === "fotografie" || b.serviceType === "beides" || b.photography === true
+      ).length;
+    }
   }
 
   // ---------- Render: Table ----------
@@ -268,6 +274,8 @@
               <td style="padding:6px 0;">${escapeHtml(b.eventLocation || "—")}</td></tr>
           <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Paket</td>
               <td style="padding:6px 0;">${escapeHtml(b.package)}</td></tr>
+          <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Service</td>
+              <td style="padding:6px 0;">${escapeHtml(b.serviceType || "dj")}</td></tr>
           <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Fotografie</td>
               <td style="padding:6px 0;">${b.photography ? "Ja" : "Nein"}</td></tr>
           <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Eingegangen</td>
@@ -318,6 +326,8 @@
     document.getElementById("editLocation").value = b.eventLocation || "";
     document.getElementById("editPackage").value = b.package || "Diamond Lite";
     document.getElementById("editStatus").value = b.status || "offen";
+    const svcType = document.getElementById("editServiceType");
+    if (svcType) svcType.value = b.serviceType || "dj";
     document.getElementById("editPhoto").checked = !!b.photography;
     document.getElementById("editMessage").value = b.message || "";
     editModal.classList.add("open");
@@ -335,6 +345,7 @@
   editForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = document.getElementById("editId").value;
+    const svcTypeEl = document.getElementById("editServiceType");
     const data = {
       name: document.getElementById("editName").value.trim(),
       email: document.getElementById("editEmail").value.trim(),
@@ -342,6 +353,7 @@
       eventLocation: document.getElementById("editLocation").value.trim(),
       package: document.getElementById("editPackage").value,
       status: document.getElementById("editStatus").value,
+      serviceType: svcTypeEl ? svcTypeEl.value : "dj",
       photography: document.getElementById("editPhoto").checked,
       message: document.getElementById("editMessage").value.trim(),
     };
@@ -908,6 +920,227 @@
     } catch (err) {
       window.showToast("Fehler: " + err.message, "error");
     }
+  });
+
+  // ---------- CSV Export ----------
+  document.getElementById("csvExportBtn").addEventListener("click", () => {
+    const filtered =
+      currentFilter === "all"
+        ? bookings
+        : bookings.filter((b) => b.status === currentFilter);
+
+    if (!filtered.length) {
+      window.showToast("Keine Buchungen zum Exportieren.", "error");
+      return;
+    }
+
+    const headers = ["Name", "E-Mail", "Datum", "Ort", "Paket", "Service", "Fotografie", "Status", "Eingegangen"];
+
+    function csvCell(val) {
+      const str = String(val == null ? "" : val);
+      if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+        return '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }
+
+    const rows = [
+      headers.join(","),
+      ...filtered.map((b) =>
+        [
+          b.name,
+          b.email,
+          b.eventDate,
+          b.eventLocation,
+          b.package,
+          b.serviceType || "dj",
+          b.photography ? "Ja" : "Nein",
+          b.status,
+          b.createdAt ? new Date(b.createdAt).toLocaleString("de-DE") : "",
+        ]
+          .map(csvCell)
+          .join(",")
+      ),
+    ].join("\r\n");
+
+    const blob = new Blob(["﻿" + rows], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `diamond-events-buchungen-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    window.showToast("CSV exportiert", "success");
+  });
+
+  // ---------- Availability Admin ----------
+  let availData = [];
+  let availYear = new Date().getFullYear();
+  let availMonth = new Date().getMonth();
+
+  const availModal = document.getElementById("availabilityModal");
+  const availDayModal = document.getElementById("availDayModal");
+
+  const availMonthNames = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember"
+  ];
+
+  async function loadAvailabilityAdmin() {
+    try {
+      const res = await fetch("/api/availability");
+      if (res.ok) availData = await res.json();
+    } catch (e) {
+      availData = [];
+    }
+    renderAvailAdminCalendar();
+  }
+
+  function renderAvailAdminCalendar() {
+    const grid = document.getElementById("availAdminGrid");
+    const label = document.getElementById("availAdminMonthLabel");
+    if (!grid || !label) return;
+
+    label.textContent = `${availMonthNames[availMonth]} ${availYear}`;
+
+    const firstDay = new Date(availYear, availMonth, 1);
+    const lastDay = new Date(availYear, availMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const leading = (firstDay.getDay() + 6) % 7;
+
+    const weekdays = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+    let html = weekdays.map((w) => `<div class="avail-admin-weekday">${w}</div>`).join("");
+
+    for (let i = 0; i < leading; i++) {
+      html += `<div class="avail-admin-day empty"></div>`;
+    }
+
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mm = String(availMonth + 1).padStart(2, "0");
+      const dd = String(d).padStart(2, "0");
+      const dateStr = `${availYear}-${mm}-${dd}`;
+
+      const entry = availData.find((x) => x.date === dateStr);
+      const hasBooking = bookings.some((b) => b.eventDate === dateStr);
+      const isToday = dateStr === todayStr;
+
+      let cls = "avail-admin-day";
+      if (isToday) cls += " today";
+      if (hasBooking) cls += " has-booking";
+      if (entry) cls += ` is-${entry.type}`;
+
+      const dotHtml = entry ? `<span class="avail-dot"></span>` : "";
+
+      html += `<div class="${cls}" data-date="${dateStr}" title="${dateStr}">${d}${dotHtml}</div>`;
+    }
+
+    grid.innerHTML = html;
+
+    grid.querySelectorAll(".avail-admin-day:not(.empty)").forEach((el) => {
+      el.addEventListener("click", () => openAvailDayModal(el.dataset.date));
+    });
+  }
+
+  function openAvailDayModal(dateStr) {
+    const entry = availData.find((x) => x.date === dateStr);
+    const hasBooking = bookings.some((b) => b.eventDate === dateStr);
+    document.getElementById("availDayTitle").textContent = fmtDate(dateStr);
+    const info = [];
+    if (hasBooking) info.push("Buchung(en) vorhanden");
+    if (entry) info.push(`Aktuell: ${entry.type === "frei" ? "Als frei markiert" : "Blockiert"}${entry.note ? " — " + entry.note : ""}`);
+    document.getElementById("availDayInfo").textContent = info.join(" | ") || "Kein besonderer Status.";
+    document.getElementById("availDayNote").value = entry ? entry.note || "" : "";
+
+    // Store selected date for button handlers
+    availDayModal.dataset.date = dateStr;
+    availDayModal.classList.add("open");
+  }
+
+  document.getElementById("availDayFrei").addEventListener("click", async () => {
+    const dateStr = availDayModal.dataset.date;
+    const note = document.getElementById("availDayNote").value.trim();
+    await saveAvailability(dateStr, "frei", note);
+  });
+
+  document.getElementById("availDayBlockieren").addEventListener("click", async () => {
+    const dateStr = availDayModal.dataset.date;
+    const note = document.getElementById("availDayNote").value.trim();
+    await saveAvailability(dateStr, "blockiert", note);
+  });
+
+  document.getElementById("availDayRemove").addEventListener("click", async () => {
+    const dateStr = availDayModal.dataset.date;
+    await removeAvailability(dateStr);
+  });
+
+  async function saveAvailability(date, type, note) {
+    try {
+      const res = await fetch("/api/admin/availability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, type, note }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Fehler");
+      availDayModal.classList.remove("open");
+      await loadAvailabilityAdmin();
+      window.showToast(type === "frei" ? "Als frei markiert" : "Blockiert", "success");
+    } catch (err) {
+      window.showToast("Fehler: " + err.message, "error");
+    }
+  }
+
+  async function removeAvailability(date) {
+    try {
+      const res = await fetch(`/api/admin/availability/${date}`, { method: "DELETE" });
+      if (!res.ok && res.status !== 404) throw new Error("Fehler");
+      availDayModal.classList.remove("open");
+      await loadAvailabilityAdmin();
+      window.showToast("Markierung entfernt", "success");
+    } catch (err) {
+      window.showToast("Fehler: " + err.message, "error");
+    }
+  }
+
+  document.getElementById("openAvailabilityBtn").addEventListener("click", () => {
+    availYear = new Date().getFullYear();
+    availMonth = new Date().getMonth();
+    loadAvailabilityAdmin().then(() => availModal.classList.add("open"));
+  });
+
+  document.getElementById("closeAvailability").addEventListener("click", () =>
+    availModal.classList.remove("open")
+  );
+  availModal.addEventListener("click", (e) => {
+    if (e.target === availModal) availModal.classList.remove("open");
+  });
+
+  document.getElementById("closeAvailDay").addEventListener("click", () =>
+    availDayModal.classList.remove("open")
+  );
+  availDayModal.addEventListener("click", (e) => {
+    if (e.target === availDayModal) availDayModal.classList.remove("open");
+  });
+
+  document.getElementById("availAdminPrev").addEventListener("click", () => {
+    availMonth--;
+    if (availMonth < 0) { availMonth = 11; availYear--; }
+    renderAvailAdminCalendar();
+  });
+
+  document.getElementById("availAdminNext").addEventListener("click", () => {
+    availMonth++;
+    if (availMonth > 11) { availMonth = 0; availYear++; }
+    renderAvailAdminCalendar();
+  });
+
+  document.getElementById("availAdminToday").addEventListener("click", () => {
+    availYear = new Date().getFullYear();
+    availMonth = new Date().getMonth();
+    renderAvailAdminCalendar();
   });
 
   // ---------- Init ----------

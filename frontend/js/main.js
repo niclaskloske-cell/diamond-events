@@ -217,6 +217,106 @@
   }
 })();
 
+// =========================================================
+// PUBLIC AVAILABILITY CALENDAR (index.html)
+// =========================================================
+(function () {
+  const grid = document.getElementById("availCalGrid");
+  const label = document.getElementById("availMonthLabel");
+  if (!grid || !label) return;
+
+  const today = new Date();
+  let calYear = today.getFullYear();
+  let calMonth = today.getMonth();
+  let availData = [];
+
+  const monthNames = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember"
+  ];
+
+  async function loadAvailability() {
+    try {
+      const res = await fetch("/api/availability");
+      if (res.ok) availData = await res.json();
+    } catch (e) {
+      availData = [];
+    }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    label.textContent = `${monthNames[calMonth]} ${calYear}`;
+
+    const firstDay = new Date(calYear, calMonth, 1);
+    const lastDay = new Date(calYear, calMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const leading = (firstDay.getDay() + 6) % 7; // Mon-first
+
+    const weekdays = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+    let html = weekdays.map((w) => `<div class="avail-weekday">${w}</div>`).join("");
+
+    for (let i = 0; i < leading; i++) {
+      html += `<div class="avail-day empty"></div>`;
+    }
+
+    const todayStr = today.toISOString().split("T")[0];
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mm = String(calMonth + 1).padStart(2, "0");
+      const dd = String(d).padStart(2, "0");
+      const dateStr = `${calYear}-${mm}-${dd}`;
+
+      const entry = availData.find((x) => x.date === dateStr);
+      const isPast = dateStr < todayStr;
+      const isToday = dateStr === todayStr;
+
+      let cls = "avail-day";
+      if (isPast) cls += " past";
+      if (isToday) cls += " today";
+
+      if (entry) {
+        cls += ` ${entry.type === "frei" ? "frei" : "blockiert"}`;
+      } else {
+        cls += " neutral";
+      }
+
+      const title = entry
+        ? (entry.type === "frei" ? "Verfügbar" : "Nicht verfügbar") +
+          (entry.note ? ` — ${entry.note}` : "")
+        : "Auf Anfrage";
+
+      html += `<div class="${cls}" title="${title}">${d}</div>`;
+    }
+
+    grid.innerHTML = html;
+
+    // Clicking a "frei" day goes to booking page
+    grid.querySelectorAll(".avail-day.frei:not(.past)").forEach((el) => {
+      el.addEventListener("click", () => {
+        const mm = String(calMonth + 1).padStart(2, "0");
+        const d = el.textContent.trim().padStart(2, "0");
+        const dateStr = `${calYear}-${mm}-${d}`;
+        window.location.href = `/booking.html?date=${dateStr}`;
+      });
+    });
+  }
+
+  document.getElementById("availPrev").addEventListener("click", () => {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  });
+
+  document.getElementById("availNext").addEventListener("click", () => {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCalendar();
+  });
+
+  loadAvailability();
+})();
+
 // Simple toast helper (used across pages)
 window.showToast = function (msg, type = "success") {
   let toast = document.querySelector(".toast");

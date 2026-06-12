@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Diamond Events Fotografie — Hochzeiten, Geburtstage, Firmenevents. Professionelle Event-Fotografie aus Niederbayern. Auch einzeln buchbar." />
+<link rel="canonical" href="https://eventsdiamond.de/fotografie.html" />
+
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://eventsdiamond.de/fotografie.html" />
+<meta property="og:title" content="Event Fotografie — Diamond Events" />
+<meta property="og:description" content="Premium Event-Fotografie. Hochzeiten, Geburtstage, Firmenevents — auch einzeln buchbar." />
+<meta property="og:image" content="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=2000&q=80" />
+<meta property="og:locale" content="de_DE" />
+<meta property="og:site_name" content="Diamond Events" />
+
+<meta name="theme-color" content="#050507" />
+<title>Event Fotografie — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  /* Photography page specific */
+  .photo-hero {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 6rem 0 4rem;
+  }
+
+  .photo-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: url("https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=2000&q=80");
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.45) contrast(1.1) saturate(1.1);
+    transform: scale(1.05);
+  }
+
+  .photo-hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(168, 85, 247, 0.18), transparent 55%),
+      radial-gradient(ellipse at 70% 60%, rgba(255, 0, 230, 0.18), transparent 55%),
+      radial-gradient(ellipse at center, rgba(5, 5, 7, 0.4) 0%, rgba(5, 5, 7, 0.85) 70%, var(--bg) 100%),
+      linear-gradient(180deg, rgba(5, 5, 7, 0.5) 0%, transparent 30%, transparent 60%, var(--bg) 100%);
+  }
+
+  .photo-hero-content {
+    text-align: center;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  .photo-hero h1 {
+    font-size: clamp(3rem, 9vw, 7rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    margin-bottom: 1.5rem;
+    line-height: 0.95;
+  }
+
+  .photo-hero h1 .accent {
+    background: var(--gradient-rgb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .photo-hero-sub {
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--text-muted);
+    max-width: 620px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .photo-hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Use-cases */
+  .photo-uses {
+    text-align: center;
+  }
+
+  .uses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 4rem;
+    text-align: left;
+  }
+
+  @media (max-width: 768px) {
+    .uses-grid { grid-template-columns: 1fr; }
+  }
+
+  .use-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    transition: all 0.4s var(--ease);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .use-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: var(--shadow-card);
+  }
+
+  .use-card .use-icon {
+    width: 56px;
+    height: 56px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    margin-bottom: 1.5rem;
+  }
+
+  .use-card:nth-child(1) .use-icon { color: var(--neon-cyan); }
+  .use-card:nth-child(2) .use-icon { color: var(--neon-purple); }
+  .use-card:nth-child(3) .use-icon { color: var(--neon-magenta); }
+
+  .use-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .use-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Photo Packages */
+  .photo-pkg-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.5s var(--ease);
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .photo-pkg-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.7s ease-out var(--anim-delay, 0s),
+      transform 0.7s ease-out var(--anim-delay, 0s),
+      box-shadow 0.5s var(--ease),
+      border-color 0.5s var(--ease);
+  }
+
+  .photo-pkg-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: var(--shadow-card);
+  }
+
+  .photo-pkg-card[data-color="cyan"]:hover { box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,240,255,0.18); }
+  .photo-pkg-card[data-color="purple"]:hover { box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 30px rgba(168,85,247,0.22); }
+  .photo-pkg-card[data-color="magenta"]:hover { box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 30px rgba(255,0,230,0.18); }
+
+  .photo-pkg-card.featured {
+    border-color: rgba(168, 85, 247, 0.4);
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.06), var(--bg-card) 60%);
+  }
+
+  .photo-pkg-card.featured::after {
+    content: "Top-Seller";
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: var(--gradient-rgb);
+    color: #fff;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.4rem 0.85rem;
+    border-radius: 50px;
+  }
+
+  .photo-pkg-card .tier {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .photo-pkg-card[data-color="cyan"] .tier { color: var(--neon-cyan); }
+  .photo-pkg-card[data-color="purple"] .tier { color: var(--neon-purple); }
+  .photo-pkg-card[data-color="magenta"] .tier { color: var(--neon-magenta); }
+
+  .photo-pkg-card h3 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.025em;
+  }
+
+  .photo-pkg-card .pkg-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .photo-pkg-card .pkg-price .label {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-right: 0.2rem;
+  }
+
+  .photo-pkg-card .pkg-price .value {
+    font-size: 2.75rem;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+  }
+
+  .photo-pkg-card[data-color="cyan"] .pkg-price .value {
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .photo-pkg-card[data-color="purple"] .pkg-price .value {
+    background: var(--gradient-rgb);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .photo-pkg-card[data-color="magenta"] .pkg-price .value {
+    background: linear-gradient(135deg, var(--neon-magenta), var(--neon-pink));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .photo-pkg-card .pkg-price .currency {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .photo-pkg-card .pkg-tagline {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .photo-pkg-card ul {
+    list-style: none;
+    margin-bottom: 2rem;
+    flex-grow: 1;
+  }
+
+  .photo-pkg-card ul li {
+    padding: 0.55rem 0;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .photo-pkg-card ul li svg { flex-shrink: 0; margin-top: 4px; width: 14px; height: 14px; }
+  .photo-pkg-card[data-color="cyan"] ul li svg { color: var(--neon-cyan); }
+  .photo-pkg-card[data-color="purple"] ul li svg { color: var(--neon-purple); }
+  .photo-pkg-card[data-color="magenta"] ul li svg { color: var(--neon-magenta); }
+
+  .photo-pkg-card .btn { width: 100%; }
+
+  /* Included perks */
+  .included {
+    background: var(--bg-soft);
+    text-align: center;
+  }
+
+  .perks-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 4rem;
+    text-align: left;
+  }
+
+  @media (max-width: 968px) { .perks-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .perks-grid { grid-template-columns: 1fr; } }
+
+  .perk {
+    padding: 1.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .perk-icon {
+    width: 36px;
+    height: 36px;
+    color: var(--neon-cyan);
+    margin-bottom: 0.5rem;
+  }
+
+  .perk h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .perk p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  /* Closing CTA */
+  .closing-photo {
+    text-align: center;
+    padding: 7rem 0;
+  }
+
+  .closing-photo h2 {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+  }
+
+  .closing-photo p {
+    color: var(--text-muted);
+    max-width: 540px;
+    margin: 0 auto 2.5rem;
+    font-size: 1.05rem;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/portfolio.html">Über mich</a></li>
+      <li><a href="/#packages">DJ-Pakete</a></li>
+      <li><a href="/fotografie.html" class="active">Fotografie</a></li>
+      <li><a href="/configurator.html">Konfigurator</a></li>
+      <li><a href="/booking.html">Event buchen</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="photo-hero">
+  <div class="photo-hero-bg"></div>
+  <div class="photo-hero-overlay"></div>
+  <div class="container photo-hero-content">
+    <span class="hero-tag" style="opacity:1; animation: fadeUp 1s var(--ease) 0.2s forwards;">Diamond Photography</span>
+    <h1>Event <span class="accent">Fotografie</span></h1>
+    <p class="photo-hero-sub">
+      Momente, die mehr erzählen als Worte. Professionelle Event-Fotografie
+      für Hochzeiten, Geburtstage, Firmenevents — auch einzeln buchbar, ganz
+      ohne DJ-Service.
+    </p>
+    <div class="photo-hero-buttons">
+      <a href="#photo-packages" class="btn btn-primary">Pakete ansehen</a>
+      <a href="/booking.html?package=Foto%20Reportage" class="btn btn-outline">Jetzt anfragen</a>
+    </div>
+  </div>
+</header>
+
+<!-- USE CASES -->
+<section class="photo-uses">
+  <div class="container">
+    <span class="section-subtitle reveal">Was ich fotografiere</span>
+    <h2 class="section-title reveal">Jeder Anlass, jeder <span class="gradient-text">Moment</span></h2>
+    <p class="reveal" style="color:var(--text-muted); max-width:580px; margin:1rem auto 0;">
+      Drei Bereiche, in denen ich Bilder schaffe, die mehr sind als Pflichtdoku.
+    </p>
+
+    <div class="uses-grid">
+      <div class="use-card reveal">
+        <svg class="use-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M12 21s-7-4.5-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.5-7 10-7 10-1.5-1-2-1-4 0z"/>
+        </svg>
+        <h3>Hochzeiten</h3>
+        <p>
+          Vom Getting-Ready bis zur ausgelassenen Party — ich fange die echten
+          Emotionen ein. Reportage-Stil, kein steifes Posing, ehrliche Bilder
+          die ihr noch in 20 Jahren rausholt.
+        </p>
+      </div>
+
+      <div class="use-card reveal">
+        <svg class="use-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+          <line x1="9" y1="9" x2="9.01" y2="9"/>
+          <line x1="15" y1="9" x2="15.01" y2="9"/>
+        </svg>
+        <h3>Geburtstage &amp; Feiern</h3>
+        <p>
+          18., 30., Goldene Hochzeit, Familienfest — egal welcher Anlass: Ich
+          fotografiere unaufdringlich, sodass du keinen Moment verpasst und am
+          Ende eine ganze Geschichte mit nach Hause nimmst.
+        </p>
+      </div>
+
+      <div class="use-card reveal">
+        <svg class="use-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="9" cy="9" r="2"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <h3>Business &amp; Events</h3>
+        <p>
+          Firmenfeiern, Produktlaunches, Vereinsabende, Konzerte. Saubere
+          Bilder für Social Media, Pressemitteilung oder die interne
+          Präsentation — geliefert innerhalb weniger Tage.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PACKAGES -->
+<section class="packages" id="photo-packages">
+  <div class="container">
+    <span class="section-subtitle reveal">Foto-Pakete</span>
+    <h2 class="section-title reveal">Wähle dein <span class="gradient-text">Paket</span></h2>
+    <p class="reveal" style="color:var(--text-muted); max-width:560px; margin:1rem auto 0;">
+      Drei Pakete, individuell anpassbar — alle einzeln buchbar, kein DJ-Service nötig.
+    </p>
+
+    <div class="packages-grid">
+
+      <article class="photo-pkg-card" data-delay="0" data-color="cyan">
+        <span class="tier">Diamond — Foto Portrait</span>
+        <h3>Foto Portrait</h3>
+        <div class="pkg-price">
+          <span class="label">ab</span>
+          <span class="value">199</span>
+          <span class="currency">€</span>
+        </div>
+        <p class="pkg-tagline">Für Portraits, kleine Shootings und kurze Anlässe.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>2–3 Stunden Shooting</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>50+ bearbeitete Fotos</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Online-Galerie zum Teilen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Lieferung innerhalb 7 Tagen</li>
+        </ul>
+        <a href="/booking.html?package=Foto%20Portrait" class="btn btn-primary">Foto Portrait buchen</a>
+      </article>
+
+      <article class="photo-pkg-card featured" data-delay="0.2" data-color="purple">
+        <span class="tier">Diamond — Foto Reportage</span>
+        <h3>Foto Reportage</h3>
+        <div class="pkg-price">
+          <span class="label">ab</span>
+          <span class="value">449</span>
+          <span class="currency">€</span>
+        </div>
+        <p class="pkg-tagline">Für Geburtstage, Partys und Firmenevents.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>4–6 Stunden Event-Reportage</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>150+ bearbeitete Fotos</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Premium-Bearbeitung &amp; Farblook</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Passwortgeschützte Online-Galerie</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Lieferung innerhalb 5 Tagen</li>
+        </ul>
+        <a href="/booking.html?package=Foto%20Reportage" class="btn btn-primary">Foto Reportage buchen</a>
+      </article>
+
+      <article class="photo-pkg-card" data-delay="0.4" data-color="magenta">
+        <span class="tier">Diamond — Foto Premium</span>
+        <h3>Foto Premium</h3>
+        <div class="pkg-price">
+          <span class="label">ab</span>
+          <span class="value">749</span>
+          <span class="currency">€</span>
+        </div>
+        <p class="pkg-tagline">Open End — Hochzeiten &amp; große Events. Die volle Story.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>8+ Stunden — Open End</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Getting-Ready bis Party-Finale</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>300+ bearbeitete Fotos</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Persönliche Vorbesprechung</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Online-Galerie + USB-Stick</li>
+        </ul>
+        <a href="/booking.html?package=Foto%20Premium" class="btn btn-primary">Foto Premium buchen</a>
+      </article>
+
+    </div>
+
+    <p class="reveal" style="color:var(--text-muted); font-size:0.85rem; margin-top:2.5rem; text-align:center;">
+      Alle Preise verstehen sich zzgl. Anfahrt ab 50 km. Individuelle Pakete und längere Buchungen jederzeit auf Anfrage.
+    </p>
+  </div>
+</section>
+
+<!-- INCLUDED PERKS -->
+<section class="included">
+  <div class="container">
+    <span class="section-subtitle reveal">Bei jedem Paket dabei</span>
+    <h2 class="section-title reveal">Was du <span class="gradient-text">bekommst</span></h2>
+
+    <div class="perks-grid">
+      <div class="perk reveal">
+        <svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 7h3l2-3h8l2 3h3v13H3z"/><circle cx="12" cy="13" r="4"/>
+        </svg>
+        <h4>Profi-Equipment</h4>
+        <p>Spiegellose Vollformat-Kamera, lichtstarke Festbrennweiten und externes Blitzlicht für jede Situation.</p>
+      </div>
+
+      <div class="perk reveal">
+        <svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <h4>Persönliche Beratung</h4>
+        <p>Wir besprechen vor dem Event Ablauf, Highlights und deine Wünsche. Du bekommst genau das, was du brauchst.</p>
+      </div>
+
+      <div class="perk reveal">
+        <svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2"/>
+        </svg>
+        <h4>Profi-Bearbeitung</h4>
+        <p>Jedes Bild wird einzeln retuschiert — Farbe, Licht, Look. Konsistente Qualität, nicht nur die "auto-Korrektur".</p>
+      </div>
+
+      <div class="perk reveal">
+        <svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <h4>Online-Galerie</h4>
+        <p>Private, passwortgeschützte Galerie zum Ansehen, Teilen und Herunterladen in voller Originalqualität.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section class="closing-photo">
+  <div class="container">
+    <span class="section-subtitle reveal">Bereit loszulegen?</span>
+    <h2 class="reveal">Lass uns deine <span class="gradient-text">Momente</span> festhalten.</h2>
+    <p class="reveal">
+      Ob Hochzeit, Geburtstag oder Firmenevent — erzähl mir von deinem Anlass,
+      ich melde mich innerhalb von 24 Stunden mit einem maßgeschneiderten Angebot.
+    </p>
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;" class="reveal">
+      <a href="/booking.html?package=Foto%20Reportage" class="btn btn-primary">Jetzt anfragen</a>
+      <a href="https://wa.me/4901638557552?text=Hi%20Niclas%2C%20ich%20interessiere%20mich%20f%C3%BCr%20deine%20Event-Fotografie." class="btn btn-outline" target="_blank" rel="noopener">WhatsApp schreiben</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="footer-contact">
+      <a href="mailto:hallo@eventsdiamond.de">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        hallo@eventsdiamond.de
+      </a>
+      <a href="tel:+4901638557552">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        0163 8557552
+      </a>
+    </div>
+    <div class="footer-links">
+      <a href="/">Start</a>
+      <a href="/portfolio.html">Über mich</a>
+      <a href="/fotografie.html">Fotografie</a>
+      <a href="/configurator.html">Konfigurator</a>
+      <a href="/booking.html">Event buchen</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/datenschutz.html">Datenschutz</a>
+    </div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script>
+  // Reveal the photo packages with same stagger pattern as DJ packages
+  const photoPkgCards = document.querySelectorAll(".photo-pkg-card");
+  if (photoPkgCards.length) {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const delay = entry.target.dataset.delay || "0";
+            entry.target.style.setProperty("--anim-delay", delay + "s");
+            entry.target.classList.add("visible");
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -50px 0px" }
+    );
+    photoPkgCards.forEach((c) => obs.observe(c));
+  }
+</script>
+</body>
+</html>

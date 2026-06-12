@@ -21,6 +21,7 @@ const DATA_FILE = path.join(DATA_DIR, "bookings.json");
 const PRESETS_FILE = path.join(DATA_DIR, "presets.json");
 const TEMPLATES_FILE = path.join(DATA_DIR, "templates.json");
 const GALLERIES_FILE = path.join(DATA_DIR, "galleries.json");
+const AVAILABILITY_FILE = path.join(DATA_DIR, "availability.json");
 const GALLERIES_DIR = path.join(DATA_DIR, "galleries");
 const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
 
@@ -411,6 +412,72 @@ function adminEmailHtml(b) {
 }
 
 // ---------- Gallery Storage ----------
+// ---------- Availability Storage ----------
+function ensureAvailabilityFile() {
+  const dir = path.dirname(AVAILABILITY_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(AVAILABILITY_FILE)) fs.writeFileSync(AVAILABILITY_FILE, "[]", "utf8");
+}
+
+function readAvailability() {
+  ensureAvailabilityFile();
+  try {
+    return JSON.parse(fs.readFileSync(AVAILABILITY_FILE, "utf8") || "[]");
+  } catch (err) {
+    console.error("Error reading availability:", err);
+    return [];
+  }
+}
+
+function writeAvailability(data) {
+  ensureAvailabilityFile();
+  fs.writeFileSync(AVAILABILITY_FILE, JSON.stringify(data, null, 2), "utf8");
+}
+
+// ---------- API: Availability (public read) ----------
+app.get("/api/availability", (req, res) => {
+  const data = readAvailability();
+  res.json(data);
+});
+
+// ---------- API: Availability (admin write) ----------
+app.post("/api/admin/availability", requireAuth, (req, res) => {
+  const { date, type, note } = req.body || {};
+  if (!date || !type) {
+    return res.status(400).json({ error: "Datum und Typ sind Pflichtfelder." });
+  }
+  if (!["blockiert", "frei"].includes(type)) {
+    return res.status(400).json({ error: "Typ muss 'blockiert' oder 'frei' sein." });
+  }
+  // Validate date format YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ error: "Ungültiges Datumsformat. Erwartet: YYYY-MM-DD" });
+  }
+  let data = readAvailability();
+  // Remove existing entry for that date (upsert)
+  data = data.filter((x) => x.date !== date);
+  data.push({
+    date,
+    type,
+    note: note ? String(note).trim() : "",
+    createdAt: new Date().toISOString(),
+  });
+  data.sort((a, b) => a.date.localeCompare(b.date));
+  writeAvailability(data);
+  res.json({ ok: true });
+});
+
+app.delete("/api/admin/availability/:date", requireAuth, (req, res) => {
+  let data = readAvailability();
+  const before = data.length;
+  data = data.filter((x) => x.date !== req.params.date);
+  if (data.length === before) {
+    return res.status(404).json({ error: "Kein Eintrag für dieses Datum gefunden." });
+  }
+  writeAvailability(data);
+  res.json({ ok: true });
+});
+
 function ensureGalleriesFile() {
   const dir = path.dirname(GALLERIES_FILE);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
