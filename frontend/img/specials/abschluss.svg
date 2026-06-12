@@ -1,0 +1,55 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Stars/sparkles -->
+  <g fill="#FFD93D" stroke="#D9B62E" stroke-width="1.5" stroke-linejoin="round">
+    <path d="M 60 50 L 65 62 L 78 64 L 68 73 L 71 86 L 60 79 L 49 86 L 52 73 L 42 64 L 55 62 Z"/>
+    <path d="M 340 60 L 344 70 L 354 71 L 347 78 L 349 88 L 340 83 L 331 88 L 333 78 L 326 71 L 336 70 Z" transform="scale(0.8) translate(85,15)"/>
+  </g>
+  <g fill="#3DA9D9">
+    <circle cx="100" cy="35" r="3"/>
+    <circle cx="280" cy="40" r="3"/>
+    <circle cx="370" cy="120" r="3"/>
+    <circle cx="20" cy="130" r="3"/>
+  </g>
+  <!-- Confetti -->
+  <g>
+    <rect x="160" y="30" width="6" height="11" fill="#FF6B6B" transform="rotate(20 163 36)"/>
+    <rect x="220" y="50" width="6" height="11" fill="#9B59B6" transform="rotate(-30 223 56)"/>
+    <rect x="320" y="100" width="6" height="11" fill="#2ECC71" transform="rotate(45 323 106)"/>
+    <rect x="50" y="100" width="6" height="11" fill="#FFD93D" transform="rotate(-15 53 106)"/>
+  </g>
+  <!-- Diploma scroll -->
+  <g transform="translate(110, 200)">
+    <!-- Scroll body -->
+    <rect x="-55" y="-30" width="110" height="65" rx="3" fill="#FFF8E7" stroke="#C4A878" stroke-width="2"/>
+    <!-- Lines on the scroll -->
+    <line x1="-40" y1="-15" x2="40" y2="-15" stroke="#C4A878" stroke-width="1.5"/>
+    <line x1="-40" y1="-5" x2="40" y2="-5" stroke="#C4A878" stroke-width="1.5"/>
+    <line x1="-40" y1="5" x2="25" y2="5" stroke="#C4A878" stroke-width="1.5"/>
+    <line x1="-40" y1="15" x2="40" y2="15" stroke="#C4A878" stroke-width="1.5"/>
+    <line x1="-40" y1="25" x2="30" y2="25" stroke="#C4A878" stroke-width="1.5"/>
+    <!-- Scroll ends (rolled) -->
+    <ellipse cx="-55" cy="2" rx="6" ry="40" fill="#FFF8E7" stroke="#C4A878" stroke-width="2"/>
+    <ellipse cx="55" cy="2" rx="6" ry="40" fill="#FFF8E7" stroke="#C4A878" stroke-width="2"/>
+    <!-- Red ribbon -->
+    <rect x="-65" y="-3" width="130" height="14" fill="#E74C3C" stroke="#C0392B" stroke-width="1.5"/>
+    <path d="M -65 4 L -75 -2 L -75 16 L -65 10 Z" fill="#C0392B"/>
+    <path d="M 65 4 L 75 -2 L 75 16 L 65 10 Z" fill="#C0392B"/>
+  </g>
+  <!-- Mortarboard / Doktorhut -->
+  <g transform="translate(280, 180)">
+    <!-- Top square (mortarboard) -->
+    <path d="M -55 0 L 0 -22 L 55 0 L 0 22 Z" fill="#1a1a1e" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Cap (cylinder) below -->
+    <path d="M -32 0 Q -32 18 -28 28 Q 0 32 28 28 Q 32 18 32 0" fill="#2c2c30" stroke="#000" stroke-width="2"/>
+    <!-- Tassel -->
+    <line x1="0" y1="0" x2="38" y2="22" stroke="#FFD93D" stroke-width="2"/>
+    <circle cx="38" cy="22" r="3" fill="#FFD93D"/>
+    <path d="M 35 22 L 31 38 M 38 22 L 38 40 M 41 22 L 45 38" stroke="#FFD93D" stroke-width="2" stroke-linecap="round"/>
+    <!-- Top button -->
+    <circle cx="0" cy="0" r="3" fill="#FFD93D"/>
+  </g>
+  <!-- "ABI" text in golden letters -->
+  <g transform="translate(200, 95)">
+    <text x="0" y="0" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="36" font-weight="900" fill="#FFD93D" stroke="#C9A227" stroke-width="1.5">ABI</text>
+  </g>
+</svg>

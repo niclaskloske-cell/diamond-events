@@ -1,0 +1,21 @@
+{
+  "name": "diamond-events-app",
+  "version": "1.0.0",
+  "description": "Diamond Events — Premium Event Entertainment & Photography. Fullstack booking app with admin dashboard.",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1",
+    "session-file-store": "^1.5.0"
+  },
+  "license": "MIT"
+}

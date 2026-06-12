@@ -1,0 +1,19 @@
+<svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rgbA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ff00e6"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(130, 110)">
+    <path d="M -28 -42 L 28 -42 L 52 -14 L 0 56 L -52 -14 Z" fill="none" stroke="url(#rgbA)" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="-52" y1="-14" x2="52" y2="-14" stroke="url(#rgbA)" stroke-width="2"/>
+    <line x1="-15" y1="-14" x2="0" y2="56" stroke="url(#rgbA)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="15" y1="-14" x2="0" y2="56" stroke="url(#rgbA)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="-28" y1="-42" x2="-15" y2="-14" stroke="url(#rgbA)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="28" y1="-42" x2="15" y2="-14" stroke="url(#rgbA)" stroke-width="1.2" opacity="0.5"/>
+  </g>
+  <text x="225" y="103" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="54" font-weight="800" fill="#f5f5f7" letter-spacing="2">DIAMOND</text>
+  <text x="225" y="148" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="22" font-weight="400" fill="#8e8e93" letter-spacing="14">EVENTS</text>
+</svg>

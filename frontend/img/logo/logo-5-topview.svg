@@ -1,0 +1,28 @@
+<svg viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rgbV2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ff00e6"/>
+    </linearGradient>
+    <linearGradient id="rgbV2Fill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.13"/>
+      <stop offset="50%" stop-color="#a855f7" stop-opacity="0.13"/>
+      <stop offset="100%" stop-color="#ff00e6" stop-opacity="0.13"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(340, 240)">
+    <polygon points="0,-180 127,-127 180,0 127,127 0,180 -127,127 -180,0 -127,-127" fill="url(#rgbV2Fill)" stroke="url(#rgbV2)" stroke-width="2.5" stroke-linejoin="round"/>
+    <polygon points="0,-90 64,-64 90,0 64,64 0,90 -64,64 -90,0 -64,-64" fill="url(#rgbV2Fill)" stroke="url(#rgbV2)" stroke-width="1.8" stroke-linejoin="round"/>
+    <polygon points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28" fill="none" stroke="url(#rgbV2)" stroke-width="1.5" stroke-linejoin="round"/>
+    <line x1="0" y1="-180" x2="0" y2="-90" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="127" y1="-127" x2="64" y2="-64" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="180" y1="0" x2="90" y2="0" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="127" y1="127" x2="64" y2="64" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="0" y1="180" x2="0" y2="90" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="-127" y1="127" x2="-64" y2="64" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="-180" y1="0" x2="-90" y2="0" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="-127" y1="-127" x2="-64" y2="-64" stroke="url(#rgbV2)" stroke-width="1.2" opacity="0.5"/>
+  </g>
+  <text x="340" y="500" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="11" font-weight="500" fill="#8e8e93" letter-spacing="13">DIAMOND EVENTS</text>
+</svg>

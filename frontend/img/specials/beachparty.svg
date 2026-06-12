@@ -1,0 +1,62 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sun -->
+  <circle cx="320" cy="70" r="32" fill="#FFD93D"/>
+  <g stroke="#FFD93D" stroke-width="4" stroke-linecap="round">
+    <line x1="320" y1="15" x2="320" y2="28"/>
+    <line x1="320" y1="112" x2="320" y2="125"/>
+    <line x1="265" y1="70" x2="278" y2="70"/>
+    <line x1="362" y1="70" x2="375" y2="70"/>
+    <line x1="280" y1="30" x2="290" y2="40"/>
+    <line x1="350" y1="100" x2="360" y2="110"/>
+    <line x1="360" y1="30" x2="350" y2="40"/>
+    <line x1="290" y1="100" x2="280" y2="110"/>
+  </g>
+  <!-- Cloud -->
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="100" cy="55" rx="22" ry="14"/>
+    <ellipse cx="120" cy="50" rx="26" ry="17"/>
+    <ellipse cx="142" cy="55" rx="20" ry="13"/>
+  </g>
+  <!-- Palm Tree -->
+  <g transform="translate(80, 130)">
+    <!-- Trunk -->
+    <path d="M -5 0 Q 8 50 -2 140 L 14 140 Q 18 50 8 0 Z" fill="#8B5A2B" stroke="#6B4220" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Leaves (5 fronds) -->
+    <g fill="#2D8F47" stroke="#1F6B33" stroke-width="2" stroke-linejoin="round">
+      <path d="M 0 0 Q -55 -25 -90 -10 Q -50 5 0 5 Z"/>
+      <path d="M 4 0 Q 55 -25 95 -10 Q 50 5 4 5 Z"/>
+      <path d="M 0 -2 Q -25 -55 -55 -75 Q -25 -45 -2 0 Z"/>
+      <path d="M 4 -2 Q 28 -55 60 -75 Q 30 -45 6 0 Z"/>
+      <path d="M 2 -2 Q 0 -60 -8 -90 Q 8 -60 6 0 Z"/>
+    </g>
+    <!-- Coconuts -->
+    <circle cx="0" cy="2" r="4" fill="#5D3A1F"/>
+    <circle cx="8" cy="3" r="4" fill="#5D3A1F"/>
+  </g>
+  <!-- Sand -->
+  <path d="M 0 235 Q 200 220 400 245 L 400 300 L 0 300 Z" fill="#F4D17A"/>
+  <path d="M 0 235 Q 200 220 400 245" fill="none" stroke="#E5BB5C" stroke-width="2"/>
+  <!-- Sea/Waves -->
+  <g stroke="#3DA9D9" stroke-width="3" stroke-linecap="round" fill="none">
+    <path d="M 20 200 Q 60 195 100 200 T 180 200 T 260 200 T 340 200 T 380 200"/>
+    <path d="M 30 215 Q 70 220 110 215 T 190 215 T 270 215 T 350 215"/>
+  </g>
+  <!-- Beach ball -->
+  <g transform="translate(220, 250)">
+    <circle r="14" fill="#ffffff" stroke="#E5BB5C" stroke-width="1.5"/>
+    <path d="M -14 0 A 14 14 0 0 1 14 0" fill="#FF6B6B"/>
+    <path d="M 0 -14 A 14 14 0 0 1 0 14" fill="none"/>
+    <path d="M -10 -10 Q 0 0 10 10" stroke="#3DA9D9" stroke-width="3" fill="none"/>
+    <path d="M -10 10 Q 0 0 10 -10" stroke="#FFD93D" stroke-width="3" fill="none"/>
+  </g>
+  <!-- Drink with umbrella -->
+  <g transform="translate(330, 220)">
+    <!-- Glass -->
+    <path d="M -10 0 L 10 0 L 8 25 L -8 25 Z" fill="#FF9FB3" opacity="0.85" stroke="#D14D6E" stroke-width="1.5"/>
+    <!-- Straw -->
+    <line x1="3" y1="-5" x2="-2" y2="-25" stroke="#FFD93D" stroke-width="2.5"/>
+    <!-- Umbrella -->
+    <path d="M -18 -22 Q 0 -32 18 -22 L 0 -22 Z" fill="#FF6B6B" stroke="#D14D6E" stroke-width="1.5"/>
+    <line x1="0" y1="-22" x2="0" y2="-32" stroke="#D14D6E" stroke-width="1.5"/>
+  </g>
+</svg>

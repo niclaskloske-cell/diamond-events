@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /confirmation.html
+Disallow: /api/
+
+Sitemap: https://eventsdiamond.de/sitemap.xml
