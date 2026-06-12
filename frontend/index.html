@@ -146,6 +146,49 @@
   </div>
 </section>
 
+<!-- Verfügbarkeit -->
+<section class="availability-section" id="availability">
+  <div class="container">
+    <div style="text-align:center;">
+      <span class="section-subtitle reveal">Terminplanung</span>
+      <h2 class="section-title reveal">Verfügbarkeit <span class="gradient-text">prüfen</span></h2>
+      <p class="reveal" style="color:var(--text-muted); max-width:500px; margin:1rem auto 0;">
+        Ist dein Datum noch frei? Klicke auf einen grünen Termin um direkt anzufragen.
+      </p>
+    </div>
+
+    <div class="avail-calendar-wrap reveal">
+      <div class="avail-cal-header">
+        <h3 id="availMonthLabel">—</h3>
+        <div class="avail-cal-nav">
+          <button id="availPrev" aria-label="Vorheriger Monat">‹</button>
+          <button id="availNext" aria-label="Nächster Monat">›</button>
+        </div>
+      </div>
+      <div class="avail-calendar" id="availCalGrid"></div>
+    </div>
+
+    <div class="avail-legend reveal">
+      <div class="avail-legend-item">
+        <span class="avail-legend-dot frei"></span>
+        <span>Verfügbar</span>
+      </div>
+      <div class="avail-legend-item">
+        <span class="avail-legend-dot belegt"></span>
+        <span>Belegt</span>
+      </div>
+      <div class="avail-legend-item">
+        <span class="avail-legend-dot blockiert"></span>
+        <span>Nicht verfügbar</span>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:2rem;" class="reveal">
+      <a href="/booking.html" class="btn btn-primary">Datum anfragen</a>
+    </div>
+  </div>
+</section>
+
 <!-- Packages -->
 <section class="packages" id="packages">
   <div class="container">
@@ -418,52 +461,7 @@
   </div>
 </section>
 
-<!-- Verfügbarkeit -->
-<section class="availability-section" id="availability">
-  <div class="container">
-    <div class="avail-header reveal">
-      <span class="section-subtitle">Terminplanung</span>
-      <h2 class="section-title">Verfügbarkeit <span class="gradient-text">prüfen</span></h2>
-      <p style="color:var(--text-muted); max-width:500px; margin:1rem auto 0;">
-        Ist dein Datum noch frei? Hier siehst du auf einen Blick, welche Termine verfügbar sind.
-      </p>
-    </div>
 
-    <div class="avail-calendar-wrap reveal">
-      <div class="avail-cal-header">
-        <h3 id="availMonthLabel">—</h3>
-        <div class="avail-cal-nav">
-          <button id="availPrev" aria-label="Vorheriger Monat">‹</button>
-          <button id="availNext" aria-label="Nächster Monat">›</button>
-        </div>
-      </div>
-      <div class="avail-calendar" id="availCalGrid"></div>
-    </div>
-
-    <div class="avail-legend reveal">
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot frei"></span>
-        <span>Verfügbar</span>
-      </div>
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot belegt"></span>
-        <span>Belegt</span>
-      </div>
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot blockiert"></span>
-        <span>Nicht verfügbar</span>
-      </div>
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot neutral"></span>
-        <span>Auf Anfrage</span>
-      </div>
-    </div>
-
-    <div class="avail-cta reveal">
-      <a href="/booking.html" class="btn btn-primary">Datum anfragen</a>
-    </div>
-  </div>
-</section>
 
 <footer>
   <div class="container">

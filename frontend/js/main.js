@@ -275,23 +275,24 @@
       if (isPast) cls += " past";
       if (isToday) cls += " today";
 
-      if (entry) {
-        cls += ` ${entry.type === "frei" ? "frei" : "blockiert"}`;
-      } else {
-        cls += " neutral";
+      // Default: alle Tage sind frei — nur explizit blockierte/belegte Tage werden anders dargestellt
+      if (entry && (entry.type === "blockiert" || entry.type === "belegt")) {
+        cls += ` ${entry.type}`;
+      } else if (!isPast) {
+        cls += " frei";
       }
 
-      const title = entry
-        ? (entry.type === "frei" ? "Verfügbar" : "Nicht verfügbar") +
-          (entry.note ? ` — ${entry.note}` : "")
-        : "Auf Anfrage";
+      let title = "Verfügbar — Klicken zum Buchen";
+      if (entry && entry.type === "blockiert") title = "Nicht verfügbar" + (entry.note ? ` — ${entry.note}` : "");
+      if (entry && entry.type === "belegt") title = "Belegt" + (entry.note ? ` — ${entry.note}` : "");
+      if (isPast) title = "";
 
-      html += `<div class="${cls}" title="${title}">${d}</div>`;
+      html += `<div class="${cls}" title="${title}" ${(!isPast && (!entry || entry.type === "frei")) ? `data-date="${dateStr}"` : ""}>${d}</div>`;
     }
 
     grid.innerHTML = html;
 
-    // Clicking a "frei" day goes to booking page
+    // Clicking any available (frei) day goes to booking page
     grid.querySelectorAll(".avail-day.frei:not(.past)").forEach((el) => {
       el.addEventListener("click", () => {
         const mm = String(calMonth + 1).padStart(2, "0");

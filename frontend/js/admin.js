@@ -1051,7 +1051,8 @@
     document.getElementById("availDayTitle").textContent = fmtDate(dateStr);
     const info = [];
     if (hasBooking) info.push("Buchung(en) vorhanden");
-    if (entry) info.push(`Aktuell: ${entry.type === "frei" ? "Als frei markiert" : "Blockiert"}${entry.note ? " — " + entry.note : ""}`);
+    const typeLabel = {"blockiert": "Blockiert", "belegt": "Belegt"};
+  if (entry) info.push(`Aktuell: ${typeLabel[entry.type] || entry.type}${entry.note ? " — " + entry.note : ""}`);
     document.getElementById("availDayInfo").textContent = info.join(" | ") || "Kein besonderer Status.";
     document.getElementById("availDayNote").value = entry ? entry.note || "" : "";
 
@@ -1060,10 +1061,10 @@
     availDayModal.classList.add("open");
   }
 
-  document.getElementById("availDayFrei").addEventListener("click", async () => {
+  document.getElementById("availDayBelegt").addEventListener("click", async () => {
     const dateStr = availDayModal.dataset.date;
     const note = document.getElementById("availDayNote").value.trim();
-    await saveAvailability(dateStr, "frei", note);
+    await saveAvailability(dateStr, "belegt", note);
   });
 
   document.getElementById("availDayBlockieren").addEventListener("click", async () => {
@@ -1087,7 +1088,8 @@
       if (!res.ok) throw new Error((await res.json()).error || "Fehler");
       availDayModal.classList.remove("open");
       await loadAvailabilityAdmin();
-      window.showToast(type === "frei" ? "Als frei markiert" : "Blockiert", "success");
+      const labels = {"blockiert": "Blockiert", "belegt": "Als belegt markiert"};
+      window.showToast(labels[type] || type, "success");
     } catch (err) {
       window.showToast("Fehler: " + err.message, "error");
     }
