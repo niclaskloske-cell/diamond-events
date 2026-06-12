@@ -446,8 +446,8 @@ app.post("/api/admin/availability", requireAuth, (req, res) => {
   if (!date || !type) {
     return res.status(400).json({ error: "Datum und Typ sind Pflichtfelder." });
   }
-  if (!["blockiert", "frei"].includes(type)) {
-    return res.status(400).json({ error: "Typ muss 'blockiert' oder 'frei' sein." });
+  if (!["blockiert", "frei", "belegt"].includes(type)) {
+    return res.status(400).json({ error: "Typ muss 'blockiert', 'belegt' oder 'frei' sein." });
   }
   // Validate date format YYYY-MM-DD
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
