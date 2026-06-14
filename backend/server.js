@@ -882,6 +882,27 @@ app.post("/api/templates/:key/preview", requireAuth, (req, res) => {
 // ---------- API: Galleries ----------
 // ============================================================
 
+// Public: list all galleries (no passwords exposed)
+app.get("/api/galleries", (req, res) => {
+  const list = readGalleries().map((g) => {
+    const files = listGalleryFiles(g.id);
+    const cover = g.coverImage && files.includes(g.coverImage)
+      ? g.coverImage
+      : files[0] || null;
+    return {
+      id: g.id,
+      name: g.name,
+      eventDate: g.eventDate,
+      message: g.message || "",
+      imageCount: files.length,
+      coverImage: cover,
+      requiresPassword: !!g.password,
+    };
+  });
+  list.sort((a, b) => (a.eventDate > b.eventDate ? -1 : 1));
+  res.json(list);
+});
+
 // Public: gallery info (without password protection — minimal info only)
 app.get("/api/galleries/:id/info", (req, res) => {
   const g = getGallery(req.params.id);
@@ -975,7 +996,7 @@ app.get("/api/admin/galleries", requireAuth, (req, res) => {
 });
 
 app.post("/api/admin/galleries", requireAuth, (req, res) => {
-  const { name, password, eventDate, description } = req.body || {};
+  const { name, password, eventDate, description, message, coverImage } = req.body || {};
   if (!name) return res.status(400).json({ error: "Name ist Pflicht." });
   const galleries = readGalleries();
   const gallery = {
@@ -984,6 +1005,8 @@ app.post("/api/admin/galleries", requireAuth, (req, res) => {
     password: password ? String(password) : "",
     eventDate: eventDate || "",
     description: description ? String(description).trim() : "",
+    message: message ? String(message).trim() : "",
+    coverImage: coverImage ? String(coverImage).trim() : "",
     createdAt: new Date().toISOString(),
   };
   galleries.push(gallery);
@@ -995,7 +1018,7 @@ app.patch("/api/admin/galleries/:id", requireAuth, (req, res) => {
   const galleries = readGalleries();
   const idx = galleries.findIndex((x) => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
-  ["name", "password", "eventDate", "description"].forEach((k) => {
+  ["name", "password", "eventDate", "description", "message", "coverImage"].forEach((k) => {
     if (k in req.body) galleries[idx][k] = String(req.body[k] || "");
   });
   galleries[idx].updatedAt = new Date().toISOString();

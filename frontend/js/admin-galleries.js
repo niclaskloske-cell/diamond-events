@@ -32,6 +32,7 @@
       const res = await fetch("/api/admin/galleries");
       if (!res.ok) return;
       galleries = await res.json();
+      window._adminGalleries = galleries;
       renderGalleriesList();
     } catch (err) {
       console.error("Load galleries failed:", err);
@@ -112,6 +113,7 @@
     document.getElementById("galleryName").value = g.name || "";
     document.getElementById("galleryPassword").value = g.password || "";
     document.getElementById("galleryDate").value = g.eventDate || "";
+    document.getElementById("galleryMessage").value = g.message || "";
     document.getElementById("galleryDescription").value = g.description || "";
 
     const imageManager = document.getElementById("galleryImageManager");
@@ -142,6 +144,7 @@
       name: document.getElementById("galleryName").value.trim(),
       password: document.getElementById("galleryPassword").value,
       eventDate: document.getElementById("galleryDate").value,
+      message: document.getElementById("galleryMessage").value.trim(),
       description: document.getElementById("galleryDescription").value.trim(),
     };
     if (!data.name || !data.password) {
@@ -208,20 +211,51 @@
         '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 1.5rem;">Noch keine Bilder. Lade welche hoch ↑</div>';
       return;
     }
-    grid.innerHTML = images
+
+    // Get current cover from the galleries list
+    const galleries = window._adminGalleries || [];
+    const currentGallery = galleries.find(g => g.id === id) || {};
+    const currentCover = currentGallery.coverImage || null;
+
+    grid.innerHTML = `<div style="grid-column:1/-1; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">
+      Klick auf ein Bild → Cover der Galerie-Karte setzen
+    </div>` + images
       .map(
-        (filename) => `
-          <div style="position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--bg-card); border: 1px solid var(--line);">
-            <img src="/api/galleries/${id}/img/${encodeURIComponent(filename)}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" alt="" />
+        (filename) => {
+          const isCover = filename === currentCover;
+          return `<div style="position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--bg-card); border: 2px solid ${isCover ? "var(--neon-cyan)" : "var(--line)"}; cursor: pointer;" title="${isCover ? "Cover-Bild" : "Als Cover setzen"}">
+            <img src="/api/galleries/${id}/img/${encodeURIComponent(filename)}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" alt="" data-img-cover="${escapeHtml(filename)}" />
+            ${isCover ? `<div style="position:absolute;top:0.3rem;left:0.3rem;background:var(--neon-cyan);color:#000;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;padding:2px 6px;border-radius:4px;">COVER</div>` : ""}
             <button type="button" data-img-delete="${escapeHtml(filename)}" title="Löschen" style="position: absolute; top: 0.4rem; right: 0.4rem; width: 28px; height: 28px; border-radius: 50%; background: rgba(248, 113, 113, 0.9); color: #fff; border: none; cursor: pointer; font-size: 0.85rem; line-height: 1;">×</button>
-          </div>`
+          </div>`;
+        }
       )
       .join("");
 
+    grid.querySelectorAll("[data-img-cover]").forEach((img) => {
+      img.addEventListener("click", async () => {
+        const filename = img.dataset.imgCover;
+        try {
+          const res = await fetch(`/api/admin/galleries/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ coverImage: filename }),
+          });
+          if (!res.ok) throw new Error("Fehler beim Setzen des Covers");
+          await loadGalleries();
+          renderImagesGrid(id, images);
+          window.showToast("Cover-Bild gesetzt ✓", "success");
+        } catch (err) {
+          window.showToast("Fehler: " + err.message, "error");
+        }
+      });
+    });
+
     grid.querySelectorAll("[data-img-delete]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
         const filename = btn.dataset.imgDelete;
-        if (!confirm(`Bild "${filename}" löschen?`)) return;
+        if (!confirm(`Bild löschen?`)) return;
         try {
           const res = await fetch(
             `/api/admin/galleries/${id}/images/${encodeURIComponent(filename)}`,
