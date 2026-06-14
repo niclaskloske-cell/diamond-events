@@ -307,26 +307,42 @@
     if (!files.length) return;
     const arr = Array.from(files);
     const total = arr.length;
+    const BATCH = 3; // 3 Bilder pro Request — verhindert Timeout
+    let done = 0;
+    let totalFailed = 0;
+
     progressBox.style.display = "block";
-    progressBox.textContent = `Lade ${total} Bild${total === 1 ? "" : "er"} hoch...`;
 
-    const formData = new FormData();
-    arr.forEach((f) => formData.append("images", f));
+    for (let i = 0; i < arr.length; i += BATCH) {
+      const batch = arr.slice(i, i + BATCH);
+      const formData = new FormData();
+      batch.forEach((f) => formData.append("images", f));
 
-    try {
-      const res = await fetch(`/api/admin/galleries/${currentGalleryId}/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Upload fehlgeschlagen");
-      progressBox.style.display = "none";
-      loadGalleryImages(currentGalleryId);
-      loadGalleries();
-      window.showToast(`${json.uploaded.length} Bild${json.uploaded.length === 1 ? "" : "er"} hochgeladen`, "success");
-    } catch (err) {
-      progressBox.style.display = "none";
-      window.showToast("Fehler: " + err.message, "error");
+      progressBox.textContent = `Hochladen… ${Math.min(done + BATCH, total)} / ${total}`;
+
+      try {
+        const res = await fetch(`/api/admin/galleries/${currentGalleryId}/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Upload fehlgeschlagen");
+        done += (json.uploaded || []).length;
+        totalFailed += (json.failed || []).length;
+      } catch (err) {
+        totalFailed += batch.length;
+        console.error("Batch upload error:", err.message);
+      }
+    }
+
+    progressBox.style.display = "none";
+    loadGalleryImages(currentGalleryId);
+    loadGalleries();
+
+    if (totalFailed === 0) {
+      window.showToast(`${done} Bild${done === 1 ? "" : "er"} hochgeladen ✓`, "success");
+    } else {
+      window.showToast(`${done} hochgeladen, ${totalFailed} fehlgeschlagen`, "error");
     }
   }
 

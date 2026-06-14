@@ -1130,23 +1130,26 @@ app.post(
     if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
 
     if (CLOUDINARY_ENABLED) {
-      try {
-        const files = req.files || [];
-        const results = await Promise.all(
-          files.map(f => uploadToCloudinary(f.buffer, req.params.id, f.originalname))
-        );
-        const galleries = readGalleries();
-        const idx = galleries.findIndex(x => x.id === req.params.id);
-        if (!galleries[idx].images) galleries[idx].images = [];
-        results.forEach(r => {
-          galleries[idx].images.push({ publicId: r.public_id, url: r.secure_url });
-        });
-        writeGalleries(galleries);
-        res.json({ ok: true, uploaded: results.map(r => r.public_id) });
-      } catch (err) {
-        console.error("[cloudinary] Upload error:", err);
-        res.status(500).json({ error: "Upload fehlgeschlagen: " + err.message });
+      const files = req.files || [];
+      const uploaded = [];
+      const failed = [];
+      for (const f of files) {
+        try {
+          const result = await uploadToCloudinary(f.buffer, req.params.id, f.originalname);
+          const galleries = readGalleries();
+          const idx = galleries.findIndex(x => x.id === req.params.id);
+          if (idx !== -1) {
+            if (!galleries[idx].images) galleries[idx].images = [];
+            galleries[idx].images.push({ publicId: result.public_id, url: result.secure_url });
+            writeGalleries(galleries);
+          }
+          uploaded.push(result.public_id);
+        } catch (err) {
+          console.error("[cloudinary] Upload error for", f.originalname, err.message);
+          failed.push(f.originalname);
+        }
       }
+      return res.json({ ok: true, uploaded, failed });
     } else {
       res.json({ ok: true, uploaded: (req.files || []).map(f => f.filename) });
     }
