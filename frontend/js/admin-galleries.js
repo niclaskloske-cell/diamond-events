@@ -223,18 +223,19 @@
       .map(
         (filename) => {
           const isCover = filename === currentCover;
-          return `<div style="position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--bg-card); border: 2px solid ${isCover ? "var(--neon-cyan)" : "var(--line)"}; cursor: pointer;" title="${isCover ? "Cover-Bild" : "Als Cover setzen"}">
-            <img src="/api/galleries/${id}/img/${encodeURIComponent(filename)}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" alt="" data-img-cover="${escapeHtml(filename)}" />
-            ${isCover ? `<div style="position:absolute;top:0.3rem;left:0.3rem;background:var(--neon-cyan);color:#000;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;padding:2px 6px;border-radius:4px;">COVER</div>` : ""}
-            <button type="button" data-img-delete="${escapeHtml(filename)}" title="Löschen" style="position: absolute; top: 0.4rem; right: 0.4rem; width: 28px; height: 28px; border-radius: 50%; background: rgba(248, 113, 113, 0.9); color: #fff; border: none; cursor: pointer; font-size: 0.85rem; line-height: 1;">×</button>
+          return `<div data-img-cover="${escapeHtml(filename)}" style="position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--bg-card); border: 2px solid ${isCover ? "var(--neon-cyan)" : "var(--line)"}; cursor: pointer;" title="${isCover ? "Cover-Bild (gesetzt)" : "Klicken → Als Cover setzen"}">
+            <img src="/api/galleries/${id}/img/${encodeURIComponent(filename)}" style="width: 100%; height: 100%; object-fit: cover; pointer-events:none;" loading="lazy" alt="" />
+            ${isCover ? `<div style="position:absolute;top:0.3rem;left:0.3rem;background:var(--neon-cyan);color:#000;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;padding:2px 6px;border-radius:4px;pointer-events:none;">COVER</div>` : ""}
+            <button type="button" data-img-delete="${escapeHtml(filename)}" title="Löschen" style="position: absolute; top: 0.4rem; right: 0.4rem; width: 28px; height: 28px; border-radius: 50%; background: rgba(248, 113, 113, 0.9); color: #fff; border: none; cursor: pointer; font-size: 0.85rem; line-height: 1; z-index:2;">×</button>
           </div>`;
         }
       )
       .join("");
 
-    grid.querySelectorAll("[data-img-cover]").forEach((img) => {
-      img.addEventListener("click", async () => {
-        const filename = img.dataset.imgCover;
+    grid.querySelectorAll("[data-img-cover]").forEach((div) => {
+      div.addEventListener("click", async (e) => {
+        if (e.target.dataset.imgDelete) return; // don't fire when delete button clicked
+        const filename = div.dataset.imgCover;
         try {
           const res = await fetch(`/api/admin/galleries/${id}`, {
             method: "PATCH",

@@ -455,7 +455,7 @@
         ? `<img class="gallery-card-img" src="${coverUrl}" alt="${g.name}" loading="lazy" />`
         : `<div class="gallery-card-placeholder"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
       const msg = g.message || "Es war schön, diesen besonderen Tag mit euch erleben zu dürfen.";
-      return `<div class="gallery-card reveal" data-id="${g.id}" data-protected="${g.requiresPassword}">
+      return `<div class="gallery-card" data-id="${g.id}" data-protected="${g.requiresPassword}">
         ${imgHtml}
         <div class="gallery-card-overlay"></div>
         <span class="gallery-card-badge">
