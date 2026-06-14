@@ -448,8 +448,7 @@
       return;
     }
     grid.innerHTML = galleries.map((g) => {
-      const hasCover = g.imageCount > 0;
-      const coverUrl = hasCover ? `/api/galleries/${g.id}/cover` : null;
+      const coverUrl = g.coverUrl || (g.imageCount > 0 ? `/api/galleries/${g.id}/cover` : null);
       const dateStr = fmtDate(g.eventDate);
       const imgHtml = coverUrl
         ? `<img class="gallery-card-img" src="${coverUrl}" alt="${g.name}" loading="lazy" />`
@@ -563,16 +562,16 @@
     document.getElementById("detailMessage").textContent = `„${msg}"`;
     document.getElementById("downloadBtn").href = `/api/galleries/${id}/download`;
 
-    lightboxImages = (data.images || []).map(f => `/api/galleries/${id}/img/${encodeURIComponent(f)}`);
+    lightboxImages = (data.images || []).map(img => img.url || `/api/galleries/${id}/img/${encodeURIComponent(img.publicId || img)}`);
 
     const masonry = document.getElementById("photoMasonry");
     if (!data.images || !data.images.length) {
       masonry.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:4rem 0;grid-column:1/-1">Noch keine Fotos hochgeladen.</p>`;
     } else {
-      masonry.innerHTML = data.images.map((f, i) => {
-        const url = `/api/galleries/${id}/img/${encodeURIComponent(f)}`;
+      masonry.innerHTML = data.images.map((img, i) => {
+        const thumbUrl = img.thumb || img.url || `/api/galleries/${id}/img/${encodeURIComponent(img.publicId || img)}`;
         return `<div class="photo-item" data-index="${i}">
-          <img src="${url}" alt="Foto ${i+1}" loading="lazy" />
+          <img src="${thumbUrl}" alt="Foto ${i+1}" loading="lazy" />
           <div class="photo-item-overlay">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           </div>

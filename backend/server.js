@@ -10,6 +10,25 @@ const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
 const archiver = require("archiver");
+const { v2: cloudinary } = require("cloudinary");
+const streamifier = require("streamifier");
+
+// ---------- Cloudinary ----------
+const CLOUDINARY_ENABLED = !!(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+if (CLOUDINARY_ENABLED) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  console.log("[cloudinary] Configured ✓");
+} else {
+  console.log("[cloudinary] Not configured — using local disk storage");
+}
 
 // ---------- Config ----------
 const PORT = process.env.PORT || 3000;
@@ -506,6 +525,10 @@ function getGallery(id) {
 }
 
 function listGalleryFiles(galleryId) {
+  // If Cloudinary enabled, images are stored in gallery.images[] array
+  const g = readGalleries().find(x => x.id === galleryId);
+  if (CLOUDINARY_ENABLED && g && g.images) return g.images.map(i => i.publicId || i);
+  // Fallback: local disk
   const dir = path.join(GALLERIES_DIR, galleryId);
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -514,22 +537,55 @@ function listGalleryFiles(galleryId) {
     .sort();
 }
 
-// Multer setup for image uploads
-const galleryUpload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const dir = path.join(GALLERIES_DIR, req.params.id);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-      const safe = (file.originalname || "image").replace(/[^a-zA-Z0-9._-]/g, "_");
-      const unique = Date.now() + "_" + Math.random().toString(36).slice(2, 8) + "_" + safe;
-      cb(null, unique);
-    },
-  }),
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB per file
-});
+function getGalleryImages(galleryId) {
+  const g = readGalleries().find(x => x.id === galleryId);
+  if (CLOUDINARY_ENABLED && g && g.images) return g.images;
+  // Fallback: local disk — return fake objects with publicId = filename
+  const dir = path.join(GALLERIES_DIR, galleryId);
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter((f) => /\.(jpe?g|png|webp|gif|heic|tiff?)$/i.test(f))
+    .sort()
+    .map(f => ({ publicId: f, url: null }));
+}
+
+// Upload helper: stream buffer to Cloudinary
+function uploadToCloudinary(buffer, folder, originalname) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: `diamond-events/${folder}`,
+        resource_type: "image",
+        transformation: [{ quality: "auto:good", fetch_format: "auto" }],
+      },
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      }
+    );
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+}
+
+// Multer — memory storage when Cloudinary enabled, disk otherwise
+const galleryUpload = CLOUDINARY_ENABLED
+  ? multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } })
+  : multer({
+      storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+          const dir = path.join(GALLERIES_DIR, req.params.id);
+          if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+          cb(null, dir);
+        },
+        filename: (req, file, cb) => {
+          const safe = (file.originalname || "image").replace(/[^a-zA-Z0-9._-]/g, "_");
+          const unique = Date.now() + "_" + Math.random().toString(36).slice(2, 8) + "_" + safe;
+          cb(null, unique);
+        },
+      }),
+      limits: { fileSize: 50 * 1024 * 1024 },
+    });
 
 // ---------- Auth Middleware ----------
 function requireAuth(req, res, next) {
@@ -885,36 +941,27 @@ app.post("/api/templates/:key/preview", requireAuth, (req, res) => {
 // Public: list all galleries (no passwords exposed)
 app.get("/api/galleries", (req, res) => {
   const list = readGalleries().map((g) => {
-    const files = listGalleryFiles(g.id);
-    const cover = g.coverImage && files.includes(g.coverImage)
-      ? g.coverImage
-      : files[0] || null;
+    const images = getGalleryImages(g.id);
+    const imageCount = images.length;
+    let coverUrl = null;
+    if (CLOUDINARY_ENABLED && images.length) {
+      const coverImg = g.coverImage
+        ? images.find(i => i.publicId === g.coverImage) || images[0]
+        : images[0];
+      coverUrl = coverImg ? cloudinary.url(coverImg.publicId, { width: 600, crop: "fill", quality: "auto", fetch_format: "auto" }) : null;
+    }
     return {
       id: g.id,
       name: g.name,
       eventDate: g.eventDate,
       message: g.message || "",
-      imageCount: files.length,
-      coverImage: cover,
+      imageCount,
+      coverUrl,
       requiresPassword: !!g.password,
     };
   });
   list.sort((a, b) => (a.eventDate > b.eventDate ? -1 : 1));
   res.json(list);
-});
-
-// Public: gallery info (without password protection — minimal info only)
-app.get("/api/galleries/:id/info", (req, res) => {
-  const g = getGallery(req.params.id);
-  if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
-  res.json({
-    id: g.id,
-    name: g.name,
-    eventDate: g.eventDate,
-    description: g.description,
-    imageCount: listGalleryFiles(g.id).length,
-    requiresPassword: !!g.password,
-  });
 });
 
 // Public: submit password to unlock a gallery (sets session)
@@ -937,37 +984,56 @@ function checkGalleryAccess(req, res, next) {
   return res.status(401).json({ error: "Nicht freigeschaltet" });
 }
 
-// Public: serve cover image (shown on the gallery card grid — intentionally public)
+// Public: serve cover image redirect (Cloudinary) or local file
 app.get("/api/galleries/:id/cover", (req, res) => {
   const g = getGallery(req.params.id);
   if (!g) return res.status(404).end();
-  const files = listGalleryFiles(g.id);
+  if (CLOUDINARY_ENABLED) {
+    const images = g.images || [];
+    const coverImg = g.coverImage
+      ? images.find(i => i.publicId === g.coverImage) || images[0]
+      : images[0];
+    if (!coverImg) return res.status(404).end();
+    const url = cloudinary.url(coverImg.publicId, { width: 600, crop: "fill", quality: "auto", fetch_format: "auto" });
+    return res.redirect(url);
+  }
+  // Local fallback
+  const files = fs.existsSync(path.join(GALLERIES_DIR, g.id))
+    ? fs.readdirSync(path.join(GALLERIES_DIR, g.id)).filter(f => /\.(jpe?g|png|webp)$/i.test(f)).sort()
+    : [];
   const cover = g.coverImage && files.includes(g.coverImage) ? g.coverImage : files[0];
   if (!cover) return res.status(404).end();
-  const safeName = path.basename(cover);
-  const filepath = path.join(GALLERIES_DIR, g.id, safeName);
-  if (!fs.existsSync(filepath)) return res.status(404).end();
-  res.sendFile(filepath);
+  res.sendFile(path.join(GALLERIES_DIR, g.id, path.basename(cover)));
 });
 
 // List images in a gallery (after access)
 app.get("/api/galleries/:id/images", checkGalleryAccess, (req, res) => {
   const g = getGallery(req.params.id);
   if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
-  const files = listGalleryFiles(g.id);
+  const images = getGalleryImages(g.id);
+  let imageList;
+  if (CLOUDINARY_ENABLED) {
+    imageList = images.map(img => ({
+      publicId: img.publicId,
+      url: cloudinary.url(img.publicId, { quality: "auto", fetch_format: "auto" }),
+      thumb: cloudinary.url(img.publicId, { width: 400, crop: "fill", quality: "auto", fetch_format: "auto" }),
+    }));
+  } else {
+    imageList = images.map(img => ({ publicId: img.publicId, url: null, thumb: null }));
+  }
   res.json({
     name: g.name,
     description: g.description,
     eventDate: g.eventDate,
-    images: files,
+    message: g.message || "",
+    images: imageList,
   });
 });
 
-// Serve a single image (after access)
+// Serve a single image — local fallback only (Cloudinary serves directly via URL)
 app.get("/api/galleries/:id/img/:filename", checkGalleryAccess, (req, res) => {
   const g = getGallery(req.params.id);
   if (!g) return res.status(404).end();
-  // Prevent directory traversal
   const safeName = path.basename(req.params.filename);
   const filepath = path.join(GALLERIES_DIR, g.id, safeName);
   if (!fs.existsSync(filepath)) return res.status(404).end();
@@ -1002,7 +1068,7 @@ app.get("/api/galleries/:id/download", checkGalleryAccess, (req, res) => {
 app.get("/api/admin/galleries", requireAuth, (req, res) => {
   const list = readGalleries().map((g) => ({
     ...g,
-    imageCount: listGalleryFiles(g.id).length,
+    imageCount: CLOUDINARY_ENABLED ? (g.images || []).length : listGalleryFiles(g.id).length,
   }));
   list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   res.json(list);
@@ -1058,14 +1124,32 @@ app.delete("/api/admin/galleries/:id", requireAuth, (req, res) => {
 app.post(
   "/api/admin/galleries/:id/upload",
   requireAuth,
-  galleryUpload.array("images", 50),
-  (req, res) => {
+  galleryUpload.array("images", 200),
+  async (req, res) => {
     const g = getGallery(req.params.id);
     if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
-    res.json({
-      ok: true,
-      uploaded: (req.files || []).map((f) => f.filename),
-    });
+
+    if (CLOUDINARY_ENABLED) {
+      try {
+        const files = req.files || [];
+        const results = await Promise.all(
+          files.map(f => uploadToCloudinary(f.buffer, req.params.id, f.originalname))
+        );
+        const galleries = readGalleries();
+        const idx = galleries.findIndex(x => x.id === req.params.id);
+        if (!galleries[idx].images) galleries[idx].images = [];
+        results.forEach(r => {
+          galleries[idx].images.push({ publicId: r.public_id, url: r.secure_url });
+        });
+        writeGalleries(galleries);
+        res.json({ ok: true, uploaded: results.map(r => r.public_id) });
+      } catch (err) {
+        console.error("[cloudinary] Upload error:", err);
+        res.status(500).json({ error: "Upload fehlgeschlagen: " + err.message });
+      }
+    } else {
+      res.json({ ok: true, uploaded: (req.files || []).map(f => f.filename) });
+    }
   }
 );
 
@@ -1073,10 +1157,28 @@ app.post(
 app.delete(
   "/api/admin/galleries/:id/images/:filename",
   requireAuth,
-  (req, res) => {
+  async (req, res) => {
     const g = getGallery(req.params.id);
     if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
-    const safe = path.basename(req.params.filename);
+    const publicId = decodeURIComponent(req.params.filename);
+
+    if (CLOUDINARY_ENABLED) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+        const galleries = readGalleries();
+        const idx = galleries.findIndex(x => x.id === req.params.id);
+        if (idx !== -1) {
+          galleries[idx].images = (galleries[idx].images || []).filter(i => i.publicId !== publicId);
+          if (galleries[idx].coverImage === publicId) galleries[idx].coverImage = "";
+          writeGalleries(galleries);
+        }
+        return res.json({ ok: true });
+      } catch (err) {
+        return res.status(500).json({ error: "Löschen fehlgeschlagen: " + err.message });
+      }
+    }
+    // Local fallback
+    const safe = path.basename(publicId);
     const filepath = path.join(GALLERIES_DIR, g.id, safe);
     if (!fs.existsSync(filepath))
       return res.status(404).json({ error: "Bild nicht gefunden" });
