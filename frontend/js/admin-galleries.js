@@ -299,6 +299,32 @@
     fileInput.value = "";
   });
 
+  function uploadBatchXHR(galleryId, files) {
+    return new Promise((resolve) => {
+      const formData = new FormData();
+      files.forEach((f) => formData.append("images", f));
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `/api/admin/galleries/${galleryId}/upload`);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          const bar = document.getElementById("uploadBarInner");
+          if (bar) bar.style.width = pct + "%";
+        }
+      };
+      xhr.onload = () => {
+        try {
+          const json = JSON.parse(xhr.responseText);
+          resolve({ ok: xhr.status < 400, uploaded: json.uploaded || [], failed: json.failed || [] });
+        } catch (e) {
+          resolve({ ok: false, uploaded: [], failed: files.map(f => f.name) });
+        }
+      };
+      xhr.onerror = () => resolve({ ok: false, uploaded: [], failed: files.map(f => f.name) });
+      xhr.send(formData);
+    });
+  }
+
   async function handleFiles(files) {
     if (!currentGalleryId) {
       window.showToast("Galerie zuerst speichern.", "error");
@@ -307,35 +333,39 @@
     if (!files.length) return;
     const arr = Array.from(files);
     const total = arr.length;
-    const BATCH = 3; // 3 Bilder pro Request — verhindert Timeout
+    const BATCH = 5;
     let done = 0;
     let totalFailed = 0;
 
     progressBox.style.display = "block";
+    progressBox.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+        <span id="uploadLabel" style="font-size:0.85rem;color:var(--text-muted);">Wird hochgeladen…</span>
+        <span id="uploadCount" style="font-size:0.85rem;font-weight:600;">0 / ${total}</span>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:100px;overflow:hidden;">
+        <div id="uploadBarInner" style="height:100%;width:0%;background:linear-gradient(90deg,#00f0ff,#a855f7);border-radius:100px;transition:width 0.2s;"></div>
+      </div>`;
 
     for (let i = 0; i < arr.length; i += BATCH) {
       const batch = arr.slice(i, i + BATCH);
-      const formData = new FormData();
-      batch.forEach((f) => formData.append("images", f));
+      const countEl = document.getElementById("uploadCount");
+      const barEl = document.getElementById("uploadBarInner");
+      if (countEl) countEl.textContent = `${done} / ${total}`;
+      if (barEl) barEl.style.width = Math.round((done / total) * 100) + "%";
 
-      progressBox.textContent = `Hochladen… ${Math.min(done + BATCH, total)} / ${total}`;
+      const result = await uploadBatchXHR(currentGalleryId, batch);
+      done += result.uploaded.length;
+      totalFailed += result.failed.length;
 
-      try {
-        const res = await fetch(`/api/admin/galleries/${currentGalleryId}/upload`, {
-          method: "POST",
-          body: formData,
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || "Upload fehlgeschlagen");
-        done += (json.uploaded || []).length;
-        totalFailed += (json.failed || []).length;
-      } catch (err) {
-        totalFailed += batch.length;
-        console.error("Batch upload error:", err.message);
-      }
+      if (countEl) countEl.textContent = `${done} / ${total}`;
+      if (barEl) barEl.style.width = Math.round((done / total) * 100) + "%";
     }
 
-    progressBox.style.display = "none";
+    const labelEl = document.getElementById("uploadLabel");
+    if (labelEl) labelEl.textContent = totalFailed === 0 ? "Fertig ✓" : `${done} hochgeladen, ${totalFailed} fehlgeschlagen`;
+    setTimeout(() => { progressBox.style.display = "none"; }, 1800);
+
     loadGalleryImages(currentGalleryId);
     loadGalleries();
 
