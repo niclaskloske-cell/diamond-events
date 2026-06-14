@@ -1041,26 +1041,39 @@ app.get("/api/galleries/:id/img/:filename", checkGalleryAccess, (req, res) => {
 });
 
 // Download all images as ZIP
-app.get("/api/galleries/:id/download", checkGalleryAccess, (req, res) => {
+app.get("/api/galleries/:id/download", checkGalleryAccess, async (req, res) => {
   const g = getGallery(req.params.id);
   if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
-  const dir = path.join(GALLERIES_DIR, g.id);
-  if (!fs.existsSync(dir))
-    return res.status(404).json({ error: "Keine Bilder vorhanden" });
 
   const safeName = (g.name || g.id).replace(/[^a-zA-Z0-9._-]/g, "_");
   res.setHeader("Content-Type", "application/zip");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="diamond-events-${safeName}.zip"`
-  );
-  const archive = archiver("zip", { zlib: { level: 6 } });
-  archive.on("error", (err) => {
-    console.error("ZIP error:", err);
-    res.end();
-  });
+  res.setHeader("Content-Disposition", `attachment; filename="diamond-events-${safeName}.zip"`);
+
+  const archive = archiver("zip", { zlib: { level: 1 } });
+  archive.on("error", (err) => { console.error("ZIP error:", err); res.end(); });
   archive.pipe(res);
-  archive.directory(dir, false);
+
+  if (CLOUDINARY_ENABLED) {
+    const images = g.images || [];
+    if (!images.length) { archive.finalize(); return; }
+    const https = require("https");
+    const http = require("http");
+    await Promise.all(images.map((img, i) => new Promise((resolve) => {
+      const url = img.url || img;
+      const ext = (url.split("?")[0].split(".").pop() || "jpg").toLowerCase().slice(0, 4);
+      const filename = `${String(i + 1).padStart(3, "0")}.${ext}`;
+      const mod = url.startsWith("https") ? https : http;
+      mod.get(url, (stream) => {
+        archive.append(stream, { name: filename });
+        stream.on("end", resolve);
+        stream.on("error", resolve);
+      }).on("error", resolve);
+    })));
+  } else {
+    const dir = path.join(GALLERIES_DIR, g.id);
+    if (fs.existsSync(dir)) archive.directory(dir, false);
+  }
+
   archive.finalize();
 });
 
