@@ -299,28 +299,20 @@
     fileInput.value = "";
   });
 
-  function uploadBatchXHR(galleryId, files) {
+  // Upload one file, returns true/false
+  function uploadOneFile(galleryId, file) {
     return new Promise((resolve) => {
       const formData = new FormData();
-      files.forEach((f) => formData.append("images", f));
+      formData.append("images", file);
       const xhr = new XMLHttpRequest();
       xhr.open("POST", `/api/admin/galleries/${galleryId}/upload`);
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const pct = Math.round((e.loaded / e.total) * 100);
-          const bar = document.getElementById("uploadBarInner");
-          if (bar) bar.style.width = pct + "%";
-        }
-      };
       xhr.onload = () => {
         try {
           const json = JSON.parse(xhr.responseText);
-          resolve({ ok: xhr.status < 400, uploaded: json.uploaded || [], failed: json.failed || [] });
-        } catch (e) {
-          resolve({ ok: false, uploaded: [], failed: files.map(f => f.name) });
-        }
+          resolve(xhr.status < 400 && (json.uploaded || []).length > 0);
+        } catch (e) { resolve(false); }
       };
-      xhr.onerror = () => resolve({ ok: false, uploaded: [], failed: files.map(f => f.name) });
+      xhr.onerror = () => resolve(false);
       xhr.send(formData);
     });
   }
@@ -333,9 +325,16 @@
     if (!files.length) return;
     const arr = Array.from(files);
     const total = arr.length;
-    const BATCH = 5;
     let done = 0;
-    let totalFailed = 0;
+    let failed = 0;
+
+    const setProgress = () => {
+      const pct = Math.round((done + failed) / total * 100);
+      const countEl = document.getElementById("uploadCount");
+      const barEl = document.getElementById("uploadBarInner");
+      if (countEl) countEl.textContent = `${done} / ${total}`;
+      if (barEl) barEl.style.width = pct + "%";
+    };
 
     progressBox.style.display = "block";
     progressBox.innerHTML = `
@@ -344,36 +343,34 @@
         <span id="uploadCount" style="font-size:0.85rem;font-weight:600;">0 / ${total}</span>
       </div>
       <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:100px;overflow:hidden;">
-        <div id="uploadBarInner" style="height:100%;width:0%;background:linear-gradient(90deg,#00f0ff,#a855f7);border-radius:100px;transition:width 0.2s;"></div>
+        <div id="uploadBarInner" style="height:100%;width:0%;background:linear-gradient(90deg,#00f0ff,#a855f7);border-radius:100px;transition:width 0.15s;"></div>
       </div>`;
 
-    for (let i = 0; i < arr.length; i += BATCH) {
-      const batch = arr.slice(i, i + BATCH);
-      const countEl = document.getElementById("uploadCount");
-      const barEl = document.getElementById("uploadBarInner");
-      if (countEl) countEl.textContent = `${done} / ${total}`;
-      if (barEl) barEl.style.width = Math.round((done / total) * 100) + "%";
-
-      const result = await uploadBatchXHR(currentGalleryId, batch);
-      done += result.uploaded.length;
-      totalFailed += result.failed.length;
-
-      if (countEl) countEl.textContent = `${done} / ${total}`;
-      if (barEl) barEl.style.width = Math.round((done / total) * 100) + "%";
-    }
+    // Upload 3 at a time (parallel)
+    const CONCURRENCY = 3;
+    const queue = [...arr];
+    const workers = Array.from({ length: CONCURRENCY }, async () => {
+      while (queue.length) {
+        const file = queue.shift();
+        const ok = await uploadOneFile(currentGalleryId, file);
+        if (ok) done++; else failed++;
+        setProgress();
+      }
+    });
+    await Promise.all(workers);
 
     const labelEl = document.getElementById("uploadLabel");
-    if (labelEl) labelEl.textContent = totalFailed === 0 ? "Fertig ✓" : `${done} hochgeladen, ${totalFailed} fehlgeschlagen`;
-    setTimeout(() => { progressBox.style.display = "none"; }, 1800);
+    if (labelEl) labelEl.textContent = failed === 0 ? "Fertig ✓" : `${done} hochgeladen, ${failed} fehlgeschlagen`;
+    setTimeout(() => { progressBox.style.display = "none"; }, 2000);
 
     loadGalleryImages(currentGalleryId);
     loadGalleries();
-
-    if (totalFailed === 0) {
-      window.showToast(`${done} Bild${done === 1 ? "" : "er"} hochgeladen ✓`, "success");
-    } else {
-      window.showToast(`${done} hochgeladen, ${totalFailed} fehlgeschlagen`, "error");
-    }
+    window.showToast(
+      failed === 0
+        ? `${done} Bild${done === 1 ? "" : "er"} hochgeladen ✓`
+        : `${done} hochgeladen, ${failed} fehlgeschlagen`,
+      failed === 0 ? "success" : "error"
+    );
   }
 
   // ---------- Copy Share Link ----------
