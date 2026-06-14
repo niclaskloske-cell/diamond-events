@@ -448,7 +448,8 @@
       return;
     }
     grid.innerHTML = galleries.map((g) => {
-      const coverUrl = g.coverImage ? `/api/galleries/${g.id}/img/${encodeURIComponent(g.coverImage)}` : null;
+      const hasCover = g.imageCount > 0;
+      const coverUrl = hasCover ? `/api/galleries/${g.id}/cover` : null;
       const dateStr = fmtDate(g.eventDate);
       const imgHtml = coverUrl
         ? `<img class="gallery-card-img" src="${coverUrl}" alt="${g.name}" loading="lazy" />`

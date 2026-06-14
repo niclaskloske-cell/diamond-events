@@ -937,6 +937,19 @@ function checkGalleryAccess(req, res, next) {
   return res.status(401).json({ error: "Nicht freigeschaltet" });
 }
 
+// Public: serve cover image (shown on the gallery card grid — intentionally public)
+app.get("/api/galleries/:id/cover", (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).end();
+  const files = listGalleryFiles(g.id);
+  const cover = g.coverImage && files.includes(g.coverImage) ? g.coverImage : files[0];
+  if (!cover) return res.status(404).end();
+  const safeName = path.basename(cover);
+  const filepath = path.join(GALLERIES_DIR, g.id, safeName);
+  if (!fs.existsSync(filepath)) return res.status(404).end();
+  res.sendFile(filepath);
+});
+
 // List images in a gallery (after access)
 app.get("/api/galleries/:id/images", checkGalleryAccess, (req, res) => {
   const g = getGallery(req.params.id);
