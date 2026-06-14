@@ -1120,7 +1120,39 @@ app.delete("/api/admin/galleries/:id", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// Upload images
+// Direct-upload signature — browser uploads straight to Cloudinary
+app.get("/api/admin/galleries/:id/upload-signature", requireAuth, (req, res) => {
+  if (!CLOUDINARY_ENABLED) return res.status(503).json({ error: "Cloudinary nicht konfiguriert" });
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Galerie nicht gefunden" });
+
+  const timestamp = Math.round(Date.now() / 1000);
+  const folder = `diamond-events/${req.params.id}`;
+  const paramsToSign = { folder, timestamp };
+  const signature = cloudinary.utils.api_sign_request(paramsToSign, process.env.CLOUDINARY_API_SECRET);
+  res.json({
+    signature,
+    timestamp,
+    folder,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  });
+});
+
+// Notify server after direct Cloudinary upload — store publicId + url
+app.post("/api/admin/galleries/:id/notify-upload", requireAuth, express.json(), (req, res) => {
+  const { publicId, url } = req.body || {};
+  if (!publicId || !url) return res.status(400).json({ error: "publicId und url erforderlich" });
+  const galleries = readGalleries();
+  const idx = galleries.findIndex((x) => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  if (!galleries[idx].images) galleries[idx].images = [];
+  galleries[idx].images.push({ publicId, url });
+  writeGalleries(galleries);
+  res.json({ ok: true });
+});
+
+// Upload images (fallback when Cloudinary not enabled)
 app.post(
   "/api/admin/galleries/:id/upload",
   requireAuth,

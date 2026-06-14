@@ -299,22 +299,54 @@
     fileInput.value = "";
   });
 
-  // Upload one file, returns true/false
-  function uploadOneFile(galleryId, file) {
-    return new Promise((resolve) => {
+  // Upload one file directly to Cloudinary, then notify server
+  let _sigCache = null;
+  let _sigCacheId = null;
+
+  async function getSignature(galleryId) {
+    if (_sigCache && _sigCacheId === galleryId && _sigCache.timestamp > Math.round(Date.now() / 1000) - 55) {
+      return _sigCache;
+    }
+    const res = await fetch(`/api/admin/galleries/${galleryId}/upload-signature`);
+    if (!res.ok) throw new Error("Signatur-Fehler");
+    _sigCache = await res.json();
+    _sigCacheId = galleryId;
+    return _sigCache;
+  }
+
+  async function uploadOneFile(galleryId, file) {
+    try {
+      const sig = await getSignature(galleryId);
       const formData = new FormData();
-      formData.append("images", file);
+      formData.append("file", file);
+      formData.append("api_key", sig.apiKey);
+      formData.append("timestamp", sig.timestamp);
+      formData.append("signature", sig.signature);
+      formData.append("folder", sig.folder);
+
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", `/api/admin/galleries/${galleryId}/upload`);
-      xhr.onload = () => {
-        try {
-          const json = JSON.parse(xhr.responseText);
-          resolve(xhr.status < 400 && (json.uploaded || []).length > 0);
-        } catch (e) { resolve(false); }
-      };
-      xhr.onerror = () => resolve(false);
-      xhr.send(formData);
-    });
+      xhr.open("POST", `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`);
+      const result = await new Promise((resolve, reject) => {
+        xhr.onload = () => {
+          try { resolve(JSON.parse(xhr.responseText)); } catch (e) { reject(e); }
+        };
+        xhr.onerror = () => reject(new Error("Netzwerkfehler"));
+        xhr.send(formData);
+      });
+
+      if (result.error) throw new Error(result.error.message);
+
+      // Tell server to record the image
+      await fetch(`/api/admin/galleries/${galleryId}/notify-upload`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicId: result.public_id, url: result.secure_url }),
+      });
+      return true;
+    } catch (err) {
+      console.error("Upload error:", err);
+      return false;
+    }
   }
 
   async function handleFiles(files) {
@@ -346,8 +378,8 @@
         <div id="uploadBarInner" style="height:100%;width:0%;background:linear-gradient(90deg,#00f0ff,#a855f7);border-radius:100px;transition:width 0.15s;"></div>
       </div>`;
 
-    // Upload 3 at a time (parallel)
-    const CONCURRENCY = 3;
+    // Upload 6 at a time directly to Cloudinary CDN
+    const CONCURRENCY = 6;
     const queue = [...arr];
     const workers = Array.from({ length: CONCURRENCY }, async () => {
       while (queue.length) {
