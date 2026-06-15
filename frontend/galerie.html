@@ -377,6 +377,7 @@
   <img class="lightbox-img" id="lightboxImg" src="" alt="" />
   <button class="lightbox-nav lightbox-next" id="lightboxNext">›</button>
   <div class="lightbox-counter" id="lightboxCounter"></div>
+  <button id="lightboxDownload" title="Bild herunterladen" style="position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:50%;width:44px;height:44px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);z-index:10001;">↓</button>
 </div>
 
 <footer>
@@ -607,6 +608,21 @@
     document.getElementById("lightboxImg").src = lightboxImages[lightboxIndex];
     document.getElementById("lightboxCounter").textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
   }
+  document.getElementById("lightboxDownload").addEventListener("click", async () => {
+    const url = lightboxImages[lightboxIndex];
+    if (!url) return;
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `foto-${lightboxIndex + 1}.jpg`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      window.open(url, "_blank");
+    }
+  });
   document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
   document.getElementById("lightboxPrev").addEventListener("click", () => {
     lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
