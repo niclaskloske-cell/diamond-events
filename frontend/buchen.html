@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Jetzt DJ oder Fotografie bei Diamond Events anfragen — schnell, einfach, in 3 Schritten." />
+<title>Buchen — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  /* ── Page ── */
+  .book-page { min-height: 100vh; padding: 7rem 1rem 5rem; display: flex; flex-direction: column; align-items: center; }
+  .book-header { text-align: center; margin-bottom: 3rem; }
+  .book-header h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; margin: 0.4rem 0 0.8rem; }
+  .book-header p { color: var(--text-muted); max-width: 480px; margin: 0 auto; }
+
+  /* ── Steps indicator ── */
+  .steps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 3rem; }
+  .step-item { display: flex; align-items: center; gap: 0.5rem; }
+  .step-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); transition: all 0.3s; flex-shrink: 0; }
+  .step-dot.active { border-color: var(--neon-cyan); color: var(--neon-cyan); box-shadow: 0 0 12px rgba(0,240,255,0.3); }
+  .step-dot.done { background: var(--neon-cyan); border-color: var(--neon-cyan); color: #050507; }
+  .step-label { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; transition: color 0.3s; }
+  .step-item.active .step-label { color: var(--text); }
+  .step-line { width: 48px; height: 1px; background: var(--line); margin: 0 0.25rem; flex-shrink: 0; transition: background 0.3s; }
+  .step-line.done { background: var(--neon-cyan); }
+
+  /* ── Card ── */
+  .book-card { width: 100%; max-width: 640px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 20px; padding: 2.5rem; }
+
+  /* ── Step panels ── */
+  .step-panel { display: none; }
+  .step-panel.active { display: block; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.6rem; }
+  .step-title-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(0,240,255,0.12); color: var(--neon-cyan); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* ── Service cards ── */
+  .svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
+  .svc-card { border: 1.5px solid var(--line); border-radius: 14px; padding: 1.25rem 0.75rem; text-align: center; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text); }
+  .svc-card:hover { border-color: rgba(0,240,255,0.4); background: rgba(0,240,255,0.04); }
+  .svc-card.selected { border-color: var(--neon-cyan); background: rgba(0,240,255,0.08); box-shadow: 0 0 16px rgba(0,240,255,0.12); }
+  .svc-card svg { display: block; margin: 0 auto 0.6rem; opacity: 0.7; }
+  .svc-card .svc-name { font-weight: 700; font-size: 0.9rem; }
+  .svc-card .svc-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  /* ── Package grid ── */
+  .pkg-grid { display: grid; gap: 0.6rem; margin-bottom: 0.5rem; }
+  .pkg-card { border: 1.5px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; background: transparent; color: var(--text); width: 100%; text-align: left; }
+  .pkg-card:hover { border-color: rgba(0,240,255,0.35); background: rgba(0,240,255,0.04); }
+  .pkg-card.selected { border-color: var(--neon-cyan); background: rgba(0,240,255,0.08); }
+  .pkg-card .pkg-name { font-weight: 700; font-size: 0.92rem; }
+  .pkg-card .pkg-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .pkg-card .pkg-price { font-size: 0.9rem; font-weight: 700; color: var(--neon-cyan); white-space: nowrap; }
+
+  /* ── Form inputs ── */
+  .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .f-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+  .f-group:last-child { margin-bottom: 0; }
+  .f-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .f-group input, .f-group select, .f-group textarea {
+    background: rgba(255,255,255,0.04); border: 1.5px solid var(--line); border-radius: 10px;
+    color: var(--text); padding: 0.75rem 1rem; font-size: 0.92rem; transition: border-color 0.2s; font-family: inherit;
+    width: 100%; box-sizing: border-box;
+  }
+  .f-group input:focus, .f-group select:focus, .f-group textarea:focus { outline: none; border-color: var(--neon-cyan); }
+  .f-group select option { background: #0d0d18; }
+  .f-group textarea { resize: vertical; min-height: 90px; }
+
+  /* ── Occasion pills ── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+  .pill { border: 1.5px solid var(--line); border-radius: 100px; padding: 0.35rem 1rem; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text); transition: all 0.2s; }
+  .pill:hover { border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.06); }
+  .pill.selected { border-color: #a855f7; background: rgba(168,85,247,0.12); color: #d8a4ff; }
+
+  /* ── Summary box ── */
+  .summary-box { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .summary-box .s-row { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+  .summary-box .s-row:last-child { border-bottom: none; }
+  .summary-box .s-label { color: var(--text-muted); }
+  .summary-box .s-value { font-weight: 600; }
+
+  /* ── Navigation buttons ── */
+  .btn-row { display: flex; gap: 0.75rem; margin-top: 2rem; }
+  .btn-back { background: transparent; border: 1.5px solid var(--line); color: var(--text-muted); border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .btn-back:hover { border-color: var(--text-muted); color: var(--text); }
+  .btn-next { flex: 1; background: var(--neon-cyan); color: #050507; border: none; border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
+  .btn-next:hover { opacity: 0.88; }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Error / status ── */
+  .f-error { font-size: 0.8rem; color: #f87171; margin-top: 1rem; display: none; }
+  .f-error.show { display: block; }
+
+  /* ── Success ── */
+  .success-panel { text-align: center; padding: 1rem 0; }
+  .success-panel .check { width: 64px; height: 64px; border-radius: 50%; background: rgba(0,240,255,0.1); border: 2px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem; }
+
+  @media (max-width: 540px) {
+    .book-card { padding: 1.5rem 1.25rem; }
+    .svc-grid { grid-template-columns: 1fr; }
+    .f-row { grid-template-columns: 1fr; }
+    .steps-bar { gap: 0; }
+    .step-label { display: none; }
+    .step-line { width: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/">Start</a></li>
+      <li><a href="/galerie.html">Galerie</a></li>
+      <li><a href="/preise.html">Preise</a></li>
+      <li><a href="/buchen.html" class="active">Buchen</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="book-page">
+
+  <div class="book-header">
+    <span class="section-subtitle">Anfrage</span>
+    <h1>Dein Event, <span class="gradient-text">geplant.</span></h1>
+    <p>In 3 Schritten zur Anfrage — wir melden uns innerhalb von 24 Stunden.</p>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="steps-bar" id="stepsBar">
+    <div class="step-item active" id="si1">
+      <div class="step-dot active" id="sd1">1</div>
+      <span class="step-label">Service</span>
+    </div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step-item" id="si2">
+      <div class="step-dot" id="sd2">2</div>
+      <span class="step-label">Event</span>
+    </div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step-item" id="si3">
+      <div class="step-dot" id="sd3">3</div>
+      <span class="step-label">Kontakt</span>
+    </div>
+  </div>
+
+  <div class="book-card">
+
+    <!-- ── STEP 1: Service & Paket ── -->
+    <div class="step-panel active" id="step1">
+      <div class="step-title"><span class="step-title-num">1</span> Was buchst du?</div>
+
+      <div class="svc-grid">
+        <button class="svc-card" data-svc="dj">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/></svg>
+          <div class="svc-name">DJ Service</div>
+          <div class="svc-desc">Musik & Sound</div>
+        </button>
+        <button class="svc-card" data-svc="fotografie">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h3l2-3h8l2 3h3v13H3z"/><circle cx="12" cy="13" r="4"/></svg>
+          <div class="svc-name">Fotografie</div>
+          <div class="svc-desc">Event-Fotos</div>
+        </button>
+        <button class="svc-card" data-svc="beides">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <div class="svc-name">Beides</div>
+          <div class="svc-desc">DJ + Foto</div>
+        </button>
+      </div>
+
+      <!-- DJ Pakete -->
+      <div id="djPkgs" style="display:none; margin-bottom: 1.25rem;">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">DJ Paket</div>
+        <div class="pkg-grid">
+          <button class="pkg-card" data-pkg="dj" data-val="Diamond Lite">
+            <div><div class="pkg-name">Diamond Lite</div><div class="pkg-sub">DJ + Sound · bis 4 Std.</div></div>
+            <div class="pkg-price">ab 449 €</div>
+          </button>
+          <button class="pkg-card" data-pkg="dj" data-val="Diamond Premium">
+            <div><div class="pkg-name">Diamond Premium</div><div class="pkg-sub">DJ + Sound + Licht</div></div>
+            <div class="pkg-price">ab 749 €</div>
+          </button>
+          <button class="pkg-card" data-pkg="dj" data-val="Diamond Exclusive">
+            <div><div class="pkg-name">Diamond Exclusive</div><div class="pkg-sub">Volles Setup · Premium</div></div>
+            <div class="pkg-price">ab 949 €</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Foto Pakete -->
+      <div id="fotoPkgs" style="display:none; margin-bottom: 1.25rem;">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Foto Paket</div>
+        <div class="pkg-grid">
+          <button class="pkg-card" data-pkg="foto" data-val="Foto Portrait">
+            <div><div class="pkg-name">Portrait</div><div class="pkg-sub">Bis 2 Stunden · Highlights</div></div>
+            <div class="pkg-price">ab 199 €</div>
+          </button>
+          <button class="pkg-card" data-pkg="foto" data-val="Foto Reportage">
+            <div><div class="pkg-name">Reportage</div><div class="pkg-sub">Halbtags · Dokumentation</div></div>
+            <div class="pkg-price">ab 349 €</div>
+          </button>
+          <button class="pkg-card" data-pkg="foto" data-val="Foto Premium">
+            <div><div class="pkg-name">Premium</div><div class="pkg-sub">Ganztags · Alles inklusive</div></div>
+            <div class="pkg-price">ab 599 €</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="f-error" id="err1">Bitte Service und Paket auswählen.</div>
+      <div class="btn-row">
+        <button class="btn-next" id="next1">Weiter →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Event-Details ── -->
+    <div class="step-panel" id="step2">
+      <div class="step-title"><span class="step-title-num">2</span> Dein Event</div>
+
+      <div style="margin-bottom:1rem;">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Anlass</div>
+        <div class="pill-row" id="occasionPills">
+          <button class="pill" data-occ="Hochzeit">Hochzeit</button>
+          <button class="pill" data-occ="Geburtstag">Geburtstag</button>
+          <button class="pill" data-occ="Firmenevent">Firmenevent</button>
+          <button class="pill" data-occ="Club / Festival">Club / Festival</button>
+          <button class="pill" data-occ="Sonstiges">Sonstiges</button>
+        </div>
+      </div>
+
+      <div class="f-row">
+        <div class="f-group">
+          <label>Datum *</label>
+          <input type="date" id="eventDate" />
+        </div>
+        <div class="f-group">
+          <label>Dauer</label>
+          <select id="eventDuration">
+            <option value="">Bitte wählen</option>
+            <option value="bis 4 Stunden">Bis 4 Stunden</option>
+            <option value="bis 6 Stunden">Bis 6 Stunden</option>
+            <option value="bis 8 Stunden">Bis 8 Stunden</option>
+            <option value="Open End">Open End</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label>Ort / Location *</label>
+        <input type="text" id="eventLocation" placeholder="z. B. München, Event-Halle XY" />
+      </div>
+
+      <div class="f-group">
+        <label>Gästezahl (ca.)</label>
+        <select id="guestCount">
+          <option value="">Keine Angabe</option>
+          <option value="bis 50">Bis 50</option>
+          <option value="50–100">50–100</option>
+          <option value="100–200">100–200</option>
+          <option value="200+">200+</option>
+        </select>
+      </div>
+
+      <div class="f-error" id="err2">Bitte Datum und Ort angeben.</div>
+      <div class="btn-row">
+        <button class="btn-back" id="back2">← Zurück</button>
+        <button class="btn-next" id="next2">Weiter →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: Kontakt & Absenden ── -->
+    <div class="step-panel" id="step3">
+      <div class="step-title"><span class="step-title-num">3</span> Deine Kontaktdaten</div>
+
+      <!-- Summary -->
+      <div class="summary-box" id="summaryBox"></div>
+
+      <div class="f-row">
+        <div class="f-group">
+          <label>Name *</label>
+          <input type="text" id="contactName" placeholder="Dein Name" />
+        </div>
+        <div class="f-group">
+          <label>E-Mail *</label>
+          <input type="email" id="contactEmail" placeholder="dein@email.de" />
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label>Telefon (optional)</label>
+        <input type="tel" id="contactPhone" placeholder="+49 ..." />
+      </div>
+
+      <div class="f-group">
+        <label>Nachricht / Wünsche</label>
+        <textarea id="contactMessage" placeholder="Besondere Wünsche, Musikrichtung, Details..."></textarea>
+      </div>
+
+      <div class="f-error" id="err3">Bitte Name und E-Mail ausfüllen.</div>
+      <div class="btn-row">
+        <button class="btn-back" id="back3">← Zurück</button>
+        <button class="btn-next" id="submitBtn">Anfrage senden ✓</button>
+      </div>
+    </div>
+
+    <!-- ── SUCCESS ── -->
+    <div class="step-panel" id="stepDone">
+      <div class="success-panel">
+        <div class="check">✓</div>
+        <h2 style="font-size:1.4rem; margin-bottom:0.5rem;">Anfrage gesendet!</h2>
+        <p style="color:var(--text-muted); margin-bottom:2rem;">Wir melden uns innerhalb von 24 Stunden bei dir. Schau auch in deinen Spam-Ordner.</p>
+        <a href="/" class="btn btn-outline">Zurück zur Startseite</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="footer-contact">
+      <a href="mailto:hallo@eventsdiamond.de">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        hallo@eventsdiamond.de
+      </a>
+      <a href="tel:+4901638557552">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        0163 8557552
+      </a>
+    </div>
+    <div class="footer-links">
+      <a href="/">Start</a>
+      <a href="/galerie.html">Galerie</a>
+      <a href="/preise.html">Preise</a>
+      <a href="/buchen.html">Buchen</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/datenschutz.html">Datenschutz</a>
+      <a href="/login.html" style="opacity:0.3;font-size:0.75rem;">Admin</a>
+    </div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script>
+(function () {
+  // ── State ──
+  const state = { svc: null, djPkg: null, fotoPkg: null, occasion: null, eventDate: '', eventLocation: '', eventDuration: '', guestCount: '', name: '', email: '', phone: '', message: '' };
+  let currentStep = 1;
+
+  // ── Step navigation ──
+  function showStep(n) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('step' + (n === 4 ? 'Done' : n)).classList.add('active');
+    currentStep = n;
+    updateStepsBar(n);
+    if (n === 3) buildSummary();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateStepsBar(n) {
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById('sd' + i);
+      const item = document.getElementById('si' + i);
+      dot.className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+      dot.textContent = i < n ? '✓' : i;
+      item.className = 'step-item' + (i === n ? ' active' : '');
+    }
+    for (let i = 1; i <= 2; i++) {
+      document.getElementById('sl' + i).className = 'step-line' + (i < n ? ' done' : '');
+    }
+  }
+
+  // ── Service selection ──
+  document.querySelectorAll('.svc-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.svc-card').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.svc = btn.dataset.svc;
+      document.getElementById('djPkgs').style.display = (state.svc === 'dj' || state.svc === 'beides') ? 'block' : 'none';
+      document.getElementById('fotoPkgs').style.display = (state.svc === 'fotografie' || state.svc === 'beides') ? 'block' : 'none';
+    });
+  });
+
+  // ── Package selection ──
+  document.querySelectorAll('.pkg-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll(`.pkg-card[data-pkg="${btn.dataset.pkg}"]`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      if (btn.dataset.pkg === 'dj') state.djPkg = btn.dataset.val;
+      else state.fotoPkg = btn.dataset.val;
+    });
+  });
+
+  // ── Occasion pills ──
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('selected'));
+      p.classList.add('selected');
+      state.occasion = p.dataset.occ;
+    });
+  });
+
+  // ── Step 1 → 2 ──
+  document.getElementById('next1').addEventListener('click', () => {
+    const needDj = state.svc === 'dj' || state.svc === 'beides';
+    const needFoto = state.svc === 'fotografie' || state.svc === 'beides';
+    const err = !state.svc || (needDj && !state.djPkg) || (needFoto && !state.fotoPkg);
+    document.getElementById('err1').className = 'f-error' + (err ? ' show' : '');
+    if (!err) showStep(2);
+  });
+
+  // ── Step 2 → 3 ──
+  document.getElementById('next2').addEventListener('click', () => {
+    state.eventDate = document.getElementById('eventDate').value;
+    state.eventLocation = document.getElementById('eventLocation').value.trim();
+    state.eventDuration = document.getElementById('eventDuration').value;
+    state.guestCount = document.getElementById('guestCount').value;
+    const err = !state.eventDate || !state.eventLocation;
+    document.getElementById('err2').className = 'f-error' + (err ? ' show' : '');
+    if (!err) showStep(3);
+  });
+
+  document.getElementById('back2').addEventListener('click', () => showStep(1));
+  document.getElementById('back3').addEventListener('click', () => showStep(2));
+
+  // ── Build summary ──
+  function buildSummary() {
+    const svcLabel = { dj: 'DJ Service', fotografie: 'Fotografie', beides: 'DJ + Fotografie' }[state.svc] || '';
+    let pkgs = [];
+    if (state.djPkg) pkgs.push(state.djPkg);
+    if (state.fotoPkg) pkgs.push(state.fotoPkg);
+    const d = new Date(state.eventDate);
+    const dateStr = isNaN(d) ? state.eventDate : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    document.getElementById('summaryBox').innerHTML = `
+      ${row('Service', svcLabel)}
+      ${row('Paket', pkgs.join(' + '))}
+      ${state.occasion ? row('Anlass', state.occasion) : ''}
+      ${row('Datum', dateStr)}
+      ${row('Ort', state.eventLocation)}
+      ${state.eventDuration ? row('Dauer', state.eventDuration) : ''}
+      ${state.guestCount ? row('Gäste', state.guestCount) : ''}
+    `;
+  }
+  function row(l, v) { return `<div class="s-row"><span class="s-label">${l}</span><span class="s-value">${v}</span></div>`; }
+
+  // ── Submit ──
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const phone = document.getElementById('contactPhone').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+    const err = !name || !email;
+    document.getElementById('err3').className = 'f-error' + (err ? ' show' : '');
+    if (err) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Wird gesendet…';
+
+    const data = {
+      name, email, message,
+      eventDate: state.eventDate,
+      eventLocation: state.eventLocation,
+      serviceType: state.svc,
+      package: state.djPkg || state.fotoPkg || '',
+      photoPackage: state.fotoPkg || undefined,
+    };
+    if (phone) data.phone = phone;
+    if (state.occasion) data.occasion = state.occasion;
+    if (state.eventDuration) data.eventDuration = state.eventDuration;
+    if (state.guestCount) data.guestCount = state.guestCount;
+
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Fehler');
+      showStep(4);
+    } catch (e) {
+      document.getElementById('err3').textContent = 'Fehler: ' + e.message;
+      document.getElementById('err3').className = 'f-error show';
+      btn.disabled = false;
+      btn.textContent = 'Anfrage senden ✓';
+    }
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
