@@ -1285,8 +1285,6 @@ app.delete("/api/admin/reviews/:id", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// ---------- Fallback 404 for API ----------
-app.use("/api", (req, res) => res.status(404).json({ error: "Not Found" }));
 
 // ---------- Start ----------
 app.listen(PORT, () => {
@@ -1430,3 +1428,6 @@ app.delete("/api/admin/event/:id/song-requests/:sid", requireAuth, (req, res) =>
   }
   res.json({ ok: true });
 });
+
+// ---------- Fallback 404 for API ----------
+app.use("/api", (req, res) => res.status(404).json({ error: "Not Found" }));
