@@ -2782,3 +2782,22 @@ footer .footer-links a:hover {
 /* Star picker */
 .review-star { font-size: 1.6rem; color: rgba(255,255,255,0.15); cursor: pointer; transition: color 0.15s; user-select: none; }
 .review-star.active { color: #fbbf24; }
+
+/* ── WhatsApp Button ── */
+.wa-btn {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+  z-index: 999;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.wa-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.55); }
+.wa-btn svg { width: 28px; height: 28px; fill: #fff; }

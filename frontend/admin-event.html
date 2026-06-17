@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex"/>
+<title>Event Manager — Diamond Events Admin</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>
+.admin-wrap { max-width: 900px; margin: 0 auto; padding: 6rem 1.5rem 4rem; }
+.admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem; }
+.admin-header h1 { font-size:1.6rem; font-weight:800; letter-spacing:-0.03em; }
+.back-link { font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem; transition:color .2s; }
+.back-link:hover { color:var(--text); }
+
+/* Event cards */
+.event-list { display:flex; flex-direction:column; gap:1rem; }
+.event-item { background:var(--bg-card); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+.event-item-header { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; gap:1rem; flex-wrap:wrap; cursor:pointer; }
+.event-item-header:hover { background:rgba(255,255,255,0.02); }
+.event-item-name { font-weight:700; font-size:1rem; }
+.event-item-date { font-size:0.78rem; color:var(--text-muted); margin-top:2px; }
+.event-badge { font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:100px; letter-spacing:0.05em; }
+.badge-active { background:rgba(52,211,153,0.12); color:#34d399; border:1px solid rgba(52,211,153,0.25); }
+.badge-inactive { background:rgba(255,255,255,0.06); color:var(--text-muted); border:1px solid var(--line); }
+
+.event-item-body { display:none; border-top:1px solid var(--line); padding:1.5rem; }
+.event-item-body.open { display:block; }
+
+/* Toggle switch */
+.toggle-row { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.toggle-row:last-of-type { border-bottom:none; }
+.toggle-row label { font-size:0.88rem; color:var(--text-muted); }
+.switch { position:relative; width:42px; height:24px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.switch-slider { position:absolute; inset:0; background:rgba(255,255,255,0.12); border-radius:100px; cursor:pointer; transition:.2s; }
+.switch-slider::before { content:''; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:.2s; }
+.switch input:checked + .switch-slider { background:var(--neon-cyan); }
+.switch input:checked + .switch-slider::before { transform:translateX(18px); background:#050507; }
+
+.welcome-input { width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1.5px solid var(--line); border-radius:10px; color:var(--text); padding:0.7rem 1rem; font-size:0.88rem; font-family:inherit; margin-bottom:1rem; transition:border-color .2s; }
+.welcome-input:focus { outline:none; border-color:var(--neon-cyan); }
+
+.links-row { display:flex; gap:0.6rem; flex-wrap:wrap; margin:1.25rem 0; }
+.link-btn { font-size:0.8rem; padding:0.5rem 1rem; border-radius:8px; border:1px solid var(--line); color:var(--text-muted); background:none; cursor:pointer; font-family:inherit; transition:all .2s; display:flex; align-items:center; gap:0.4rem; text-decoration:none; }
+.link-btn:hover { border-color:var(--neon-cyan); color:var(--neon-cyan); }
+.link-btn.primary { background:rgba(0,240,255,0.08); border-color:rgba(0,240,255,0.3); color:var(--neon-cyan); }
+
+/* Song requests */
+.songs-section { margin-top:1.5rem; }
+.songs-title { font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.75rem; }
+.song-item { display:flex; align-items:center; gap:.75rem; padding:.6rem .75rem; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid var(--line); margin-bottom:.5rem; transition:opacity .2s; }
+.song-item.played { opacity:.4; }
+.song-info { flex:1; min-width:0; }
+.song-title { font-weight:600; font-size:.875rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.song-artist { font-size:.75rem; color:var(--text-muted); }
+.song-guest { font-size:.7rem; color:var(--text-muted); margin-top:1px; }
+.song-actions { display:flex; gap:.4rem; flex-shrink:0; }
+.song-btn { width:28px; height:28px; border-radius:6px; border:1px solid var(--line); background:none; color:var(--text-muted); cursor:pointer; font-size:.8rem; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.song-btn:hover { border-color:var(--neon-cyan); color:var(--neon-cyan); }
+.song-btn.del:hover { border-color:#f87171; color:#f87171; }
+
+.empty-songs { text-align:center; padding:1.5rem; color:var(--text-muted); font-size:.85rem; }
+.save-btn { margin-top:1rem; }
+</style>
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/admin.html" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <span style="font-size:.78rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;">Event Manager</span>
+  </div>
+</nav>
+
+<div class="admin-wrap">
+  <div class="admin-header">
+    <div>
+      <h1>🎉 Event Manager</h1>
+      <p style="color:var(--text-muted);font-size:.85rem;margin-top:.3rem;">Gäste-Upload, Musikwünsche & Live-Fotowand pro Event steuern</p>
+    </div>
+    <a href="/admin.html" class="back-link">← Zurück zum Dashboard</a>
+  </div>
+
+  <div class="event-list" id="eventList">
+    <div style="text-align:center;color:var(--text-muted);padding:3rem;">Lade Events…</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Check auth
+  fetch('/api/admin/galleries').then(r => {
+    if (r.status === 401) location.href = '/login.html';
+  });
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return isNaN(d) ? iso : d.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'});
+  }
+
+  async function loadEvents() {
+    const [galRes] = await Promise.all([fetch('/api/admin/galleries')]);
+    const galleries = await galRes.json();
+    if (!galleries.length) {
+      document.getElementById('eventList').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:3rem;">Noch keine Galerien — erstelle zuerst eine Galerie im Admin-Bereich.</div>';
+      return;
+    }
+    const list = document.getElementById('eventList');
+    list.innerHTML = '';
+    for (const g of galleries) {
+      const evRes = await fetch(`/api/admin/event/${g.id}`);
+      const ev = await evRes.json();
+      const active = ev.active !== false;
+      const item = document.createElement('div');
+      item.className = 'event-item';
+      item.innerHTML = `
+        <div class="event-item-header" data-id="${g.id}">
+          <div>
+            <div class="event-item-name">${g.name}</div>
+            <div class="event-item-date">${fmtDate(g.eventDate)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span class="event-badge ${active?'badge-active':'badge-inactive'}">${active?'AKTIV':'INAKTIV'}</span>
+            <span style="color:var(--text-muted);font-size:1rem;" class="chevron">›</span>
+          </div>
+        </div>
+        <div class="event-item-body" id="body-${g.id}">
+          <div class="toggle-row">
+            <label>Event aktiv (Gäste können die Seite nutzen)</label>
+            <label class="switch"><input type="checkbox" id="tog-active-${g.id}" ${active?'checked':''}><span class="switch-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label>📸 Foto-Upload erlauben</label>
+            <label class="switch"><input type="checkbox" id="tog-photo-${g.id}" ${ev.allowPhotoUpload!==false?'checked':''}><span class="switch-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label>🎵 Musikwünsche erlauben</label>
+            <label class="switch"><input type="checkbox" id="tog-songs-${g.id}" ${ev.allowSongRequests!==false?'checked':''}><span class="switch-slider"></span></label>
+          </div>
+
+          <div style="margin-top:1.25rem;">
+            <label style="font-size:.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.5rem;">Begrüßungstext</label>
+            <input class="welcome-input" id="welcome-${g.id}" value="${(ev.welcomeText||'').replace(/"/g,'&quot;')}" placeholder="z. B. Schön, dass ihr dabei seid! 🎉"/>
+          </div>
+
+          <button class="btn btn-primary save-btn" onclick="saveEvent('${g.id}')">Einstellungen speichern</button>
+
+          <div class="links-row">
+            <a href="/event.html?id=${g.id}" target="_blank" class="link-btn primary">📱 Gäste-Seite öffnen</a>
+            <a href="/live.html?id=${g.id}" target="_blank" class="link-btn">🖥 Live-Fotowand</a>
+            <button class="link-btn" onclick="copyLink('${g.id}')">🔗 Link kopieren</button>
+          </div>
+
+          <div class="songs-section" id="songs-${g.id}">
+            <div class="songs-title">🎵 Musikwünsche</div>
+            <div id="song-list-${g.id}"><div class="empty-songs">Lade…</div></div>
+          </div>
+        </div>`;
+      list.appendChild(item);
+
+      // Toggle open/close
+      item.querySelector('.event-item-header').addEventListener('click', () => {
+        const body = document.getElementById(`body-${g.id}`);
+        const chevron = item.querySelector('.chevron');
+        const isOpen = body.classList.toggle('open');
+        chevron.style.transform = isOpen ? 'rotate(90deg)' : '';
+        if (isOpen) loadSongs(g.id);
+      });
+    }
+  }
+
+  window.saveEvent = async (id) => {
+    const data = {
+      active: document.getElementById(`tog-active-${id}`).checked,
+      allowPhotoUpload: document.getElementById(`tog-photo-${id}`).checked,
+      allowSongRequests: document.getElementById(`tog-songs-${id}`).checked,
+      welcomeText: document.getElementById(`welcome-${id}`).value.trim(),
+    };
+    await fetch(`/api/admin/event/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    window.showToast('Gespeichert ✓', 'success');
+    // Update badge
+    const badge = document.querySelector(`[data-id="${id}"] .event-badge`);
+    if (badge) { badge.className = `event-badge ${data.active?'badge-active':'badge-inactive'}`; badge.textContent = data.active?'AKTIV':'INAKTIV'; }
+  };
+
+  window.copyLink = async (id) => {
+    const url = `${location.origin}/event.html?id=${id}`;
+    try { await navigator.clipboard.writeText(url); window.showToast('Link kopiert ✓', 'success'); }
+    catch { window.showToast('Link: '+url, 'success'); }
+  };
+
+  async function loadSongs(id) {
+    const container = document.getElementById(`song-list-${id}`);
+    const res = await fetch(`/api/admin/event/${id}/song-requests`);
+    const songs = await res.json();
+    if (!songs.length) { container.innerHTML = '<div class="empty-songs">Noch keine Musikwünsche.</div>'; return; }
+    container.innerHTML = songs.map(s => `
+      <div class="song-item ${s.played?'played':''}" id="song-${s.id}">
+        <div style="font-size:1.1rem;">${s.played?'✅':'🎵'}</div>
+        <div class="song-info">
+          <div class="song-title">${s.song}</div>
+          ${s.artist?`<div class="song-artist">von ${s.artist}</div>`:''}
+          <div class="song-guest">— ${s.guestName||'Anonym'}</div>
+        </div>
+        <div class="song-actions">
+          <button class="song-btn" title="${s.played?'Als ungehört markieren':'Als gespielt markieren'}" onclick="togglePlayed('${id}','${s.id}',${!s.played})">${s.played?'↩':'✓'}</button>
+          <button class="song-btn del" title="Löschen" onclick="deleteSong('${id}','${s.id}')">×</button>
+        </div>
+      </div>`).join('');
+  }
+
+  window.togglePlayed = async (gid, sid, played) => {
+    await fetch(`/api/admin/event/${gid}/song-requests/${sid}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({played}) });
+    loadSongs(gid);
+  };
+  window.deleteSong = async (gid, sid) => {
+    await fetch(`/api/admin/event/${gid}/song-requests/${sid}`, { method:'DELETE' });
+    loadSongs(gid);
+    window.showToast('Gelöscht', 'success');
+  };
+
+  loadEvents();
+})();
+</script>
+<script src="/js/main.js"></script>
+</body>
+</html>

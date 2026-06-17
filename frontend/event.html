@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex"/>
+<title>Event — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>
+body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0; }
+.event-page { width: 100%; max-width: 480px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+.event-logo { text-align: center; margin-bottom: 2rem; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
+.event-logo .dot { background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.event-hero { text-align: center; margin-bottom: 2.5rem; }
+.event-hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+.event-hero p { color: var(--text-muted); font-size: 0.9rem; }
+
+.event-tabs { display: flex; gap: 0.5rem; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 12px; padding: 0.3rem; margin-bottom: 2rem; }
+.event-tab { flex: 1; padding: 0.6rem; border-radius: 9px; font-size: 0.85rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; color: var(--text-muted); border: none; background: none; font-family: inherit; }
+.event-tab.active { background: var(--bg-card); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+.event-panel { display: none; }
+.event-panel.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* Upload zone */
+.upload-zone { border: 2px dashed var(--line); border-radius: 16px; padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 1rem; }
+.upload-zone:hover, .upload-zone.drag { border-color: var(--neon-cyan); background: rgba(0,240,255,0.04); }
+.upload-zone svg { opacity: 0.4; margin: 0 auto 0.75rem; display: block; }
+.upload-zone p { color: var(--text-muted); font-size: 0.85rem; }
+.upload-zone strong { color: var(--text); }
+.upload-progress { display: none; margin-top: 1rem; }
+.upload-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden; margin-bottom: 0.5rem; }
+.upload-bar-inner { height: 100%; width: 0; background: linear-gradient(90deg,#00f0ff,#a855f7); border-radius: 100px; transition: width 0.2s; }
+.upload-count { font-size: 0.78rem; color: var(--text-muted); text-align: center; }
+
+/* Song request */
+.f-input { width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.04); border: 1.5px solid var(--line); border-radius: 10px; color: var(--text); padding: 0.75rem 1rem; font-size: 0.9rem; font-family: inherit; margin-bottom: 0.75rem; transition: border-color 0.2s; }
+.f-input:focus { outline: none; border-color: var(--neon-cyan); }
+
+/* Uploaded photos preview */
+.preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 1rem; }
+.preview-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+
+.event-offline { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="event-page">
+  <div class="event-logo">Diamond<span class="dot">.</span>Events</div>
+
+  <div id="eventOffline" class="event-offline" style="display:none;">
+    <p style="font-size:2rem; margin-bottom:1rem;">⏸</p>
+    <h2 style="font-size:1.2rem; margin-bottom:0.5rem;">Event pausiert</h2>
+    <p>Der Gäste-Bereich ist gerade nicht aktiv.</p>
+  </div>
+
+  <div id="eventContent" style="display:none;">
+    <div class="event-hero">
+      <h1 id="eventName">—</h1>
+      <p id="eventWelcome"></p>
+    </div>
+
+    <div class="event-tabs" id="eventTabs">
+      <button class="event-tab active" data-tab="upload" id="tabUpload">📸 Fotos</button>
+      <button class="event-tab" data-tab="songs" id="tabSongs">🎵 Musikwunsch</button>
+    </div>
+
+    <!-- Foto Upload -->
+    <div class="event-panel active" id="panelUpload">
+      <div class="upload-zone" id="uploadZone">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p><strong>Fotos hochladen</strong></p>
+        <p>Tippe hier oder ziehe Fotos rein</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" multiple style="display:none;"/>
+      <div class="upload-progress" id="uploadProgress">
+        <div class="upload-bar"><div class="upload-bar-inner" id="uploadBarInner"></div></div>
+        <div class="upload-count" id="uploadCount">0 / 0</div>
+      </div>
+      <div class="preview-grid" id="previewGrid"></div>
+    </div>
+
+    <!-- Song Request -->
+    <div class="event-panel" id="panelSongs">
+      <input class="f-input" id="songName" placeholder="Dein Name (optional)"/>
+      <input class="f-input" id="songTitle" placeholder="Song-Titel *"/>
+      <input class="f-input" id="songArtist" placeholder="Künstler / Band (optional)"/>
+      <button class="btn btn-primary" id="songSubmit" style="width:100%;">Wunsch absenden 🎵</button>
+      <div id="songStatus" style="font-size:0.82rem; text-align:center; margin-top:0.75rem;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) { document.body.innerHTML = '<div style="text-align:center;padding:4rem;color:#8e8e93;">Kein Event angegeben.</div>'; return; }
+
+  // Load event info
+  fetch(`/api/event/${id}`).then(r => r.json()).then(ev => {
+    if (!ev.active) { document.getElementById('eventOffline').style.display = 'block'; return; }
+    document.getElementById('eventContent').style.display = 'block';
+    document.getElementById('eventName').textContent = ev.name;
+    document.getElementById('eventWelcome').textContent = ev.welcomeText || '';
+    if (!ev.allowPhotoUpload) { document.getElementById('tabUpload').style.display = 'none'; document.querySelector('[data-tab="songs"]').click(); }
+    if (!ev.allowSongRequests) document.getElementById('tabSongs').style.display = 'none';
+  }).catch(() => { document.body.innerHTML = '<div style="text-align:center;padding:4rem;color:#8e8e93;">Event nicht gefunden.</div>'; });
+
+  // Tabs
+  document.querySelectorAll('.event-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.event-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.event-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)).classList.add('active');
+    });
+  });
+
+  // Upload
+  const zone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+  zone.addEventListener('click', () => fileInput.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); handleFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => { handleFiles(e.target.files); fileInput.value = ''; });
+
+  let _sig = null;
+  async function getSig() {
+    if (_sig && _sig.timestamp > Math.round(Date.now()/1000) - 55) return _sig;
+    const r = await fetch(`/api/event/${id}/upload-signature`);
+    if (!r.ok) throw new Error('Upload nicht verfügbar');
+    _sig = await r.json(); return _sig;
+  }
+
+  async function uploadOne(file) {
+    const sig = await getSig();
+    const fd = new FormData();
+    fd.append('file', file); fd.append('api_key', sig.apiKey);
+    fd.append('timestamp', sig.timestamp); fd.append('signature', sig.signature);
+    fd.append('folder', sig.folder);
+    const r = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: 'POST', body: fd });
+    const j = await r.json();
+    if (j.error) throw new Error(j.error.message);
+    await fetch(`/api/event/${id}/notify-upload`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({publicId: j.public_id, url: j.secure_url}) });
+    return j.secure_url;
+  }
+
+  async function handleFiles(files) {
+    if (!files.length) return;
+    const arr = Array.from(files);
+    const total = arr.length;
+    let done = 0;
+    const prog = document.getElementById('uploadProgress');
+    const bar = document.getElementById('uploadBarInner');
+    const cnt = document.getElementById('uploadCount');
+    prog.style.display = 'block';
+    cnt.textContent = `0 / ${total}`;
+
+    const queue = [...arr];
+    const workers = Array.from({length: 4}, async () => {
+      while (queue.length) {
+        const file = queue.shift();
+        try {
+          const url = await uploadOne(file);
+          done++;
+          bar.style.width = (done/total*100)+'%';
+          cnt.textContent = `${done} / ${total}`;
+          const img = document.createElement('img');
+          img.src = url; img.loading = 'lazy';
+          document.getElementById('previewGrid').prepend(img);
+        } catch(e) { done++; }
+      }
+    });
+    await Promise.all(workers);
+    cnt.textContent = `${done} Foto${done===1?'':'s'} hochgeladen ✓`;
+    setTimeout(() => { prog.style.display = 'none'; }, 3000);
+  }
+
+  // Song request
+  document.getElementById('songSubmit').addEventListener('click', async () => {
+    const song = document.getElementById('songTitle').value.trim();
+    const artist = document.getElementById('songArtist').value.trim();
+    const guestName = document.getElementById('songName').value.trim();
+    const status = document.getElementById('songStatus');
+    if (!song) { status.style.color='#f87171'; status.textContent='Bitte Song-Titel eingeben.'; return; }
+    try {
+      const r = await fetch(`/api/event/${id}/song-request`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({song, artist, guestName}) });
+      if (!r.ok) throw new Error((await r.json()).error);
+      status.style.color='#34d399'; status.textContent='Wunsch gesendet 🎵';
+      document.getElementById('songTitle').value=''; document.getElementById('songArtist').value='';
+    } catch(e) { status.style.color='#f87171'; status.textContent='Fehler: '+e.message; }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex"/>
+<title>Live — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body { background:#050507; color:#f5f5f7; font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif; overflow:hidden; height:100vh; }
+
+.live-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 2rem;
+  background: linear-gradient(to bottom, rgba(5,5,7,0.95) 0%, transparent 100%);
+}
+.live-logo { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
+.live-logo .dot { background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.live-name { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
+.live-qr-hint { font-size: 0.75rem; color: rgba(255,255,255,0.35); text-align: right; }
+
+.live-wall {
+  columns: 4;
+  column-gap: 8px;
+  padding: 80px 8px 8px;
+  height: 100vh;
+  overflow: hidden;
+}
+@media (max-width: 900px) { .live-wall { columns: 3; } }
+@media (max-width: 600px) { .live-wall { columns: 2; } }
+
+.live-photo {
+  break-inside: avoid;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  animation: photoIn 0.5s cubic-bezier(.22,.68,0,1.2);
+}
+.live-photo img { width: 100%; display: block; object-fit: cover; }
+@keyframes photoIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+
+.live-empty {
+  position: fixed; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; color:rgba(255,255,255,0.25);
+  font-size:1rem; gap:1rem;
+}
+.live-empty svg { opacity:0.15; }
+
+/* QR overlay (bottom right) */
+.live-qr-box {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 10;
+  background: rgba(5,5,7,0.8); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 1rem; text-align: center;
+  backdrop-filter: blur(12px);
+}
+.live-qr-box canvas { border-radius: 8px; display: block; margin: 0 auto 0.5rem; }
+.live-qr-box p { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+</style>
+</head>
+<body>
+<div class="live-header">
+  <div>
+    <div class="live-logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="live-name" id="liveName">—</div>
+  </div>
+  <div class="live-qr-hint" id="liveHint"></div>
+</div>
+
+<div class="live-wall" id="liveWall"></div>
+
+<div class="live-empty" id="liveEmpty">
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 7h3l2-3h8l2 3h3v13H3z"/><circle cx="12" cy="13" r="4"/></svg>
+  <p>Warte auf Fotos von deinen Gästen…</p>
+</div>
+
+<div class="live-qr-box" id="qrBox" style="display:none;">
+  <canvas id="qrCanvas" width="100" height="100"></canvas>
+  <p>Fotos hochladen</p>
+</div>
+
+<script>
+// Minimal QR code generator (pure JS, no lib needed for simple URLs)
+// We'll use the URL as text in the QR box label instead
+(function() {
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) { document.body.innerHTML = '<div style="text-align:center;padding:4rem;color:#8e8e93;">Kein Event angegeben.</div>'; return; }
+
+  const guestUrl = `${location.origin}/event.html?id=${id}`;
+  let knownIds = new Set();
+  let pollInterval;
+
+  // Load event name
+  fetch(`/api/event/${id}`).then(r=>r.json()).then(ev => {
+    document.getElementById('liveName').textContent = ev.name || '';
+    document.getElementById('liveHint').innerHTML = `Gäste: <strong style="color:#00f0ff;">${guestUrl}</strong>`;
+    document.getElementById('qrBox').style.display = 'block';
+    document.getElementById('qrBox').querySelector('p').textContent = 'Fotos hochladen: ' + location.hostname + '/event.html';
+  });
+
+  function renderPhotos(images) {
+    const wall = document.getElementById('liveWall');
+    const empty = document.getElementById('liveEmpty');
+    if (!images.length) { empty.style.display = 'flex'; return; }
+    empty.style.display = 'none';
+
+    // Add only new photos
+    images.forEach(img => {
+      const pid = img.publicId || img;
+      if (knownIds.has(pid)) return;
+      knownIds.add(pid);
+      const url = img.url || img;
+      const div = document.createElement('div');
+      div.className = 'live-photo';
+      div.innerHTML = `<img src="${url}" loading="lazy" alt=""/>`;
+      wall.prepend(div);
+    });
+  }
+
+  async function poll() {
+    try {
+      const r = await fetch(`/api/event/${id}/photos`);
+      const data = await r.json();
+      renderPhotos(data.images || []);
+    } catch(e) {}
+  }
+
+  poll();
+  pollInterval = setInterval(poll, 5000);
+})();
+</script>
+</body>
+</html>

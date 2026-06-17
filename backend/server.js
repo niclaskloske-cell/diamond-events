@@ -1301,3 +1301,126 @@ app.listen(PORT, () => {
     }\n`
   );
 });
+
+// ---------- Event (Fotify-like) ----------
+const EVENT_FILE = path.join(DATA_DIR, "event_data.json");
+function readEventData() {
+  if (!fs.existsSync(EVENT_FILE)) return {};
+  try { return JSON.parse(fs.readFileSync(EVENT_FILE, "utf8") || "{}"); } catch { return {}; }
+}
+function writeEventData(d) { fs.writeFileSync(EVENT_FILE, JSON.stringify(d, null, 2), "utf8"); }
+
+function getEvent(galleryId) {
+  const data = readEventData();
+  return data[galleryId] || null;
+}
+
+// Public: get event info (name, active features)
+app.get("/api/event/:id", (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Event nicht gefunden" });
+  const ev = getEvent(req.params.id) || {};
+  res.json({
+    name: g.name,
+    eventDate: g.eventDate,
+    allowPhotoUpload: ev.allowPhotoUpload !== false,
+    allowSongRequests: ev.allowSongRequests !== false,
+    welcomeText: ev.welcomeText || `Willkommen bei ${g.name}!`,
+    active: ev.active !== false,
+  });
+});
+
+// Public: submit song request
+app.post("/api/event/:id/song-request", (req, res) => {
+  const { song, artist, guestName } = req.body || {};
+  if (!song) return res.status(400).json({ error: "Song erforderlich" });
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Event nicht gefunden" });
+  const data = readEventData();
+  if (!data[req.params.id]) data[req.params.id] = {};
+  if (!data[req.params.id].songRequests) data[req.params.id].songRequests = [];
+  data[req.params.id].songRequests.push({
+    id: genId(), song: String(song).trim().slice(0, 100),
+    artist: artist ? String(artist).trim().slice(0, 80) : "",
+    guestName: guestName ? String(guestName).trim().slice(0, 60) : "Anonym",
+    createdAt: new Date().toISOString(), played: false,
+  });
+  writeEventData(data);
+  res.json({ ok: true });
+});
+
+// Public: get recent photos for live wall
+app.get("/api/event/:id/photos", (req, res) => {
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Nicht gefunden" });
+  const images = (g.images || []).slice(-40).reverse();
+  res.json({ images });
+});
+
+// Public: guest upload (uses existing Cloudinary setup, no auth required for event uploads)
+app.get("/api/event/:id/upload-signature", (req, res) => {
+  if (!CLOUDINARY_ENABLED) return res.status(503).json({ error: "Upload nicht verfügbar" });
+  const g = getGallery(req.params.id);
+  if (!g) return res.status(404).json({ error: "Event nicht gefunden" });
+  const ev = getEvent(req.params.id) || {};
+  if (ev.allowPhotoUpload === false) return res.status(403).json({ error: "Upload deaktiviert" });
+  const timestamp = Math.round(Date.now() / 1000);
+  const folder = `diamond-events/${req.params.id}`;
+  const signature = cloudinary.utils.api_sign_request({ folder, timestamp }, process.env.CLOUDINARY_API_SECRET);
+  res.json({ signature, timestamp, folder, apiKey: process.env.CLOUDINARY_API_KEY, cloudName: process.env.CLOUDINARY_CLOUD_NAME });
+});
+
+app.post("/api/event/:id/notify-upload", (req, res) => {
+  const { publicId, url } = req.body || {};
+  if (!publicId || !url) return res.status(400).json({ error: "Fehlende Daten" });
+  const galleries = readGalleries();
+  const idx = galleries.findIndex(x => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Nicht gefunden" });
+  if (!galleries[idx].images) galleries[idx].images = [];
+  galleries[idx].images.push({ publicId, url });
+  writeGalleries(galleries);
+  res.json({ ok: true });
+});
+
+// Admin: get/update event settings
+app.get("/api/admin/event/:id", requireAuth, (req, res) => {
+  const ev = getEvent(req.params.id) || {};
+  res.json(ev);
+});
+
+app.patch("/api/admin/event/:id", requireAuth, (req, res) => {
+  const data = readEventData();
+  if (!data[req.params.id]) data[req.params.id] = {};
+  const allowed = ["allowPhotoUpload","allowSongRequests","welcomeText","active"];
+  allowed.forEach(k => { if (k in req.body) data[req.params.id][k] = req.body[k]; });
+  writeEventData(data);
+  res.json({ ok: true });
+});
+
+// Admin: get song requests
+app.get("/api/admin/event/:id/song-requests", requireAuth, (req, res) => {
+  const ev = getEvent(req.params.id) || {};
+  res.json(ev.songRequests || []);
+});
+
+// Admin: mark song as played
+app.patch("/api/admin/event/:id/song-requests/:sid", requireAuth, (req, res) => {
+  const data = readEventData();
+  const ev = data[req.params.id];
+  if (!ev || !ev.songRequests) return res.status(404).json({ error: "Nicht gefunden" });
+  const req2 = ev.songRequests.find(s => s.id === req.params.sid);
+  if (!req2) return res.status(404).json({ error: "Nicht gefunden" });
+  req2.played = req.body.played !== false;
+  writeEventData(data);
+  res.json({ ok: true });
+});
+
+// Admin: delete song request
+app.delete("/api/admin/event/:id/song-requests/:sid", requireAuth, (req, res) => {
+  const data = readEventData();
+  if (data[req.params.id]?.songRequests) {
+    data[req.params.id].songRequests = data[req.params.id].songRequests.filter(s => s.id !== req.params.sid);
+    writeEventData(data);
+  }
+  res.json({ ok: true });
+});
