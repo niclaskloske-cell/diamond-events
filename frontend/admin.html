@@ -79,6 +79,7 @@
         <button class="btn btn-outline btn-sm" id="openReviewsBtn">Rezensionen</button>
         <a href="/admin-event.html" class="btn btn-outline btn-sm" style="text-decoration:none;">🎉 Event Manager</a>
         <button class="btn btn-outline btn-sm" id="csvExportBtn">CSV Export</button>
+        <button class="btn btn-outline btn-sm" id="pushToggleBtn" title="Push-Benachrichtigungen">🔔 Push</button>
         <div class="view-toggle" id="viewToggle">
           <button class="active" data-view="list">Liste</button>
           <button data-view="calendar">Kalender</button>
@@ -585,6 +586,63 @@
     loadAdminReviews();
     window.showToast('Gelöscht', 'success');
   };
+})();
+</script>
+
+<script>
+// Push notifications
+(async function() {
+  const btn = document.getElementById('pushToggleBtn');
+  if (!btn || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (btn) btn.style.display = 'none';
+    return;
+  }
+
+  // Register service worker
+  const reg = await navigator.serviceWorker.register('/sw.js');
+
+  async function getSubscription() {
+    return reg.pushManager.getSubscription();
+  }
+
+  async function updateBtn() {
+    const sub = await getSubscription();
+    if (sub) {
+      btn.textContent = '🔔 Push AN';
+      btn.style.color = '#34d399';
+      btn.style.borderColor = 'rgba(52,211,153,0.4)';
+    } else {
+      btn.textContent = '🔕 Push AUS';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }
+  }
+
+  await updateBtn();
+
+  btn.addEventListener('click', async () => {
+    const existing = await getSubscription();
+    if (existing) {
+      // Unsubscribe
+      await existing.unsubscribe();
+      await fetch('/api/push/subscribe', { method: 'DELETE', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ endpoint: existing.endpoint }) });
+      window.showToast('Push-Benachrichtigungen deaktiviert', 'success');
+    } else {
+      // Subscribe
+      try {
+        const { key } = await fetch('/api/push/vapid-public-key').then(r => r.json());
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: key,
+        });
+        await fetch('/api/push/subscribe', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(sub) });
+        window.showToast('🔔 Push-Benachrichtigungen aktiviert!', 'success');
+      } catch(e) {
+        window.showToast('Fehler: ' + e.message, 'error');
+      }
+    }
+    await updateBtn();
+  });
 })();
 </script>
 </body>

@@ -12,6 +12,7 @@ const multer = require("multer");
 const archiver = require("archiver");
 const { v2: cloudinary } = require("cloudinary");
 const streamifier = require("streamifier");
+const webpush = require("web-push");
 
 // ---------- Cloudinary ----------
 const CLOUDINARY_ENABLED = !!(
@@ -43,6 +44,7 @@ const GALLERIES_FILE = path.join(DATA_DIR, "galleries.json");
 const AVAILABILITY_FILE = path.join(DATA_DIR, "availability.json");
 const GALLERIES_DIR = path.join(DATA_DIR, "galleries");
 const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
+const PUSH_SUBS_FILE = path.join(DATA_DIR, "push_subscriptions.json");
 
 const ADMIN_USER = process.env.ADMIN_USER || "DJ DIAMOND";
 const ADMIN_PASS = process.env.ADMIN_PASS || "passwort";
@@ -59,6 +61,30 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || ""; // Where you receive notifications
 const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev"; // Resend test sender; replace once domain is verified
 const SENDER_NAME = process.env.SENDER_NAME || "Diamond Events";
+
+// ---------- Web Push ----------
+const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || "";
+const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || "";
+const VAPID_EMAIL = process.env.VAPID_EMAIL || "mailto:hallo@eventsdiamond.de";
+if (VAPID_PUBLIC && VAPID_PRIVATE) {
+  webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC, VAPID_PRIVATE);
+  console.log("[push] VAPID configured ✓");
+}
+function readPushSubs() {
+  if (!fs.existsSync(PUSH_SUBS_FILE)) return [];
+  try { return JSON.parse(fs.readFileSync(PUSH_SUBS_FILE, "utf8") || "[]"); } catch { return []; }
+}
+function writePushSubs(subs) { fs.writeFileSync(PUSH_SUBS_FILE, JSON.stringify(subs, null, 2)); }
+async function sendPushToAll(payload) {
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return;
+  const subs = readPushSubs();
+  const dead = [];
+  await Promise.all(subs.map(async (sub) => {
+    try { await webpush.sendNotification(sub, JSON.stringify(payload)); }
+    catch (e) { if (e.statusCode === 410 || e.statusCode === 404) dead.push(sub.endpoint); }
+  }));
+  if (dead.length) writePushSubs(subs.filter(s => !dead.includes(s.endpoint)));
+}
 
 // ---------- App ----------
 const app = express();
@@ -698,7 +724,36 @@ app.post("/api/bookings", async (req, res) => {
     });
   }
 
+  // Push notification
+  sendPushToAll({
+    title: "💎 Neue Buchungsanfrage!",
+    body: `${booking.name} — ${booking.package} am ${booking.date || "?"}`,
+    url: "/admin.html",
+  });
+
   res.json({ ok: true, id: booking.id, booking });
+});
+
+// ---------- Push Subscription Endpoints ----------
+app.get("/api/push/vapid-public-key", (req, res) => {
+  res.json({ key: VAPID_PUBLIC });
+});
+
+app.post("/api/push/subscribe", requireAuth, (req, res) => {
+  const sub = req.body;
+  if (!sub || !sub.endpoint) return res.status(400).json({ error: "Invalid subscription" });
+  const subs = readPushSubs();
+  if (!subs.find(s => s.endpoint === sub.endpoint)) {
+    subs.push(sub);
+    writePushSubs(subs);
+  }
+  res.json({ ok: true });
+});
+
+app.delete("/api/push/subscribe", requireAuth, (req, res) => {
+  const { endpoint } = req.body;
+  writePushSubs(readPushSubs().filter(s => s.endpoint !== endpoint));
+  res.json({ ok: true });
 });
 
 // ---------- API: Admin CRUD ----------
