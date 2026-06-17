@@ -1385,7 +1385,13 @@ app.post("/api/event/:id/notify-upload", (req, res) => {
 // Admin: get/update event settings
 app.get("/api/admin/event/:id", requireAuth, (req, res) => {
   const ev = getEvent(req.params.id) || {};
-  res.json(ev);
+  res.json({
+    active: ev.active !== false,
+    allowPhotoUpload: ev.allowPhotoUpload !== false,
+    allowSongRequests: ev.allowSongRequests !== false,
+    welcomeText: ev.welcomeText || "",
+    songRequests: ev.songRequests || [],
+  });
 });
 
 app.patch("/api/admin/event/:id", requireAuth, (req, res) => {
