@@ -79,7 +79,6 @@
         <button class="btn btn-outline btn-sm" id="openReviewsBtn">Rezensionen</button>
         <a href="/admin-event.html" class="btn btn-outline btn-sm" style="text-decoration:none;">🎉 Event Manager</a>
         <button class="btn btn-outline btn-sm" id="csvExportBtn">CSV Export</button>
-        <button class="btn btn-outline btn-sm" id="pushToggleBtn" title="Push-Benachrichtigungen">🔔 Push</button>
         <div class="view-toggle" id="viewToggle">
           <button class="active" data-view="list">Liste</button>
           <button data-view="calendar">Kalender</button>
@@ -589,6 +588,17 @@
 })();
 </script>
 
+<!-- Floating push button -->
+<button id="pushToggleBtn" style="
+  position:fixed; bottom:1.5rem; left:1.5rem; z-index:999;
+  width:52px; height:52px; border-radius:50%;
+  background:#1c1c1e; border:1.5px solid rgba(255,255,255,0.15);
+  color:#fff; font-size:1.3rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  transition:all .2s;
+" title="Push-Benachrichtigungen">🔕</button>
+
 <script>
 // Push notifications
 (async function() {
@@ -608,13 +618,15 @@
   async function updateBtn() {
     const sub = await getSubscription();
     if (sub) {
-      btn.textContent = '🔔 Push AN';
-      btn.style.color = '#34d399';
-      btn.style.borderColor = 'rgba(52,211,153,0.4)';
+      btn.textContent = '🔔';
+      btn.style.background = 'rgba(52,211,153,0.2)';
+      btn.style.borderColor = 'rgba(52,211,153,0.5)';
+      btn.title = 'Push aktiv — klicken zum Deaktivieren';
     } else {
-      btn.textContent = '🔕 Push AUS';
-      btn.style.color = '';
-      btn.style.borderColor = '';
+      btn.textContent = '🔕';
+      btn.style.background = '#1c1c1e';
+      btn.style.borderColor = 'rgba(255,255,255,0.15)';
+      btn.title = 'Push aktivieren';
     }
   }
 
