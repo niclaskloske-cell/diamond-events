@@ -1235,6 +1235,56 @@ app.delete(
   }
 );
 
+// ---------- Reviews ----------
+const REVIEWS_FILE = path.join(DATA_DIR, "reviews.json");
+function readReviews() {
+  if (!fs.existsSync(REVIEWS_FILE)) return [];
+  try { return JSON.parse(fs.readFileSync(REVIEWS_FILE, "utf8") || "[]"); } catch { return []; }
+}
+function writeReviews(r) { fs.writeFileSync(REVIEWS_FILE, JSON.stringify(r, null, 2), "utf8"); }
+
+// Public: get approved reviews
+app.get("/api/reviews", (req, res) => {
+  const reviews = readReviews().filter(r => r.status === "approved");
+  reviews.sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1));
+  res.json(reviews);
+});
+
+// Public: submit review
+app.post("/api/reviews", (req, res) => {
+  const { name, rating, text, eventType } = req.body || {};
+  if (!name || !text || !rating) return res.status(400).json({ error: "Name, Bewertung und Text erforderlich." });
+  const r = parseInt(rating);
+  if (r < 1 || r > 5) return res.status(400).json({ error: "Bewertung muss zwischen 1 und 5 sein." });
+  const review = { id: genId(), name: String(name).trim().slice(0, 80), rating: r, text: String(text).trim().slice(0, 800), eventType: eventType ? String(eventType).trim().slice(0, 60) : "", status: "pending", createdAt: new Date().toISOString() };
+  const reviews = readReviews();
+  reviews.push(review);
+  writeReviews(reviews);
+  res.json({ ok: true });
+});
+
+// Admin: get all reviews
+app.get("/api/admin/reviews", requireAuth, (req, res) => res.json(readReviews().sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1))));
+
+// Admin: approve/reject
+app.patch("/api/admin/reviews/:id", requireAuth, (req, res) => {
+  const { status } = req.body || {};
+  if (!["approved", "rejected", "pending"].includes(status)) return res.status(400).json({ error: "Ungültiger Status." });
+  const reviews = readReviews();
+  const idx = reviews.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Nicht gefunden." });
+  reviews[idx].status = status;
+  writeReviews(reviews);
+  res.json({ ok: true });
+});
+
+// Admin: delete
+app.delete("/api/admin/reviews/:id", requireAuth, (req, res) => {
+  const reviews = readReviews().filter(r => r.id !== req.params.id);
+  writeReviews(reviews);
+  res.json({ ok: true });
+});
+
 // ---------- Fallback 404 for API ----------
 app.use("/api", (req, res) => res.status(404).json({ error: "Not Found" }));
 

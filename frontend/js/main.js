@@ -321,6 +321,89 @@
   loadAvailability();
 })();
 
+// ── Reviews ──────────────────────────────────────────────────────────────────
+(function () {
+  if (!document.getElementById('reviewsTicker')) return;
+
+  let selectedRating = 0;
+
+  // Star picker
+  const stars = document.querySelectorAll('.review-star');
+  stars.forEach(s => {
+    s.addEventListener('click', () => {
+      selectedRating = parseInt(s.dataset.star);
+      stars.forEach(x => x.classList.toggle('active', parseInt(x.dataset.star) <= selectedRating));
+    });
+    s.addEventListener('mouseenter', () => {
+      stars.forEach(x => x.classList.toggle('active', parseInt(x.dataset.star) <= parseInt(s.dataset.star)));
+    });
+    s.addEventListener('mouseleave', () => {
+      stars.forEach(x => x.classList.toggle('active', parseInt(x.dataset.star) <= selectedRating));
+    });
+  });
+
+  // Submit
+  document.getElementById('reviewSubmit').addEventListener('click', async () => {
+    const name = document.getElementById('reviewName').value.trim();
+    const text = document.getElementById('reviewText').value.trim();
+    const eventType = document.getElementById('reviewEventType').value.trim();
+    const status = document.getElementById('reviewStatus');
+    if (!name || !text || !selectedRating) {
+      status.style.color = '#f87171';
+      status.textContent = 'Bitte Name, Sterne und Text ausfüllen.';
+      return;
+    }
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, text, rating: selectedRating, eventType }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      status.style.color = '#34d399';
+      status.textContent = 'Danke! Deine Rezension wird nach Prüfung freigeschaltet.';
+      document.getElementById('reviewName').value = '';
+      document.getElementById('reviewText').value = '';
+      document.getElementById('reviewEventType').value = '';
+      selectedRating = 0;
+      stars.forEach(x => x.classList.remove('active'));
+    } catch (e) {
+      status.style.color = '#f87171';
+      status.textContent = 'Fehler: ' + e.message;
+    }
+  });
+
+  // Load & render ticker
+  function makeCard(r) {
+    const starsHtml = '★'.repeat(r.rating) + '<span style="opacity:0.2;">★</span>'.repeat(5 - r.rating);
+    return `<div class="review-card">
+      <div class="review-card-stars">${starsHtml}</div>
+      <div class="review-card-text">"${r.text}"</div>
+      <div class="review-card-author">${r.name}</div>
+      ${r.eventType ? `<div class="review-card-event">${r.eventType}</div>` : ''}
+    </div>`;
+  }
+
+  async function loadReviews() {
+    try {
+      const res = await fetch('/api/reviews');
+      const reviews = await res.json();
+      if (!reviews.length) { document.getElementById('reviewsEmpty').style.display = 'block'; return; }
+      document.getElementById('reviewsTicker').style.display = 'block';
+      // Split into two rows
+      const half = Math.ceil(reviews.length / 2);
+      const row1 = reviews.slice(0, half);
+      const row2 = reviews.slice(half);
+      // Duplicate for infinite scroll
+      const render = (arr) => [...arr, ...arr].map(makeCard).join('');
+      document.getElementById('reviewsTrack1').innerHTML = render(row1.length ? row1 : reviews);
+      document.getElementById('reviewsTrack2').innerHTML = render(row2.length ? row2 : reviews);
+    } catch (e) { console.error(e); }
+  }
+
+  loadReviews();
+})();
+
 // Simple toast helper (used across pages)
 window.showToast = function (msg, type = "success") {
   let toast = document.querySelector(".toast");
