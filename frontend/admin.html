@@ -71,14 +71,24 @@
         <div class="admin-tab" data-filter="storniert">Storniert</div>
       </div>
 
-      <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-        <button class="btn btn-outline btn-sm" id="openGalleriesBtn">Galerien</button>
-        <button class="btn btn-outline btn-sm" id="openTemplatesBtn">Auto-Nachrichten</button>
-        <button class="btn btn-outline btn-sm" id="openPresetsBtn">E-Mail-Vorlagen</button>
-        <button class="btn btn-outline btn-sm" id="openAvailabilityBtn">Verfügbarkeit</button>
-        <button class="btn btn-outline btn-sm" id="openReviewsBtn">Rezensionen</button>
-        <a href="/admin-event.html" class="btn btn-outline btn-sm" style="text-decoration:none;">🎉 Event Manager</a>
-        <button class="btn btn-outline btn-sm" id="csvExportBtn">CSV Export</button>
+      <div style="display:flex; gap:0.75rem; align-items:center;">
+        <div style="position:relative;">
+          <button id="adminMenuBtn" class="btn btn-outline btn-sm" style="width:38px;height:38px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+            <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
+            <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
+            <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
+          </button>
+          <div id="adminMenuDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#1c1c1e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:0.4rem;min-width:200px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+            <button class="btn btn-outline btn-sm" id="openGalleriesBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📸 Galerien</button>
+            <button class="btn btn-outline btn-sm" id="openAvailabilityBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📅 Verfügbarkeit</button>
+            <button class="btn btn-outline btn-sm" id="openReviewsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">⭐ Rezensionen</button>
+            <a href="/admin-event.html" style="display:block;text-decoration:none;color:inherit;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;font-size:.85rem;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">🎉 Event Manager</a>
+            <button class="btn btn-outline btn-sm" id="openTemplatesBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">✉️ Auto-Nachrichten</button>
+            <button class="btn btn-outline btn-sm" id="openPresetsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📝 E-Mail-Vorlagen</button>
+            <div style="height:1px;background:rgba(255,255,255,0.07);margin:.3rem 0;"></div>
+            <button class="btn btn-outline btn-sm" id="csvExportBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;">⬇️ CSV Export</button>
+          </div>
+        </div>
         <div class="view-toggle" id="viewToggle">
           <button class="active" data-view="list">Liste</button>
           <button data-view="calendar">Kalender</button>
@@ -585,6 +595,17 @@
     loadAdminReviews();
     window.showToast('Gelöscht', 'success');
   };
+})();
+</script>
+
+<script>
+(function(){
+  const btn = document.getElementById('adminMenuBtn');
+  const drop = document.getElementById('adminMenuDropdown');
+  if (!btn || !drop) return;
+  btn.addEventListener('click', (e) => { e.stopPropagation(); drop.style.display = drop.style.display === 'none' ? 'block' : 'none'; });
+  document.addEventListener('click', () => { drop.style.display = 'none'; });
+  drop.addEventListener('click', () => { drop.style.display = 'none'; });
 })();
 </script>
 
