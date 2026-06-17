@@ -301,7 +301,7 @@
         const mm = String(calMonth + 1).padStart(2, "0");
         const d = el.textContent.trim().padStart(2, "0");
         const dateStr = `${calYear}-${mm}-${d}`;
-        window.location.href = `/booking.html?date=${dateStr}`;
+        window.location.href = `/buchen.html?date=${dateStr}`;
       });
     });
   }
