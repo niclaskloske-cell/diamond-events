@@ -2700,4 +2700,48 @@ footer .footer-links a:hover {
 
 .avail-admin-day.is-frei .avail-dot { background: #34d399; }
 .avail-admin-day.is-blockiert .avail-dot { background: #9ca3af; }
+.avail-admin-day.is-belegt .avail-dot { background: #f87171; }
+
+/* Special — gold glow (admin) */
+.avail-admin-day.is-special {
+  background: rgba(251,191,36,0.12);
+  color: #fbbf24;
+  border-color: rgba(251,191,36,0.4);
+  font-weight: 700;
+  animation: specialPulse 2.4s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(251,191,36,0.25);
+}
+.avail-admin-day.is-special .avail-dot { background: #fbbf24; }
+
+/* Note label inside day cell */
+.avail-admin-day .day-note {
+  position: absolute;
+  bottom: 2px;
+  left: 0; right: 0;
+  font-size: 0.48rem;
+  line-height: 1.1;
+  text-align: center;
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 2px;
+  pointer-events: none;
+}
+.avail-admin-day.is-special .day-note { color: rgba(251,191,36,0.7); }
+
+@keyframes specialPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(251,191,36,0.25), 0 0 0 0 rgba(251,191,36,0); }
+  50% { box-shadow: 0 0 18px rgba(251,191,36,0.5), 0 0 28px rgba(251,191,36,0.15); }
+}
+
+/* Special days in the PUBLIC calendar */
+.avail-day.special {
+  background: rgba(251,191,36,0.15) !important;
+  color: #fbbf24 !important;
+  border: 1.5px solid rgba(251,191,36,0.5) !important;
+  font-weight: 700 !important;
+  animation: specialPulse 2.4s ease-in-out infinite;
+  cursor: default;
+}
 

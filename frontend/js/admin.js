@@ -1033,9 +1033,10 @@
       if (hasBooking) cls += " has-booking";
       if (entry) cls += ` is-${entry.type}`;
 
-      const dotHtml = entry ? `<span class="avail-dot"></span>` : "";
+      const dotHtml = entry && entry.type !== 'special' ? `<span class="avail-dot"></span>` : "";
+      const noteHtml = entry && entry.note ? `<span class="day-note">${entry.note}</span>` : "";
 
-      html += `<div class="${cls}" data-date="${dateStr}" title="${dateStr}">${d}${dotHtml}</div>`;
+      html += `<div class="${cls}" data-date="${dateStr}" title="${dateStr}${entry && entry.note ? ' — ' + entry.note : ''}">${d}${dotHtml}${noteHtml}</div>`;
     }
 
     grid.innerHTML = html;
@@ -1051,8 +1052,8 @@
     document.getElementById("availDayTitle").textContent = fmtDate(dateStr);
     const info = [];
     if (hasBooking) info.push("Buchung(en) vorhanden");
-    const typeLabel = {"blockiert": "Blockiert", "belegt": "Belegt"};
-  if (entry) info.push(`Aktuell: ${typeLabel[entry.type] || entry.type}${entry.note ? " — " + entry.note : ""}`);
+    const typeLabel = {"blockiert": "Blockiert", "belegt": "Belegt", "special": "⭐ Special"};
+    if (entry) info.push(`Aktuell: ${typeLabel[entry.type] || entry.type}${entry.note ? " — " + entry.note : ""}`);
     document.getElementById("availDayInfo").textContent = info.join(" | ") || "Kein besonderer Status.";
     document.getElementById("availDayNote").value = entry ? entry.note || "" : "";
 
@@ -1073,6 +1074,12 @@
     await saveAvailability(dateStr, "blockiert", note);
   });
 
+  document.getElementById("availDaySpecial").addEventListener("click", async () => {
+    const dateStr = availDayModal.dataset.date;
+    const note = document.getElementById("availDayNote").value.trim();
+    await saveAvailability(dateStr, "special", note);
+  });
+
   document.getElementById("availDayRemove").addEventListener("click", async () => {
     const dateStr = availDayModal.dataset.date;
     await removeAvailability(dateStr);
@@ -1088,7 +1095,7 @@
       if (!res.ok) throw new Error((await res.json()).error || "Fehler");
       availDayModal.classList.remove("open");
       await loadAvailabilityAdmin();
-      const labels = {"blockiert": "Blockiert", "belegt": "Als belegt markiert"};
+      const labels = {"blockiert": "Blockiert", "belegt": "Als belegt markiert", "special": "⭐ Als Special markiert"};
       window.showToast(labels[type] || type, "success");
     } catch (err) {
       window.showToast("Fehler: " + err.message, "error");

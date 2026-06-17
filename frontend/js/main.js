@@ -275,9 +275,10 @@
       if (isPast) cls += " past";
       if (isToday) cls += " today";
 
-      // Default: alle Tage sind frei — nur explizit blockierte/belegte Tage werden anders dargestellt
       if (entry && (entry.type === "blockiert" || entry.type === "belegt")) {
         cls += ` ${entry.type}`;
+      } else if (entry && entry.type === "special") {
+        cls += " special";
       } else if (!isPast) {
         cls += " frei";
       }
@@ -285,9 +286,11 @@
       let title = "Verfügbar — Klicken zum Buchen";
       if (entry && entry.type === "blockiert") title = "Nicht verfügbar" + (entry.note ? ` — ${entry.note}` : "");
       if (entry && entry.type === "belegt") title = "Belegt" + (entry.note ? ` — ${entry.note}` : "");
+      if (entry && entry.type === "special") title = "⭐ Special" + (entry.note ? ` — ${entry.note}` : "");
       if (isPast) title = "";
 
-      html += `<div class="${cls}" title="${title}" ${(!isPast && (!entry || entry.type === "frei")) ? `data-date="${dateStr}"` : ""}>${d}</div>`;
+      const isBookable = !isPast && (!entry || entry.type === "frei");
+      html += `<div class="${cls}" title="${title}" ${isBookable ? `data-date="${dateStr}"` : ""}>${d}</div>`;
     }
 
     grid.innerHTML = html;
