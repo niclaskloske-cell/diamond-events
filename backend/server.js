@@ -1343,8 +1343,23 @@ app.delete("/api/admin/reviews/:id", requireAuth, (req, res) => {
 
 
 // ---------- Start ----------
+// Backfill uploadedAt for existing images (set to 8 days ago so they don't show NEU)
+function backfillUploadedAt() {
+  const galleries = readGalleries();
+  const old = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+  let changed = false;
+  galleries.forEach(g => {
+    if (!g.images) return;
+    g.images.forEach(img => {
+      if (typeof img === "object" && !img.uploadedAt) { img.uploadedAt = old; changed = true; }
+    });
+  });
+  if (changed) writeGalleries(galleries);
+}
+
 app.listen(PORT, () => {
   ensureDataFile();
+  backfillUploadedAt();
   console.log(`\n  Diamond Events running at: http://localhost:${PORT}`);
   console.log(`  Admin Login:  /login.html`);
   console.log(`  Username:     ${ADMIN_USER}`);
