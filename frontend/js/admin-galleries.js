@@ -304,6 +304,22 @@
   // Upload one file directly to Cloudinary, then notify server
   let _sigCache = null;
   let _sigCacheId = null;
+  let _knownHashes = new Set();
+
+  async function hashFile(file) {
+    const buf = await file.arrayBuffer();
+    const digest = await crypto.subtle.digest("SHA-256", buf);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function loadKnownHashes(galleryId) {
+    try {
+      const res = await fetch(`/api/galleries/${galleryId}/images`, { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      _knownHashes = new Set((data.images || []).map(i => i.hash).filter(Boolean));
+    } catch {}
+  }
 
   async function getSignature(galleryId) {
     if (_sigCache && _sigCacheId === galleryId && _sigCache.timestamp > Math.round(Date.now() / 1000) - 55) {
@@ -318,6 +334,10 @@
 
   async function uploadOneFile(galleryId, file) {
     try {
+      // Duplicate check
+      const hash = await hashFile(file);
+      if (_knownHashes.has(hash)) return "duplicate";
+
       const sig = await getSignature(galleryId);
       const formData = new FormData();
       formData.append("file", file);
@@ -338,12 +358,12 @@
 
       if (result.error) throw new Error(result.error.message);
 
-      // Tell server to record the image
       await fetch(`/api/admin/galleries/${galleryId}/notify-upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ publicId: result.public_id, url: result.secure_url }),
+        body: JSON.stringify({ publicId: result.public_id, url: result.secure_url, hash }),
       });
+      _knownHashes.add(hash);
       return true;
     } catch (err) {
       console.error("Upload error:", err);
@@ -357,16 +377,19 @@
       return;
     }
     if (!files.length) return;
+    await loadKnownHashes(currentGalleryId);
     const arr = Array.from(files);
     const total = arr.length;
     let done = 0;
+    let dupes = 0;
     let failed = 0;
 
     const setProgress = () => {
-      const pct = Math.round((done + failed) / total * 100);
+      const processed = done + dupes + failed;
+      const pct = Math.round(processed / total * 100);
       const countEl = document.getElementById("uploadCount");
       const barEl = document.getElementById("uploadBarInner");
-      if (countEl) countEl.textContent = `${done} / ${total}`;
+      if (countEl) countEl.textContent = `${done} / ${total - dupes}${dupes ? ` (${dupes} bereits vorhanden)` : ""}`;
       if (barEl) barEl.style.width = pct + "%";
     };
 
@@ -380,14 +403,15 @@
         <div id="uploadBarInner" style="height:100%;width:0%;background:linear-gradient(90deg,#00f0ff,#a855f7);border-radius:100px;transition:width 0.15s;"></div>
       </div>`;
 
-    // Upload 6 at a time directly to Cloudinary CDN
     const CONCURRENCY = 6;
     const queue = [...arr];
     const workers = Array.from({ length: CONCURRENCY }, async () => {
       while (queue.length) {
         const file = queue.shift();
-        const ok = await uploadOneFile(currentGalleryId, file);
-        if (ok) done++; else failed++;
+        const result = await uploadOneFile(currentGalleryId, file);
+        if (result === "duplicate") dupes++;
+        else if (result) done++;
+        else failed++;
         setProgress();
       }
     });
@@ -399,12 +423,10 @@
 
     loadGalleryImages(currentGalleryId);
     loadGalleries();
-    window.showToast(
-      failed === 0
-        ? `${done} Bild${done === 1 ? "" : "er"} hochgeladen ✓`
-        : `${done} hochgeladen, ${failed} fehlgeschlagen`,
-      failed === 0 ? "success" : "error"
-    );
+    const msg = dupes > 0
+      ? `${done} hochgeladen${dupes ? `, ${dupes} bereits vorhanden` : ""}${failed ? `, ${failed} Fehler` : ""}`
+      : `${done} Bild${done === 1 ? "" : "er"} hochgeladen ✓`;
+    window.showToast(msg, failed === 0 ? "success" : "error");
   }
 
   // ---------- Copy Share Link ----------

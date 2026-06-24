@@ -1073,9 +1073,10 @@ app.get("/api/galleries/:id/images", checkGalleryAccess, (req, res) => {
       url: cloudinary.url(img.publicId, { quality: "auto", fetch_format: "auto" }),
       thumb: cloudinary.url(img.publicId, { width: 400, crop: "fill", quality: "auto", fetch_format: "auto" }),
       uploadedAt: img.uploadedAt || null,
+      hash: img.hash || null,
     }));
   } else {
-    imageList = images.map(img => ({ publicId: img.publicId, url: null, thumb: null, uploadedAt: img.uploadedAt || null }));
+    imageList = images.map(img => ({ publicId: img.publicId, url: null, thumb: null, uploadedAt: img.uploadedAt || null, hash: img.hash || null }));
   }
   res.json({
     name: g.name,
@@ -1210,13 +1211,17 @@ app.get("/api/admin/galleries/:id/upload-signature", requireAuth, (req, res) => 
 
 // Notify server after direct Cloudinary upload — store publicId + url
 app.post("/api/admin/galleries/:id/notify-upload", requireAuth, express.json(), (req, res) => {
-  const { publicId, url } = req.body || {};
+  const { publicId, url, hash } = req.body || {};
   if (!publicId || !url) return res.status(400).json({ error: "publicId und url erforderlich" });
   const galleries = readGalleries();
   const idx = galleries.findIndex((x) => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
   if (!galleries[idx].images) galleries[idx].images = [];
-  galleries[idx].images.push({ publicId, url, uploadedAt: new Date().toISOString() });
+  // Duplicate check by hash
+  if (hash && galleries[idx].images.some(i => i.hash === hash)) {
+    return res.json({ ok: true, duplicate: true });
+  }
+  galleries[idx].images.push({ publicId, url, uploadedAt: new Date().toISOString(), hash: hash || null });
   writeGalleries(galleries);
   res.json({ ok: true });
 });
