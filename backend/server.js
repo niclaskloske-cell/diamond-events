@@ -1072,9 +1072,10 @@ app.get("/api/galleries/:id/images", checkGalleryAccess, (req, res) => {
       publicId: img.publicId,
       url: cloudinary.url(img.publicId, { quality: "auto", fetch_format: "auto" }),
       thumb: cloudinary.url(img.publicId, { width: 400, crop: "fill", quality: "auto", fetch_format: "auto" }),
+      uploadedAt: img.uploadedAt || null,
     }));
   } else {
-    imageList = images.map(img => ({ publicId: img.publicId, url: null, thumb: null }));
+    imageList = images.map(img => ({ publicId: img.publicId, url: null, thumb: null, uploadedAt: img.uploadedAt || null }));
   }
   res.json({
     name: g.name,
