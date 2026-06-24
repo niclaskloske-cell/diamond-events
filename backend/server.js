@@ -1215,7 +1215,7 @@ app.post("/api/admin/galleries/:id/notify-upload", requireAuth, express.json(), 
   const idx = galleries.findIndex((x) => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
   if (!galleries[idx].images) galleries[idx].images = [];
-  galleries[idx].images.push({ publicId, url });
+  galleries[idx].images.push({ publicId, url, uploadedAt: new Date().toISOString() });
   writeGalleries(galleries);
   res.json({ ok: true });
 });

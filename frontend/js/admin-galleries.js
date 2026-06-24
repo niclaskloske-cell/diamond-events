@@ -222,13 +222,15 @@
     </div>` + images
       .map(
         (img) => {
-          // img is either {publicId, url, thumb} or a plain filename string
+          // img is either {publicId, url, thumb, uploadedAt} or a plain filename string
           const publicId = img.publicId || img;
           const thumbSrc = img.thumb || img.url || `/api/galleries/${id}/img/${encodeURIComponent(publicId)}`;
           const isCover = publicId === currentCover;
+          const isNew = img.uploadedAt && (Date.now() - new Date(img.uploadedAt).getTime() < 7 * 24 * 60 * 60 * 1000);
           return `<div data-img-cover="${escapeHtml(publicId)}" style="position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--bg-card); border: 2px solid ${isCover ? "var(--neon-cyan)" : "var(--line)"}; cursor: pointer;" title="${isCover ? "Cover-Bild (gesetzt)" : "Klicken → Als Cover setzen"}">
             <img src="${escapeHtml(thumbSrc)}" style="width: 100%; height: 100%; object-fit: cover; pointer-events:none;" loading="lazy" alt="" />
             ${isCover ? `<div style="position:absolute;top:0.3rem;left:0.3rem;background:var(--neon-cyan);color:#000;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;padding:2px 6px;border-radius:4px;pointer-events:none;">COVER</div>` : ""}
+            ${isNew ? `<div style="position:absolute;top:0.3rem;right:2.2rem;background:linear-gradient(135deg,#a855f7,#00f0ff);color:#fff;font-size:0.6rem;font-weight:800;letter-spacing:0.1em;padding:2px 7px;border-radius:4px;pointer-events:none;z-index:2;">NEU</div>` : ""}
             <button type="button" data-img-delete="${escapeHtml(publicId)}" title="Löschen" style="position: absolute; top: 0.4rem; right: 0.4rem; width: 28px; height: 28px; border-radius: 50%; background: rgba(248, 113, 113, 0.9); color: #fff; border: none; cursor: pointer; font-size: 0.85rem; line-height: 1; z-index:2;">×</button>
           </div>`;
         }
