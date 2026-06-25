@@ -304,7 +304,6 @@
   // Upload one file directly to Cloudinary, then notify server
   let _sigCache = null;
   let _sigCacheId = null;
-  let _knownHashes = new Set();
 
   async function hashFile(file) {
     try {
@@ -312,15 +311,6 @@
       const digest = await crypto.subtle.digest("SHA-256", buf);
       return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
     } catch { return null; }
-  }
-
-  async function loadKnownHashes(galleryId) {
-    try {
-      const res = await fetch(`/api/galleries/${galleryId}/images`, { credentials: "include" });
-      if (!res.ok) return;
-      const data = await res.json();
-      _knownHashes = new Set((data.images || []).map(i => i.hash).filter(Boolean));
-    } catch {}
   }
 
   async function getSignature(galleryId) {
@@ -336,10 +326,7 @@
 
   async function uploadOneFile(galleryId, file) {
     try {
-      // Duplicate check
       const hash = await hashFile(file);
-      if (hash && _knownHashes.has(hash)) return "duplicate";
-
       const sig = await getSignature(galleryId);
       const formData = new FormData();
       formData.append("file", file);
@@ -360,12 +347,13 @@
 
       if (result.error) throw new Error(result.error.message);
 
-      await fetch(`/api/admin/galleries/${galleryId}/notify-upload`, {
+      const notifyRes = await fetch(`/api/admin/galleries/${galleryId}/notify-upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ publicId: result.public_id, url: result.secure_url, hash }),
       });
-      _knownHashes.add(hash);
+      const notifyData = await notifyRes.json();
+      if (notifyData.duplicate) return "duplicate";
       return true;
     } catch (err) {
       console.error("Upload error:", err);
@@ -379,7 +367,6 @@
       return;
     }
     if (!files.length) return;
-    await loadKnownHashes(currentGalleryId);
     const arr = Array.from(files);
     const total = arr.length;
     let done = 0;
