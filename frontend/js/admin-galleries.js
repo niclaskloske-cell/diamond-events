@@ -307,9 +307,11 @@
   let _knownHashes = new Set();
 
   async function hashFile(file) {
-    const buf = await file.arrayBuffer();
-    const digest = await crypto.subtle.digest("SHA-256", buf);
-    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+    try {
+      const buf = await file.arrayBuffer();
+      const digest = await crypto.subtle.digest("SHA-256", buf);
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+    } catch { return null; }
   }
 
   async function loadKnownHashes(galleryId) {
@@ -336,7 +338,7 @@
     try {
       // Duplicate check
       const hash = await hashFile(file);
-      if (_knownHashes.has(hash)) return "duplicate";
+      if (hash && _knownHashes.has(hash)) return "duplicate";
 
       const sig = await getSignature(galleryId);
       const formData = new FormData();
