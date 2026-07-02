@@ -167,11 +167,6 @@
           <div class="svc-name">Fotografie</div>
           <div class="svc-desc">Event-Fotos</div>
         </button>
-        <button class="svc-card" data-svc="beides">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <div class="svc-name">Beides</div>
-          <div class="svc-desc">DJ + Foto</div>
-        </button>
       </div>
 
       <!-- DJ Pakete -->
@@ -383,8 +378,8 @@
       document.querySelectorAll('.svc-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       state.svc = btn.dataset.svc;
-      document.getElementById('djPkgs').style.display = (state.svc === 'dj' || state.svc === 'beides') ? 'block' : 'none';
-      document.getElementById('fotoPkgs').style.display = (state.svc === 'fotografie' || state.svc === 'beides') ? 'block' : 'none';
+      document.getElementById('djPkgs').style.display = state.svc === 'dj' ? 'block' : 'none';
+      document.getElementById('fotoPkgs').style.display = state.svc === 'fotografie' ? 'block' : 'none';
     });
   });
 
@@ -409,8 +404,8 @@
 
   // ── Step 1 → 2 ──
   document.getElementById('next1').addEventListener('click', () => {
-    const needDj = state.svc === 'dj' || state.svc === 'beides';
-    const needFoto = state.svc === 'fotografie' || state.svc === 'beides';
+    const needDj = state.svc === 'dj';
+    const needFoto = state.svc === 'fotografie';
     const err = !state.svc || (needDj && !state.djPkg) || (needFoto && !state.fotoPkg);
     document.getElementById('err1').className = 'f-error' + (err ? ' show' : '');
     if (!err) showStep(2);
@@ -432,7 +427,7 @@
 
   // ── Build summary ──
   function buildSummary() {
-    const svcLabel = { dj: 'DJ Service', fotografie: 'Fotografie', beides: 'DJ + Fotografie' }[state.svc] || '';
+    const svcLabel = { dj: 'DJ Service', fotografie: 'Fotografie' }[state.svc] || '';
     let pkgs = [];
     if (state.djPkg) pkgs.push(state.djPkg);
     if (state.fotoPkg) pkgs.push(state.fotoPkg);
