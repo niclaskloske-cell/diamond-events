@@ -89,6 +89,53 @@
   .btn-next:hover { opacity: 0.88; }
   .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
 
+  /* ── Cinematics early-bird card ── */
+  .cinematics-card {
+    margin-top: 1.25rem;
+    border: 1.5px solid rgba(168,85,247,0.4);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(168,85,247,0.06) 0%, rgba(0,240,255,0.04) 100%);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .cinematics-card:hover { border-color: rgba(168,85,247,0.7); background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(0,240,255,0.06) 100%); }
+  .cinematics-card.selected { border-color: #a855f7; box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+  .cinematics-icon { font-size: 2rem; flex-shrink: 0; }
+  .cinematics-body { flex: 1; min-width: 0; }
+  .cinematics-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0.2rem; }
+  .cinematics-sub { font-size: 0.8rem; color: var(--text-muted); }
+  .cinematics-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  .c-badge {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 100px;
+  }
+  .c-badge.early { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+  .c-badge.coming { background: rgba(168,85,247,0.12); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+  .cinematics-countdown { font-size: 0.78rem; color: var(--text-muted); text-align: right; white-space: nowrap; }
+  .cinematics-countdown strong { display: block; font-size: 1.1rem; font-weight: 800; color: #a855f7; }
+
+  /* ── Cinematics form panel ── */
+  .cinematics-info-box {
+    background: rgba(168,85,247,0.06);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .cinematics-info-box strong { color: #d8a4ff; }
+
   /* ── Error / status ── */
   .f-error { font-size: 0.8rem; color: #f87171; margin-top: 1rem; display: none; }
   .f-error.show { display: block; }
@@ -206,6 +253,27 @@
           </button>
         </div>
       </div>
+
+      <!-- Diamond Cinematics Frühbucher -->
+      <div id="cinematicsInfo" class="cinematics-info-box" style="display:none;">
+        🎬 <strong>Diamond Cinematics — Frühbucher-Anfrage</strong><br>
+        Wir starten offiziell ab <strong>August 2027</strong> mit Hochzeitsfilmen & Cinematic Videos. Trag dich jetzt ein und sichere dir deinen Termin als Erster — zu einem exklusiven Frühbucher-Preis.
+      </div>
+      <button class="cinematics-card" id="cinematicsCard" data-svc="cinematics">
+        <div class="cinematics-icon">🎬</div>
+        <div class="cinematics-body">
+          <div class="cinematics-title">Diamond Cinematics</div>
+          <div class="cinematics-sub">Hochzeitsfilm · Cinematic Video · Drohne</div>
+          <div class="cinematics-badges">
+            <span class="c-badge early">⭐ Frühbucher</span>
+            <span class="c-badge coming">Ab August 2027</span>
+          </div>
+        </div>
+        <div class="cinematics-countdown" id="cinematicsCountdown">
+          <strong id="cCountVal">—</strong>
+          bis Launch
+        </div>
+      </button>
 
       <div class="f-error" id="err1">Bitte Service und Paket auswählen.</div>
       <div class="btn-row">
@@ -372,15 +440,42 @@
     }
   }
 
+  // ── Countdown to August 2027 ──
+  (function() {
+    const launch = new Date('2027-08-01T00:00:00');
+    function update() {
+      const diff = launch - Date.now();
+      if (diff <= 0) { document.getElementById('cCountVal').textContent = 'Bald'; return; }
+      const days = Math.floor(diff / 86400000);
+      const months = Math.floor(days / 30);
+      document.getElementById('cCountVal').textContent = months > 0 ? months + ' Monate' : days + ' Tage';
+    }
+    update();
+    setInterval(update, 60000);
+  })();
+
   // ── Service selection ──
+  function deselectAll() {
+    document.querySelectorAll('.svc-card').forEach(b => b.classList.remove('selected'));
+    document.getElementById('cinematicsCard').classList.remove('selected');
+  }
   document.querySelectorAll('.svc-card').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.svc-card').forEach(b => b.classList.remove('selected'));
+      deselectAll();
       btn.classList.add('selected');
       state.svc = btn.dataset.svc;
       document.getElementById('djPkgs').style.display = state.svc === 'dj' ? 'block' : 'none';
       document.getElementById('fotoPkgs').style.display = state.svc === 'fotografie' ? 'block' : 'none';
+      document.getElementById('cinematicsInfo').style.display = 'none';
     });
+  });
+  document.getElementById('cinematicsCard').addEventListener('click', () => {
+    deselectAll();
+    document.getElementById('cinematicsCard').classList.add('selected');
+    state.svc = 'cinematics';
+    document.getElementById('djPkgs').style.display = 'none';
+    document.getElementById('fotoPkgs').style.display = 'none';
+    document.getElementById('cinematicsInfo').style.display = 'block';
   });
 
   // ── Package selection ──
@@ -406,7 +501,7 @@
   document.getElementById('next1').addEventListener('click', () => {
     const needDj = state.svc === 'dj';
     const needFoto = state.svc === 'fotografie';
-    const err = !state.svc || (needDj && !state.djPkg) || (needFoto && !state.fotoPkg);
+    const err = !state.svc || (needDj && !state.djPkg) || (needFoto && !state.fotoPkg) || false;
     document.getElementById('err1').className = 'f-error' + (err ? ' show' : '');
     if (!err) showStep(2);
   });
@@ -427,7 +522,7 @@
 
   // ── Build summary ──
   function buildSummary() {
-    const svcLabel = { dj: 'DJ Service', fotografie: 'Fotografie' }[state.svc] || '';
+    const svcLabel = { dj: 'DJ Service', fotografie: 'Fotografie', cinematics: '🎬 Diamond Cinematics (Frühbucher)' }[state.svc] || '';
     let pkgs = [];
     if (state.djPkg) pkgs.push(state.djPkg);
     if (state.fotoPkg) pkgs.push(state.fotoPkg);
