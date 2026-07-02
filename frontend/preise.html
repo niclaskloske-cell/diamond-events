@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="DJ und Fotografie Pakete von Diamond Events. Transparente Preise für Hochzeiten, Geburtstage und Events." />
+<meta name="description" content="Hochzeitsfotografie, freie Shootings, Drohnenaufnahmen & DJ – Diamond Events. Transparente Preise, unvergessliche Momente." />
 <link rel="canonical" href="https://eventsdiamond.de/preise.html" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://eventsdiamond.de/preise.html" />
 <meta property="og:title" content="Preise & Pakete — Diamond Events" />
-<meta property="og:description" content="DJ und Fotografie Pakete für dein Event. Klare Preise, individuell anpassbar." />
+<meta property="og:description" content="Hochzeitsfotografie, Familien- & Kinder-Shootings, Drohne, DJ. Klare Preise, individuelle Beratung." />
 <meta property="og:image" content="https://i.ibb.co/PZQRKCRz/6ff00cbf-c148-4b7a-ad99-9dbeaf816a89.jpg" />
 <meta property="og:locale" content="de_DE" />
 <meta property="og:site_name" content="Diamond Events" />
@@ -16,6 +16,100 @@
 <title>Preise & Pakete — Diamond Events</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="/css/style.css" />
+<style>
+.pkg-icon { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+.coming-soon-section { padding: 5rem 0; }
+.coming-soon-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 24px;
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+.coming-soon-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.coming-soon-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: rgba(168,85,247,0.15);
+  color: #a855f7;
+  border: 1px solid rgba(168,85,247,0.3);
+  margin-bottom: 1.25rem;
+}
+.coming-soon-card h3 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.75rem; }
+.coming-soon-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; max-width: 480px; margin: 0 auto 1.75rem; }
+.feature-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; }
+.feature-pill {
+  font-size: 0.78rem;
+  padding: 5px 14px;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted);
+}
+.shooting-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2.5rem 0;
+}
+.shooting-type-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.shooting-type-card:hover { border-color: rgba(0,240,255,0.3); transform: translateY(-2px); }
+.shooting-type-card .icon { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+.shooting-type-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+.shooting-type-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+.combo-banner {
+  background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(168,85,247,0.06));
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 3rem;
+}
+.combo-banner h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.3rem; }
+.combo-banner p { color: var(--text-muted); font-size: 0.88rem; }
+.drone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: rgba(251,191,36,0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(251,191,36,0.3);
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+</style>
 </head>
 <body>
 
@@ -38,8 +132,8 @@
   <div class="container">
     <span class="section-subtitle reveal">Transparente Preise</span>
     <h1 class="reveal">Pakete &amp; <span class="gradient-text">Termine</span></h1>
-    <p class="reveal" style="color:var(--text-muted); max-width:520px; margin:1rem auto 0;">
-      Alle Pakete sind individuell anpassbar. Prüfe direkt ob dein Datum noch frei ist.
+    <p class="reveal" style="color:var(--text-muted); max-width:540px; margin:1rem auto 0;">
+      Hochzeitsfotografie, freie Shootings, Drohnenaufnahmen und DJ-Service — individuell auf dich zugeschnitten.
     </p>
   </div>
 </section>
@@ -65,187 +159,279 @@
       <div class="avail-calendar" id="availCalGrid"></div>
     </div>
     <div class="avail-legend reveal">
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot frei"></span>
-        <span>Verfügbar</span>
-      </div>
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot belegt"></span>
-        <span>Belegt</span>
-      </div>
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot blockiert"></span>
-        <span>Nicht verfügbar</span>
-      </div>
-      <div class="avail-legend-item">
-        <span class="avail-legend-dot" style="background:#fbbf24; box-shadow:0 0 6px rgba(251,191,36,0.7);"></span>
-        <span>⭐ Special-Angebot</span>
-      </div>
+      <div class="avail-legend-item"><span class="avail-legend-dot frei"></span><span>Verfügbar</span></div>
+      <div class="avail-legend-item"><span class="avail-legend-dot belegt"></span><span>Belegt</span></div>
+      <div class="avail-legend-item"><span class="avail-legend-dot blockiert"></span><span>Nicht verfügbar</span></div>
+      <div class="avail-legend-item"><span class="avail-legend-dot" style="background:#fbbf24; box-shadow:0 0 6px rgba(251,191,36,0.7);"></span><span>⭐ Special-Angebot</span></div>
     </div>
-    <p style="font-size:0.78rem; color:var(--text-muted); text-align:center; margin-top:0.75rem;">
-      ⭐ <strong style="color:#fbbf24;">Special-Tage</strong> — an diesen Tagen gibt es besondere Angebote oder Aktionen. Frag einfach an!
-    </p>
     <div style="text-align:center; margin-top:2rem;" class="reveal">
       <a href="/buchen.html" class="btn btn-primary">Datum anfragen</a>
     </div>
   </div>
 </section>
 
-<!-- DJ Pakete -->
-<section class="packages" id="packages" style="padding-top:5rem;">
+<!-- Hochzeits-Fotografie -->
+<section class="packages" id="hochzeit" style="padding-top:5rem;">
   <div class="container">
-    <span class="section-subtitle reveal">DJ Service</span>
-    <h2 class="section-title reveal">Wähle dein <span class="gradient-text">Erlebnis</span></h2>
-    <p class="reveal" style="color:var(--text-muted); max-width:560px; margin:1rem auto 0;">
-      Drei Pakete, individuell anpassbar an dein Event.
+    <span class="section-subtitle reveal">Das Herzstück</span>
+    <h2 class="section-title reveal">Hochzeits<span class="gradient-text-warm">fotografie</span></h2>
+    <p class="reveal" style="color:var(--text-muted); max-width:580px; margin:1rem auto 0;">
+      Euer schönster Tag verdient die besten Bilder. Von der standesamtlichen Trauung bis zur letzten Tanzfläche — ich begleite euch durch alles.
     </p>
 
-    <div class="packages-grid">
-      <article class="package-card" data-delay="0" data-color="cyan">
-        <span class="package-tier">Diamond — Lite</span>
-        <h3>Diamond Lite</h3>
+    <div class="packages-grid" style="margin-top:3rem;">
+
+      <article class="package-card" data-delay="0" data-color="amber">
+        <span class="pkg-icon">💍</span>
+        <span class="package-tier">Hochzeit — Basis</span>
+        <h3>Hochzeit Basis</h3>
         <div class="package-price">
           <span class="price-label">ab</span>
-          <span class="price-value" data-target="449">0</span>
+          <span class="price-value" data-target="799">0</span>
           <span class="price-currency">€</span>
         </div>
-        <p class="package-tagline">Für intime Feiern und kleinere Events.</p>
+        <p class="package-tagline">Standesamt + Feier, kompakt und emotional.</p>
         <ul class="package-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Sound + Basis Setup</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>DJ-Performance</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Fotografie optional</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dauer: bis zu 4 Stunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 6 Stunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>150+ bearbeitete Bilder</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>2 Locations inklusive</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Private Online-Galerie</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Lieferung in 2 Wochen</li>
         </ul>
         <div class="package-buttons">
-          <a href="/booking.html?package=Diamond%20Lite" class="btn btn-primary">Jetzt buchen</a>
-          <a href="/booking.html?package=Diamond%20Lite" class="btn btn-outline">Anfrage senden</a>
+          <a href="/buchen.html?service=fotografie&package=Hochzeit%20Basis" class="btn btn-primary">Anfragen</a>
         </div>
       </article>
 
-      <article class="package-card featured" data-delay="0.2" data-color="purple">
-        <span class="package-tier">Diamond — Premium</span>
-        <h3>Diamond Premium</h3>
+      <article class="package-card featured" data-delay="0.2" data-color="amber-featured">
+        <span class="pkg-icon">👰</span>
+        <span class="package-tier">Hochzeit — Premium</span>
+        <h3>Hochzeit Premium</h3>
         <div class="package-price">
           <span class="price-label">ab</span>
-          <span class="price-value" data-target="749">0</span>
+          <span class="price-value" data-target="1299">0</span>
           <span class="price-currency">€</span>
         </div>
-        <p class="package-tagline">Für größere Events & Hochzeiten.</p>
+        <p class="package-tagline">Ganztags-Begleitung mit Drohne. <span class="drone-badge">🚁 Drohne</span></p>
         <ul class="package-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Erweiterte Technik (Sound + Licht)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>DJ + Moderation</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Fotografie inklusive</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dauer: bis zu 6 Stunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End (ganzer Tag)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>300+ bearbeitete Bilder</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Drohnenaufnahmen inklusive</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Same-Day Highlights</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Individuelle Planung & Beratung</li>
         </ul>
         <div class="package-buttons">
-          <a href="/booking.html?package=Diamond%20Premium" class="btn btn-primary">Jetzt buchen</a>
-          <a href="/booking.html?package=Diamond%20Premium" class="btn btn-outline">Anfrage senden</a>
+          <a href="/buchen.html?service=fotografie&package=Hochzeit%20Premium" class="btn btn-primary">Anfragen</a>
         </div>
       </article>
 
       <article class="package-card" data-delay="0.4" data-color="magenta">
-        <span class="package-tier">Diamond — Exclusive</span>
-        <h3>Diamond Exclusive</h3>
+        <span class="pkg-icon">💎</span>
+        <span class="package-tier">Hochzeit — Exclusive</span>
+        <h3>Hochzeit Exclusive</h3>
         <div class="package-price">
           <span class="price-label">ab</span>
-          <span class="price-value" data-target="949">0</span>
+          <span class="price-value" data-target="1899">0</span>
           <span class="price-currency">€</span>
         </div>
-        <p class="package-tagline">High-End Erlebnis ohne Kompromisse.</p>
+        <p class="package-tagline">Foto + DJ + Drohne — alles aus einer Hand. <span class="drone-badge">🚁 Drohne</span></p>
         <ul class="package-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Komplettes Entertainment</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Premium Fotografie & Video</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Individuelle Planung</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End Fotografie & DJ</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>400+ bearbeitete Bilder</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Drohne + Premium Sound & Licht</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Same-Day Edit & Highlights</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Persönliche Rundum-Betreuung</li>
         </ul>
         <div class="package-buttons">
-          <a href="/booking.html?package=Diamond%20Exclusive" class="btn btn-primary">Jetzt buchen</a>
-          <a href="/booking.html?package=Diamond%20Exclusive" class="btn btn-outline">Anfrage senden</a>
+          <a href="/buchen.html?service=beides&package=Hochzeit%20Exclusive" class="btn btn-primary">Anfragen</a>
         </div>
       </article>
     </div>
   </div>
 </section>
 
-<!-- Foto Pakete -->
-<section class="packages photo-packages-section" id="photo-packages">
+<!-- Freie Shootings -->
+<section class="packages photo-packages-section" id="shootings" style="padding-top:5rem;">
   <div class="container">
-    <span class="section-subtitle reveal">Fotografie Pakete</span>
-    <h2 class="section-title reveal">Deine <span class="gradient-text-warm">Erinnerungen</span></h2>
-    <p class="reveal" style="color:var(--text-muted); max-width:560px; margin:1rem auto 0;">
-      Vom kurzen Portrait-Shooting bis zum ganztägigen Event — drei Pakete, ein Anspruch.
+    <span class="section-subtitle reveal">Draußen. Ehrlich. Unvergesslich.</span>
+    <h2 class="section-title reveal">Freie <span class="gradient-text">Shootings</span></h2>
+    <p class="reveal" style="color:var(--text-muted); max-width:580px; margin:1rem auto 0;">
+      Ob Familienmomente unter freiem Himmel, Kinder die einfach sie selbst sind, Pärchen-Shooting oder Drohnenbilder — ich halte fest was zählt.
     </p>
 
+    <div class="shooting-types reveal">
+      <div class="shooting-type-card">
+        <span class="icon">👨‍👩‍👧‍👦</span>
+        <h4>Familie</h4>
+        <p>Echte Momente, natürliches Licht, outdoor oder am Wunschort.</p>
+      </div>
+      <div class="shooting-type-card">
+        <span class="icon">🧒</span>
+        <h4>Kinder</h4>
+        <p>Spielend, lachend, lebendig — Kindheit festhalten wie sie wirklich ist.</p>
+      </div>
+      <div class="shooting-type-card">
+        <span class="icon">💑</span>
+        <h4>Pärchen</h4>
+        <p>Verlobung, Jubiläum oder einfach so — romantische Bilder die bleiben.</p>
+      </div>
+      <div class="shooting-type-card">
+        <span class="icon">🚁</span>
+        <h4>Drohne</h4>
+        <p>Luftaufnahmen von Locations, Events oder Immobilien — einzigartige Perspektive.</p>
+      </div>
+    </div>
+
     <div class="packages-grid">
-      <article class="package-card" data-delay="0" data-color="amber">
-        <span class="package-tier">Foto — Portrait</span>
-        <h3>Portrait Session</h3>
+      <article class="package-card" data-delay="0" data-color="cyan">
+        <span class="pkg-icon">🌿</span>
+        <span class="package-tier">Shooting — Mini</span>
+        <h3>Mini Shooting</h3>
         <div class="package-price">
           <span class="price-label">ab</span>
-          <span class="price-value" data-target="199">0</span>
+          <span class="price-value" data-target="149">0</span>
           <span class="price-currency">€</span>
         </div>
-        <p class="package-tagline">Für Portraits, kleine Feiern & spontane Momente.</p>
+        <p class="package-tagline">Spontan, kompakt, emotional.</p>
         <ul class="package-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 2 Stunden Shooting</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 1 Stunde</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>20+ bearbeitete Bilder</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>1 Location</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Private Online-Galerie</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Download in Originalqualität</li>
         </ul>
         <div class="package-buttons">
-          <a href="/booking.html?service=fotografie&package=Foto%20Portrait" class="btn btn-primary">Jetzt buchen</a>
-          <a href="/booking.html?service=fotografie&package=Foto%20Portrait" class="btn btn-outline">Anfrage senden</a>
+          <a href="/buchen.html?service=fotografie&package=Mini%20Shooting" class="btn btn-primary">Anfragen</a>
         </div>
       </article>
 
-      <article class="package-card featured" data-delay="0.2" data-color="amber-featured">
-        <span class="package-tier">Foto — Reportage</span>
-        <h3>Event Reportage</h3>
+      <article class="package-card featured" data-delay="0.2" data-color="cyan-featured">
+        <span class="pkg-icon">🌅</span>
+        <span class="package-tier">Shooting — Standard</span>
+        <h3>Standard Shooting</h3>
         <div class="package-price">
           <span class="price-label">ab</span>
-          <span class="price-value" data-target="349">0</span>
+          <span class="price-value" data-target="299">0</span>
           <span class="price-currency">€</span>
         </div>
-        <p class="package-tagline">Für Geburtstage, Hochzeiten & Firmenfeiern.</p>
+        <p class="package-tagline">Für Familien, Kinder & Pärchen.</p>
         <ul class="package-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 5 Stunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 2,5 Stunden</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>50+ bearbeitete Bilder</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 2 Locations</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Private Online-Galerie</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Lieferung in 5–7 Tagen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Lieferung in 7–10 Tagen</li>
         </ul>
         <div class="package-buttons">
-          <a href="/booking.html?service=fotografie&package=Foto%20Reportage" class="btn btn-primary">Jetzt buchen</a>
-          <a href="/booking.html?service=fotografie&package=Foto%20Reportage" class="btn btn-outline">Anfrage senden</a>
+          <a href="/buchen.html?service=fotografie&package=Standard%20Shooting" class="btn btn-primary">Anfragen</a>
         </div>
       </article>
 
-      <article class="package-card" data-delay="0.4" data-color="amber-dark">
-        <span class="package-tier">Foto — Premium</span>
-        <h3>Premium Shooting</h3>
+      <article class="package-card" data-delay="0.4" data-color="amber">
+        <span class="pkg-icon">🚁</span>
+        <span class="package-tier">Shooting — Drohne</span>
+        <h3>Shooting + Drohne</h3>
         <div class="package-price">
           <span class="price-label">ab</span>
-          <span class="price-value" data-target="599">0</span>
+          <span class="price-value" data-target="499">0</span>
           <span class="price-currency">€</span>
         </div>
-        <p class="package-tagline">Ganztags-Begleitung ohne Kompromisse.</p>
+        <p class="package-tagline">Boden & Luft — für besondere Locations. <span class="drone-badge">🚁 Drohne</span></p>
         <ul class="package-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End (ganzer Tag)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>100+ bearbeitete Bilder</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Same-Day Edits inklusive</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Individuelle Planung</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 3 Stunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>80+ bearbeitete Bilder</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Drohnenaufnahmen inklusive</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Mehrere Locations möglich</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Private Online-Galerie</li>
         </ul>
         <div class="package-buttons">
-          <a href="/booking.html?service=fotografie&package=Foto%20Premium" class="btn btn-primary">Jetzt buchen</a>
-          <a href="/booking.html?service=fotografie&package=Foto%20Premium" class="btn btn-outline">Anfrage senden</a>
+          <a href="/buchen.html?service=fotografie&package=Shooting%20Drohne" class="btn btn-primary">Anfragen</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- DJ Pakete -->
+<section class="packages" id="dj" style="padding-top:5rem;">
+  <div class="container">
+    <span class="section-subtitle reveal">DJ Service</span>
+    <h2 class="section-title reveal">Musik die <span class="gradient-text">bewegt</span></h2>
+    <p class="reveal" style="color:var(--text-muted); max-width:560px; margin:1rem auto 0;">
+      Von der Hochzeitsfeier bis zum Geburtstag — professioneller Sound, der deine Gäste auf die Tanzfläche bringt.
+    </p>
+
+    <div class="packages-grid" style="margin-top:3rem;">
+      <article class="package-card" data-delay="0" data-color="cyan">
+        <span class="pkg-icon">🎶</span>
+        <span class="package-tier">DJ — Lite</span>
+        <h3>Diamond Lite</h3>
+        <div class="package-price">
+          <span class="price-label">ab</span>
+          <span class="price-value" data-target="449">0</span>
+          <span class="price-currency">€</span>
+        </div>
+        <p class="package-tagline">Für kleinere Feiern & intime Events.</p>
+        <ul class="package-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Sound + Basis Setup</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>DJ-Performance</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 4 Stunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 80 Gäste</li>
+        </ul>
+        <div class="package-buttons">
+          <a href="/buchen.html?service=dj&package=Diamond%20Lite" class="btn btn-primary">Anfragen</a>
+        </div>
+      </article>
+
+      <article class="package-card featured" data-delay="0.2" data-color="purple">
+        <span class="pkg-icon">🎵</span>
+        <span class="package-tier">DJ — Premium</span>
+        <h3>Diamond Premium</h3>
+        <div class="package-price">
+          <span class="price-label">ab</span>
+          <span class="price-value" data-target="749">0</span>
+          <span class="price-currency">€</span>
+        </div>
+        <p class="package-tagline">Für Hochzeiten & größere Events.</p>
+        <ul class="package-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Erweiterte Technik (Sound + Licht)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>DJ-Performance</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 6 Stunden</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Musikwunsch-Management</li>
+        </ul>
+        <div class="package-buttons">
+          <a href="/buchen.html?service=dj&package=Diamond%20Premium" class="btn btn-primary">Anfragen</a>
+        </div>
+      </article>
+
+      <article class="package-card" data-delay="0.4" data-color="magenta">
+        <span class="pkg-icon">🔊</span>
+        <span class="package-tier">DJ — Exclusive</span>
+        <h3>Diamond Exclusive</h3>
+        <div class="package-price">
+          <span class="price-label">ab</span>
+          <span class="price-value" data-target="999">0</span>
+          <span class="price-currency">€</span>
+        </div>
+        <p class="package-tagline">High-End ohne Kompromisse.</p>
+        <ul class="package-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Premium Sound & Lichtshow</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Individuelle Playlist-Planung</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Persönliche Beratung</li>
+        </ul>
+        <div class="package-buttons">
+          <a href="/buchen.html?service=dj&package=Diamond%20Exclusive" class="btn btn-primary">Anfragen</a>
         </div>
       </article>
     </div>
 
-    <div class="photo-combo-hint reveal">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-      </svg>
-      <span>DJ + Fotografie zusammen buchen? <a href="/booking.html?service=beides">Kombi-Anfrage starten →</a></span>
+    <!-- Kombi Banner -->
+    <div class="combo-banner reveal">
+      <div>
+        <h3>💍 Hochzeit: DJ + Foto aus einer Hand</h3>
+        <p>Spare bis zu 15% wenn du DJ und Fotografie zusammen buchst. Alles koordiniert, alles perfekt.</p>
+      </div>
+      <a href="/buchen.html?service=beides" class="btn btn-primary" style="flex-shrink:0;">Kombi anfragen →</a>
     </div>
   </div>
 </section>
@@ -255,9 +441,6 @@
   <div class="container">
     <span class="section-subtitle reveal">Aktuelle Angebote</span>
     <h2 class="section-title reveal">Specials &amp; <span class="gradient-text">Aktionen</span></h2>
-    <p class="reveal" style="color:var(--text-muted); max-width:560px; margin:1rem auto 0;">
-      Ausgewählte Anlässe — mit besonderen Preisen.
-    </p>
 
     <div class="specials-grid">
       <article class="special-card themed reveal" style="--bg-image: url('https://i.ibb.co/DfM1PmCk/pngtree-happy-birthday-text-effect-png-image-241348.png');">
@@ -269,7 +452,7 @@
           <span class="price-number" data-from="449" data-to="300">449</span>
           <span class="price-currency">€</span>
         </div>
-        <a href="/booking.html?package=Diamond%20Lite" class="btn btn-primary">Jetzt anfragen</a>
+        <a href="/buchen.html?package=Diamond%20Lite" class="btn btn-primary">Jetzt anfragen</a>
       </article>
 
       <article class="special-card themed reveal" style="--bg-image: url('https://i.ibb.co/bjFF3PGX/graduation-party-cards-invitations-l-en.jpg');">
@@ -281,25 +464,41 @@
           <span class="price-number" data-from="599" data-to="399">599</span>
           <span class="price-currency">€</span>
         </div>
-        <a href="/booking.html?package=Diamond%20Lite" class="btn btn-primary">Jetzt anfragen</a>
+        <a href="/buchen.html?package=Diamond%20Lite" class="btn btn-primary">Jetzt anfragen</a>
       </article>
 
       <article class="special-card themed reveal" style="--bg-image: url('https://i.ibb.co/9328jgzS/leute-die-eine-party-am-strand-haben-53876-26402-jpg.avif');">
         <span class="special-tag">Sommer-Special</span>
-        <h3>Beachparty</h3>
-        <p class="special-desc">DJ + kompaktes Setup · bis zu 40 Gäste · 4 Stunden mit Sommer-Vibes.</p>
-        <div class="price-old">vorher 449 €</div>
+        <h3>Outdoor Shooting</h3>
+        <p class="special-desc">Familie oder Pärchen · goldene Stunde · unvergessliche Bilder im Freien.</p>
+        <div class="price-old">vorher 299 €</div>
         <div class="price-new">
-          <span class="price-number" data-from="449" data-to="249">449</span>
+          <span class="price-number" data-from="299" data-to="199">299</span>
           <span class="price-currency">€</span>
         </div>
-        <a href="/booking.html?package=Diamond%20Lite" class="btn btn-primary">Jetzt anfragen</a>
+        <a href="/buchen.html?service=fotografie&package=Standard%20Shooting" class="btn btn-primary">Jetzt anfragen</a>
       </article>
     </div>
+  </div>
+</section>
 
-    <p class="reveal" style="color:var(--text-muted); font-size:0.85rem; margin-top:2.5rem;">
-      Alle Special-Preise gelten für ausgewählte Termine und Anlässe. Bei Anfrage einfach den gewünschten Anlass im Nachrichtenfeld erwähnen.
-    </p>
+<!-- Coming Soon: Hochzeitsvideos -->
+<section class="coming-soon-section">
+  <div class="container">
+    <div class="coming-soon-card reveal">
+      <span class="coming-soon-tag">Bald verfügbar</span>
+      <h3>🎬 Hochzeitsvideos</h3>
+      <p>Cineastische Hochzeitsfilme — von der Zeremonie bis zur Party. Euer Tag, erzählt wie ein Film. Mit Drohnenaufnahmen, Same-Day Edit und professionellem Schnitt.</p>
+      <div class="feature-pills">
+        <span class="feature-pill">🚁 Drohnenaufnahmen</span>
+        <span class="feature-pill">🎞 Cinematic Style</span>
+        <span class="feature-pill">✂️ Professioneller Schnitt</span>
+        <span class="feature-pill">🎵 Musik-Synchronisation</span>
+        <span class="feature-pill">📱 Same-Day Highlight</span>
+        <span class="feature-pill">☁️ Online-Lieferung</span>
+      </div>
+      <a href="/buchen.html" class="btn btn-outline">Früh-Anfrage stellen →</a>
+    </div>
   </div>
 </section>
 
@@ -325,7 +524,7 @@
       <a href="/datenschutz.html">Datenschutz</a>
       <a href="/login.html" style="opacity:0.3;font-size:0.75rem;">Admin</a>
     </div>
-    <div>© <span id="year"></span> Diamond Events — Premium Entertainment & Photography</div>
+    <div>© <span id="year"></span> Diamond Events — Hochzeitsfotografie, Shooting & DJ</div>
   </div>
 </footer>
 
