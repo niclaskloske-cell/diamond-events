@@ -303,7 +303,8 @@
   .pkg-row { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
   .person-intro, .person-intro.flip { grid-template-columns: 1fr; gap: 2rem; }
   .person-intro.flip .person-photo, .person-intro.flip .person-text { order: unset; }
-  .person-photo { aspect-ratio: 4/3; max-height: 320px; }
+  .person-photo { aspect-ratio: 3/4; max-height: 480px; }
+  .person-photo img { object-position: center top; }
 }
 @media (max-width: 600px) {
   .svc-pill { padding: 0.5rem 1.2rem; font-size: 0.85rem; }
@@ -409,7 +410,7 @@
         <div class="pkg-card-v2">
           <div class="pkg-name-v2">Basis</div>
           <div class="pkg-sub-v2">Standesamt + Feier</div>
-          <div class="pkg-price-v2"><span>ab </span>899<small>€</small></div>
+          <div class="pkg-price-v2"><span>ab </span><span data-target="899">899</span><small>€</small></div>
           <div class="pkg-divider"></div>
           <ul class="pkg-features-v2">
             <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 6 Stunden</li>
@@ -425,7 +426,7 @@
           <div class="best-label warm">Beliebteste Wahl</div>
           <div class="pkg-name-v2">Premium</div>
           <div class="pkg-sub-v2">Ganztags mit Drohne</div>
-          <div class="pkg-price-v2"><span>ab </span>1.399<small>€</small></div>
+          <div class="pkg-price-v2"><span>ab </span><span data-target="1399">1.399</span><small>€</small></div>
           <div class="pkg-divider"></div>
           <ul class="pkg-features-v2">
             <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End — ganzer Tag</li>
@@ -440,7 +441,7 @@
         <div class="pkg-card-v2">
           <div class="pkg-name-v2">Exclusive</div>
           <div class="pkg-sub-v2">Das Rundum-Erlebnis</div>
-          <div class="pkg-price-v2"><span>ab </span>1.899<small>€</small></div>
+          <div class="pkg-price-v2"><span>ab </span><span data-target="1899">1.899</span><small>€</small></div>
           <div class="pkg-divider"></div>
           <ul class="pkg-features-v2">
             <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End</li>
@@ -462,7 +463,7 @@
         <div class="pkg-card-v2">
           <div class="pkg-name-v2">Mini Shooting</div>
           <div class="pkg-sub-v2">Familie · Kinder · Pärchen</div>
-          <div class="pkg-price-v2"><span>ab </span>199<small>€</small></div>
+          <div class="pkg-price-v2"><span>ab </span><span data-target="199">199</span><small>€</small></div>
           <div class="pkg-divider"></div>
           <ul class="pkg-features-v2">
             <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>1 Stunde</li>
@@ -477,7 +478,7 @@
           <div class="best-label">Empfohlen</div>
           <div class="pkg-name-v2">Standard Shooting</div>
           <div class="pkg-sub-v2">Familie · Kinder · Pärchen</div>
-          <div class="pkg-price-v2"><span>ab </span>349<small>€</small></div>
+          <div class="pkg-price-v2"><span>ab </span><span data-target="349">349</span><small>€</small></div>
           <div class="pkg-divider"></div>
           <ul class="pkg-features-v2">
             <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>2,5 Stunden</li>
@@ -492,7 +493,7 @@
         <div class="pkg-card-v2">
           <div class="pkg-name-v2">Shooting + Drohne</div>
           <div class="pkg-sub-v2">Boden & Luft</div>
-          <div class="pkg-price-v2"><span>ab </span>549<small>€</small></div>
+          <div class="pkg-price-v2"><span>ab </span><span data-target="549">549</span><small>€</small></div>
           <div class="pkg-divider"></div>
           <ul class="pkg-features-v2">
             <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>3 Stunden</li>
@@ -540,7 +541,7 @@
       <div class="pkg-card-v2">
         <div class="pkg-name-v2">Diamond Lite</div>
         <div class="pkg-sub-v2">Kleine Feiern & intime Events</div>
-        <div class="pkg-price-v2"><span>ab </span>449<small>€</small></div>
+        <div class="pkg-price-v2"><span>ab </span><span data-target="449">449</span><small>€</small></div>
         <div class="pkg-divider"></div>
         <ul class="pkg-features-v2">
           <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 4 Stunden</li>
@@ -555,7 +556,7 @@
         <div class="best-label">Beliebteste Wahl</div>
         <div class="pkg-name-v2">Diamond Premium</div>
         <div class="pkg-sub-v2">Hochzeiten & größere Events</div>
-        <div class="pkg-price-v2"><span>ab </span>749<small>€</small></div>
+        <div class="pkg-price-v2"><span>ab </span><span data-target="749">749</span><small>€</small></div>
         <div class="pkg-divider"></div>
         <ul class="pkg-features-v2">
           <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Bis zu 6 Stunden</li>
@@ -569,7 +570,7 @@
       <div class="pkg-card-v2">
         <div class="pkg-name-v2">Diamond Exclusive</div>
         <div class="pkg-sub-v2">High-End ohne Kompromisse</div>
-        <div class="pkg-price-v2"><span>ab </span>999<small>€</small></div>
+        <div class="pkg-price-v2"><span>ab </span><span data-target="999">999</span><small>€</small></div>
         <div class="pkg-divider"></div>
         <ul class="pkg-features-v2">
           <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Open End</li>
