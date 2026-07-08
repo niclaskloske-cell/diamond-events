@@ -109,7 +109,8 @@
   }
   .cinematics-card:hover { border-color: rgba(168,85,247,0.7); background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(0,240,255,0.06) 100%); }
   .cinematics-card.selected { border-color: #a855f7; box-shadow: 0 0 20px rgba(168,85,247,0.2); }
-  .cinematics-icon { font-size: 2rem; flex-shrink: 0; }
+  .cinematics-icon { font-size: 2rem; flex-shrink: 0; width: 72px; height: 72px; border-radius: 12px; overflow: hidden; }
+  .cinematics-icon img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
   .cinematics-body { flex: 1; min-width: 0; }
   .cinematics-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0.2rem; }
   .cinematics-sub { font-size: 0.8rem; color: var(--text-muted); }
@@ -260,7 +261,7 @@
         Wir starten offiziell ab <strong>August 2027</strong> mit Hochzeitsfilmen & Cinematic Videos. Trag dich jetzt ein und sichere dir deinen Termin als Erster — zu einem exklusiven Frühbucher-Preis.
       </div>
       <button class="cinematics-card" id="cinematicsCard" data-svc="cinematics">
-        <div class="cinematics-icon">🎬</div>
+        <div class="cinematics-icon"><img src="https://res.cloudinary.com/drgtxbpje/image/upload/q_auto,f_auto,c_fill,ar_1:1/brand/niclas_locked" alt="Diamond Cinematics" /></div>
         <div class="cinematics-body">
           <div class="cinematics-title">Diamond Cinematics</div>
           <div class="cinematics-sub">Hochzeitsfilm · Cinematic Video · Drohne</div>
