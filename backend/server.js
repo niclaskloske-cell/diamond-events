@@ -1074,15 +1074,17 @@ app.get("/api/galleries/:id/images", checkGalleryAccess, (req, res) => {
       thumb: cloudinary.url(img.publicId, { width: 400, crop: "fill", quality: "auto", fetch_format: "auto" }),
       uploadedAt: img.uploadedAt || null,
       hash: img.hash || null,
+      folderId: img.folderId || null,
     }));
   } else {
-    imageList = images.map(img => ({ publicId: img.publicId, url: null, thumb: null, uploadedAt: img.uploadedAt || null, hash: img.hash || null }));
+    imageList = images.map(img => ({ publicId: img.publicId, url: null, thumb: null, uploadedAt: img.uploadedAt || null, hash: img.hash || null, folderId: img.folderId || null }));
   }
   res.json({
     name: g.name,
     description: g.description,
     eventDate: g.eventDate,
     message: g.message || "",
+    folders: g.folders || [],
     images: imageList,
   });
 });
@@ -1211,7 +1213,7 @@ app.get("/api/admin/galleries/:id/upload-signature", requireAuth, (req, res) => 
 
 // Notify server after direct Cloudinary upload — store publicId + url
 app.post("/api/admin/galleries/:id/notify-upload", requireAuth, express.json(), (req, res) => {
-  const { publicId, url, hash } = req.body || {};
+  const { publicId, url, hash, folderId } = req.body || {};
   if (!publicId || !url) return res.status(400).json({ error: "publicId und url erforderlich" });
   const galleries = readGalleries();
   const idx = galleries.findIndex((x) => x.id === req.params.id);
@@ -1221,7 +1223,59 @@ app.post("/api/admin/galleries/:id/notify-upload", requireAuth, express.json(), 
   if (hash && galleries[idx].images.some(i => i.hash === hash)) {
     return res.json({ ok: true, duplicate: true });
   }
-  galleries[idx].images.push({ publicId, url, uploadedAt: new Date().toISOString(), hash: hash || null });
+  galleries[idx].images.push({ publicId, url, uploadedAt: new Date().toISOString(), hash: hash || null, folderId: folderId || null });
+  writeGalleries(galleries);
+  res.json({ ok: true });
+});
+
+// ---------- Folder routes ----------
+app.post("/api/admin/galleries/:id/folders", requireAuth, express.json(), (req, res) => {
+  const { name } = req.body || {};
+  if (!name || !name.trim()) return res.status(400).json({ error: "Name erforderlich" });
+  const galleries = readGalleries();
+  const idx = galleries.findIndex((x) => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  if (!galleries[idx].folders) galleries[idx].folders = [];
+  const folder = { id: require("crypto").randomBytes(6).toString("hex"), name: name.trim() };
+  galleries[idx].folders.push(folder);
+  writeGalleries(galleries);
+  res.json({ ok: true, folder });
+});
+
+app.patch("/api/admin/galleries/:id/folders/:fid", requireAuth, express.json(), (req, res) => {
+  const { name } = req.body || {};
+  const galleries = readGalleries();
+  const idx = galleries.findIndex((x) => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  const folders = galleries[idx].folders || [];
+  const fi = folders.findIndex(f => f.id === req.params.fid);
+  if (fi === -1) return res.status(404).json({ error: "Ordner nicht gefunden" });
+  if (name && name.trim()) folders[fi].name = name.trim();
+  galleries[idx].folders = folders;
+  writeGalleries(galleries);
+  res.json({ ok: true, folder: folders[fi] });
+});
+
+app.delete("/api/admin/galleries/:id/folders/:fid", requireAuth, (req, res) => {
+  const galleries = readGalleries();
+  const idx = galleries.findIndex((x) => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  galleries[idx].folders = (galleries[idx].folders || []).filter(f => f.id !== req.params.fid);
+  // Remove folderId from images that were in this folder
+  (galleries[idx].images || []).forEach(img => { if (img.folderId === req.params.fid) img.folderId = null; });
+  writeGalleries(galleries);
+  res.json({ ok: true });
+});
+
+app.patch("/api/admin/galleries/:id/images/:publicId/folder", requireAuth, express.json(), (req, res) => {
+  const { folderId } = req.body || {};
+  const galleries = readGalleries();
+  const idx = galleries.findIndex((x) => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Galerie nicht gefunden" });
+  const publicId = decodeURIComponent(req.params.publicId);
+  const img = (galleries[idx].images || []).find(i => i.publicId === publicId);
+  if (!img) return res.status(404).json({ error: "Bild nicht gefunden" });
+  img.folderId = folderId || null;
   writeGalleries(galleries);
   res.json({ ok: true });
 });

@@ -8,6 +8,7 @@
 
   let galleries = [];
   let currentGalleryId = null;
+  let currentFolderId = null; // null = "Alle Bilder"
 
   const galleriesModal = document.getElementById("galleriesModal");
   const editModal = document.getElementById("galleryEditModal");
@@ -188,7 +189,10 @@
     }
   }
 
-  // ---------- Image Management ----------
+  // ---------- Folder Management ----------
+  let _currentFolders = [];
+  let _currentImages = [];
+
   async function loadGalleryImages(id) {
     try {
       const res = await fetch(`/api/galleries/${id}/images`);
@@ -198,10 +202,103 @@
         return;
       }
       const data = await res.json();
-      renderImagesGrid(id, data.images || []);
+      _currentFolders = data.folders || [];
+      _currentImages = data.images || [];
+      renderFolderBar(id);
+      renderImagesGrid(id, filteredImages());
     } catch (err) {
       console.error(err);
     }
+  }
+
+  function filteredImages() {
+    if (currentFolderId === null) return _currentImages;
+    if (currentFolderId === "__none__") return _currentImages.filter(i => !i.folderId);
+    return _currentImages.filter(i => i.folderId === currentFolderId);
+  }
+
+  function renderFolderBar(galleryId) {
+    let bar = document.getElementById("folderBar");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "folderBar";
+      bar.style.cssText = "margin-bottom:1rem;";
+      const grid = document.getElementById("galleryImagesGrid");
+      grid.parentNode.insertBefore(bar, grid);
+    }
+
+    const folders = _currentFolders;
+    const allCount = _currentImages.length;
+    const noneCount = _currentImages.filter(i => !i.folderId).length;
+
+    const tabStyle = (active) =>
+      `display:inline-flex;align-items:center;gap:0.4rem;padding:0.35rem 0.85rem;border-radius:100px;font-size:0.8rem;font-weight:600;cursor:pointer;border:1.5px solid ${active ? "var(--neon-cyan)" : "var(--line)"};background:${active ? "rgba(0,240,255,0.08)" : "transparent"};color:${active ? "var(--neon-cyan)" : "var(--text-muted)"};margin-right:0.4rem;margin-bottom:0.4rem;`;
+
+    bar.innerHTML = `
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0;margin-bottom:0.5rem;">
+        <button style="${tabStyle(currentFolderId === null)}" data-folder-tab="all">Alle (${allCount})</button>
+        ${noneCount > 0 ? `<button style="${tabStyle(currentFolderId === "__none__")}" data-folder-tab="__none__">Ohne Ordner (${noneCount})</button>` : ""}
+        ${folders.map(f => {
+          const cnt = _currentImages.filter(i => i.folderId === f.id).length;
+          return `<button style="${tabStyle(currentFolderId === f.id)}" data-folder-tab="${escapeHtml(f.id)}">📁 ${escapeHtml(f.name)} (${cnt})</button>`;
+        }).join("")}
+        <button id="newFolderBtn" style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.35rem 0.85rem;border-radius:100px;font-size:0.8rem;font-weight:600;cursor:pointer;border:1.5px dashed var(--line);background:transparent;color:var(--text-muted);margin-right:0.4rem;margin-bottom:0.4rem;">+ Ordner</button>
+        ${currentFolderId && currentFolderId !== "__none__" ? `<button id="renameFolderBtn" style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.35rem 0.7rem;border-radius:100px;font-size:0.75rem;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--text-muted);margin-right:0.3rem;margin-bottom:0.4rem;">✏️</button><button id="deleteFolderBtn" style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.35rem 0.7rem;border-radius:100px;font-size:0.75rem;cursor:pointer;border:1.5px solid rgba(248,113,113,0.3);background:transparent;color:#f87171;margin-bottom:0.4rem;">🗑️</button>` : ""}
+      </div>
+      ${currentFolderId && currentFolderId !== "__none__" ? `<div style="font-size:0.78rem;color:var(--text-muted);">Bild anklicken → Ordner zuweisen</div>` : ""}
+    `;
+
+    bar.querySelectorAll("[data-folder-tab]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const val = btn.dataset.folderTab;
+        currentFolderId = val === "all" ? null : val;
+        renderFolderBar(galleryId);
+        renderImagesGrid(galleryId, filteredImages());
+      });
+    });
+
+    bar.querySelector("#newFolderBtn")?.addEventListener("click", async () => {
+      const name = prompt("Ordner-Name:");
+      if (!name?.trim()) return;
+      try {
+        const res = await fetch(`/api/admin/galleries/${galleryId}/folders`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name.trim() }),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error);
+        currentFolderId = json.folder.id;
+        await loadGalleryImages(galleryId);
+        window.showToast("Ordner erstellt ✓", "success");
+      } catch (err) { window.showToast("Fehler: " + err.message, "error"); }
+    });
+
+    bar.querySelector("#renameFolderBtn")?.addEventListener("click", async () => {
+      const folder = _currentFolders.find(f => f.id === currentFolderId);
+      const name = prompt("Neuer Name:", folder?.name || "");
+      if (!name?.trim()) return;
+      try {
+        const res = await fetch(`/api/admin/galleries/${galleryId}/folders/${currentFolderId}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name.trim() }),
+        });
+        if (!res.ok) throw new Error("Fehler");
+        await loadGalleryImages(galleryId);
+        window.showToast("Ordner umbenannt ✓", "success");
+      } catch (err) { window.showToast("Fehler: " + err.message, "error"); }
+    });
+
+    bar.querySelector("#deleteFolderBtn")?.addEventListener("click", async () => {
+      const folder = _currentFolders.find(f => f.id === currentFolderId);
+      if (!confirm(`Ordner "${folder?.name}" löschen? Bilder bleiben erhalten.`)) return;
+      try {
+        const res = await fetch(`/api/admin/galleries/${galleryId}/folders/${currentFolderId}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("Fehler");
+        currentFolderId = null;
+        await loadGalleryImages(galleryId);
+        window.showToast("Ordner gelöscht", "success");
+      } catch (err) { window.showToast("Fehler: " + err.message, "error"); }
+    });
   }
 
   function renderImagesGrid(id, images) {
@@ -217,8 +314,9 @@
     const currentGallery = allGalleries.find(g => g.id === id) || {};
     const currentCover = currentGallery.coverImage || null;
 
+    const inFolderMode = currentFolderId !== null;
     grid.innerHTML = `<div style="grid-column:1/-1; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">
-      Klick auf ein Bild → Cover der Galerie-Karte setzen
+      ${inFolderMode ? "Klick auf ein Bild → Ordner zuweisen" : "Klick auf ein Bild → Cover der Galerie-Karte setzen"}
     </div>` + images
       .map(
         (img) => {
@@ -239,20 +337,49 @@
 
     grid.querySelectorAll("[data-img-cover]").forEach((div) => {
       div.addEventListener("click", async (e) => {
-        if (e.target.dataset.imgDelete) return; // don't fire when delete button clicked
-        const filename = div.dataset.imgCover;
-        try {
-          const res = await fetch(`/api/admin/galleries/${id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ coverImage: filename }),
-          });
-          if (!res.ok) throw new Error("Fehler beim Setzen des Covers");
-          await loadGalleries();
-          renderImagesGrid(id, images);
-          window.showToast("Cover-Bild gesetzt ✓", "success");
-        } catch (err) {
-          window.showToast("Fehler: " + err.message, "error");
+        if (e.target.dataset.imgDelete) return;
+        const publicId = div.dataset.imgCover;
+
+        if (inFolderMode) {
+          // Folder assignment mode
+          const folders = _currentFolders;
+          const opts = [
+            { label: "Kein Ordner (entfernen)", value: "" },
+            ...folders.map(f => ({ label: "📁 " + f.name, value: f.id })),
+          ];
+          const choice = prompt(
+            "Ordner zuweisen:\n" + opts.map((o, i) => `${i}: ${o.label}`).join("\n") + "\n\nNummer eingeben:",
+            ""
+          );
+          if (choice === null || choice.trim() === "") return;
+          const idx2 = parseInt(choice, 10);
+          if (isNaN(idx2) || idx2 < 0 || idx2 >= opts.length) return;
+          try {
+            const res = await fetch(`/api/admin/galleries/${id}/images/${encodeURIComponent(publicId)}/folder`, {
+              method: "PATCH", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ folderId: opts[idx2].value || null }),
+            });
+            if (!res.ok) throw new Error("Fehler");
+            await loadGalleryImages(id);
+            window.showToast("Ordner zugewiesen ✓", "success");
+          } catch (err) {
+            window.showToast("Fehler: " + err.message, "error");
+          }
+        } else {
+          // Cover mode
+          try {
+            const res = await fetch(`/api/admin/galleries/${id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ coverImage: publicId }),
+            });
+            if (!res.ok) throw new Error("Fehler beim Setzen des Covers");
+            await loadGalleries();
+            renderImagesGrid(id, images);
+            window.showToast("Cover-Bild gesetzt ✓", "success");
+          } catch (err) {
+            window.showToast("Fehler: " + err.message, "error");
+          }
         }
       });
     });
@@ -350,7 +477,7 @@
       const notifyRes = await fetch(`/api/admin/galleries/${galleryId}/notify-upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ publicId: result.public_id, url: result.secure_url, hash }),
+        body: JSON.stringify({ publicId: result.public_id, url: result.secure_url, hash, folderId: (currentFolderId && currentFolderId !== "__none__") ? currentFolderId : null }),
       });
       const notifyData = await notifyRes.json();
       if (notifyData.duplicate) return "duplicate";

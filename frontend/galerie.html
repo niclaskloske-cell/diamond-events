@@ -563,13 +563,47 @@
     document.getElementById("detailMessage").textContent = `„${msg}"`;
     document.getElementById("downloadBtn").href = `/api/galleries/${id}/download`;
 
-    lightboxImages = (data.images || []).map(img => img.url || `/api/galleries/${id}/img/${encodeURIComponent(img.publicId || img)}`);
+    const folders = data.folders || [];
+    let activeFolder = null; // null = Alle
 
-    const masonry = document.getElementById("photoMasonry");
-    if (!data.images || !data.images.length) {
-      masonry.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:4rem 0;grid-column:1/-1">Noch keine Fotos hochgeladen.</p>`;
-    } else {
-      masonry.innerHTML = data.images.map((img, i) => {
+    function getVisibleImages() {
+      if (activeFolder === null) return data.images || [];
+      return (data.images || []).filter(img => img.folderId === activeFolder);
+    }
+
+    function renderFolderTabs() {
+      let tabsEl = document.getElementById("galleryFolderTabs");
+      if (!folders.length) { if (tabsEl) tabsEl.remove(); return; }
+      if (!tabsEl) {
+        tabsEl = document.createElement("div");
+        tabsEl.id = "galleryFolderTabs";
+        tabsEl.style.cssText = "display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem;";
+        document.getElementById("photoMasonry").before(tabsEl);
+      }
+      const tab = (label, fid) => {
+        const active = fid === activeFolder;
+        return `<button data-ftab="${fid ?? ''}" style="padding:0.4rem 1rem;border-radius:100px;font-size:0.82rem;font-weight:600;cursor:pointer;border:1.5px solid ${active ? "var(--neon-cyan)" : "var(--line)"};background:${active ? "rgba(0,240,255,0.08)" : "transparent"};color:${active ? "var(--neon-cyan)" : "var(--text-muted)"};">${label}</button>`;
+      };
+      tabsEl.innerHTML = tab(`Alle (${(data.images||[]).length})`, null)
+        + folders.map(f => tab(`📁 ${f.name} (${(data.images||[]).filter(i=>i.folderId===f.id).length})`, f.id)).join("");
+      tabsEl.querySelectorAll("[data-ftab]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeFolder = btn.dataset.ftab || null;
+          renderFolderTabs();
+          renderPhotos();
+        });
+      });
+    }
+
+    function renderPhotos() {
+      const visible = getVisibleImages();
+      lightboxImages = visible.map(img => img.url || `/api/galleries/${id}/img/${encodeURIComponent(img.publicId || img)}`);
+      const masonry = document.getElementById("photoMasonry");
+      if (!visible.length) {
+        masonry.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:4rem 0;grid-column:1/-1">Noch keine Fotos in diesem Ordner.</p>`;
+        return;
+      }
+      masonry.innerHTML = visible.map((img, i) => {
         const thumbUrl = img.thumb || img.url || `/api/galleries/${id}/img/${encodeURIComponent(img.publicId || img)}`;
         const isNew = img.uploadedAt && (Date.now() - new Date(img.uploadedAt).getTime() < 7 * 24 * 60 * 60 * 1000);
         return `<div class="photo-item" data-index="${i}">
@@ -584,6 +618,9 @@
         item.addEventListener("click", () => openLightbox(parseInt(item.dataset.index)));
       });
     }
+
+    renderFolderTabs();
+    renderPhotos();
 
     listView.classList.add("hidden");
     detailView.classList.add("active");
