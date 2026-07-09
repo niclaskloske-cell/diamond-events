@@ -12,13 +12,13 @@
 }
 
 :root {
-  --bg: #050507;
-  --bg-soft: #0a0a10;
-  --bg-card: #0d0d14;
-  --line: rgba(255, 255, 255, 0.07);
+  --bg: #ffffff;
+  --bg-soft: #faf8f5;
+  --bg-card: #f5f2ee;
+  --line: rgba(0, 0, 0, 0.08);
 
-  --text: #f5f5f7;
-  --text-muted: #8e8e93;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6f;
 
   --neon-cyan: #c8a96e;      /* champagne gold */
   --neon-magenta: #e8b4c8;  /* blush rose */
@@ -32,12 +32,12 @@
   --gradient-rgb: linear-gradient(135deg, #c8a96e 0%, #c084fc 50%, #e8b4c8 100%);
   --gradient-warm: linear-gradient(135deg, #c8a96e 0%, #e8b4c8 100%);
 
-  --status-offen: #f5f5f7;
+  --status-offen: #1a1a1a;
   --status-angenommen: #34d399;
   --status-abgelehnt: #f87171;
   --status-storniert: #9ca3af;
 
-  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.08);
   --maxw: 1280px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -62,8 +62,8 @@ body {
   letter-spacing: -0.01em;
   min-height: 100vh;
   background-image:
-    radial-gradient(ellipse 80% 40% at 20% 0%, rgba(200, 169, 110, 0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(192, 132, 252, 0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 40% at 20% 0%, rgba(200, 169, 110, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(232, 180, 200, 0.05) 0%, transparent 60%);
 }
 
 ::selection {
@@ -171,27 +171,26 @@ section {
 }
 
 .btn-primary {
-  background: #f5f5f7;
-  color: #050507;
-  border: 1px solid #f5f5f7;
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #1a1a1a;
 }
 
 .btn-primary:hover {
-  background: #fff;
+  background: #333;
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .btn-outline {
-  background: rgba(255, 255, 255, 0.03);
+  background: transparent;
   color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .btn-outline:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  color: #fff;
+  border-color: rgba(0, 0, 0, 0.5);
+  color: var(--text);
   transform: translateY(-2px);
 }
 
@@ -235,11 +234,12 @@ section {
 }
 
 .nav.scrolled {
-  background: rgba(5, 5, 7, 0.7);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   padding: 0.85rem 0;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
 }
 
 .nav-inner {
@@ -361,7 +361,7 @@ footer .logo img {
     right: 0;
     height: 100vh;
     width: 100%;
-    background: rgba(5, 5, 7, 0.95);
+    background: rgba(255, 255, 255, 0.97);
     backdrop-filter: blur(20px);
     flex-direction: column;
     align-items: center;
@@ -421,8 +421,8 @@ footer .logo img {
   text-transform: uppercase;
   color: var(--text);
   padding: 0.55rem 1.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(10px);
   border-radius: 50px;
   margin-bottom: 2rem;
@@ -509,7 +509,7 @@ footer .logo img {
 
 .service-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 0, 0, 0.12);
   box-shadow: var(--shadow-card);
 }
 
@@ -518,7 +518,7 @@ footer .logo img {
   height: 56px;
   padding: 14px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.03);
   border: 1px solid var(--line);
   margin-bottom: 1.5rem;
   transition: all 0.4s ease;
@@ -625,7 +625,7 @@ footer .logo img {
 
 .package-card:hover {
   transform: translateY(-6px) scale(1.03);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 0, 0, 0.12);
   box-shadow: var(--shadow-card);
 }
 
@@ -640,7 +640,7 @@ footer .logo img {
 }
 
 .package-card.featured {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(0, 0, 0, 0.09);
   background: linear-gradient(180deg, rgba(168, 85, 247, 0.04), var(--bg-card) 60%);
 }
 
@@ -828,7 +828,7 @@ footer .logo img {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   transform: translateX(-50%);
   border-radius: 2px;
   overflow: hidden;
@@ -879,7 +879,7 @@ footer .logo img {
   height: 16px;
   border-radius: 50%;
   background: var(--bg);
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   z-index: 2;
   transition: all 0.4s var(--ease);
 }
@@ -984,7 +984,7 @@ footer .logo img {
 
 .special-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 0, 0, 0.12);
   box-shadow: var(--shadow-card);
 }
 
@@ -1150,7 +1150,7 @@ footer .logo img {
   font-size: 0.9rem;
   font-weight: 500;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--line);
   color: var(--text);
   font-family: inherit;
@@ -1159,8 +1159,8 @@ footer .logo img {
 }
 
 .config-buttons button:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .config-buttons button.selected {
@@ -1182,7 +1182,7 @@ footer .logo img {
 .config-cards button {
   padding: 1.1rem 1rem;
   text-align: left;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--line);
   border-radius: 12px;
   color: var(--text);
@@ -1219,7 +1219,7 @@ footer .logo img {
 }
 
 .config-cards button:hover {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(0, 0, 0, 0.18);
 }
 
 .config-cards button.selected {
@@ -1238,7 +1238,7 @@ footer .logo img {
   align-items: center;
   gap: 0.85rem;
   padding: 0.9rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--line);
   border-radius: 10px;
   cursor: pointer;
@@ -1247,7 +1247,7 @@ footer .logo img {
 }
 
 .config-toggle:hover {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(0, 0, 0, 0.18);
 }
 
 .config-toggle input {
@@ -1428,8 +1428,8 @@ footer .logo img {
 .form-group textarea,
 .form-group select {
   width: 100%;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.015);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 10px;
   padding: 0.85rem 1rem;
   color: var(--text);
@@ -1442,8 +1442,8 @@ footer .logo img {
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .form-group textarea { resize: vertical; min-height: 100px; }
@@ -1724,7 +1724,7 @@ footer .footer-links a:hover {
   transition: border-color 0.3s ease;
 }
 
-.stat-card:hover { border-color: rgba(255, 255, 255, 0.15); }
+.stat-card:hover { border-color: rgba(0, 0, 0, 0.1); }
 
 .stat-card .label {
   font-size: 0.65rem;
@@ -1794,7 +1794,7 @@ footer .footer-links a:hover {
 .admin-tab:hover { color: var(--text); }
 
 .admin-tab.active {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   color: var(--text);
 }
 
@@ -1817,7 +1817,7 @@ footer .footer-links a:hover {
 }
 
 .view-toggle button.active {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   color: var(--text);
 }
 
@@ -1836,7 +1836,7 @@ footer .footer-links a:hover {
 }
 
 .bookings-table thead {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.015);
 }
 
 .bookings-table th {
@@ -1858,7 +1858,7 @@ footer .footer-links a:hover {
 
 .bookings-table tr:last-child td { border-bottom: none; }
 
-.bookings-table tr:hover td { background: rgba(255, 255, 255, 0.015); }
+.bookings-table tr:hover td { background: rgba(0, 0, 0, 0.03); }
 
 .bookings-table .name { font-weight: 600; }
 .bookings-table .email { color: var(--text-muted); font-size: 0.85rem; }
@@ -1892,14 +1892,14 @@ footer .footer-links a:hover {
   font-weight: 500;
   letter-spacing: 0.02em;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.02);
   color: var(--text-muted);
   transition: all 0.2s ease;
 }
 
 .row-actions button:hover {
   color: var(--text);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 0, 0, 0.14);
 }
 
 .row-actions button.success:hover {
@@ -1985,7 +1985,7 @@ footer .footer-links a:hover {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.03);
   border: 1px solid var(--line);
   color: var(--text);
   display: flex;
@@ -1996,8 +1996,8 @@ footer .footer-links a:hover {
 }
 
 .calendar-nav button:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.14);
 }
 
 .calendar-grid {
@@ -2019,7 +2019,7 @@ footer .footer-links a:hover {
 .calendar-day {
   aspect-ratio: 1;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.015);
   border: 1px solid transparent;
   padding: 0.4rem;
   font-size: 0.85rem;
@@ -2035,8 +2035,8 @@ footer .footer-links a:hover {
 }
 
 .calendar-day.today {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 0, 0, 0.14);
+  background: rgba(0, 0, 0, 0.03);
   font-weight: 700;
 }
 
@@ -2073,7 +2073,7 @@ footer .footer-links a:hover {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(5, 5, 7, 0.7);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(8px);
   display: none;
   align-items: center;
@@ -2310,7 +2310,7 @@ footer .footer-links a:hover {
   height: 34px;
   border-radius: 8px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.02);
   color: var(--text);
   font-size: 1rem;
   display: flex;
@@ -2322,8 +2322,8 @@ footer .footer-links a:hover {
 }
 
 .avail-cal-nav button:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .avail-calendar {
@@ -2362,7 +2362,7 @@ footer .footer-links a:hover {
 }
 
 .avail-day.today {
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.14);
   font-weight: 700;
 }
 
@@ -2669,8 +2669,8 @@ footer .footer-links a:hover {
 }
 
 .avail-admin-day:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.09);
   color: var(--text);
 }
 
@@ -2678,7 +2678,7 @@ footer .footer-links a:hover {
 .avail-admin-day.empty:hover { background: none; border-color: transparent; }
 
 .avail-admin-day.today {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 0, 0, 0.14);
   color: var(--text);
   font-weight: 700;
 }
