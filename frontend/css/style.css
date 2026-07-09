@@ -1,6 +1,6 @@
 /* =========================================================
    DIAMOND EVENTS — Global Stylesheet
-   Dark, modern, Apple-style typography, subtle neon RGB accents
+   Dark, cinematic, elegant — wedding-first design
    ========================================================= */
 
 *,
@@ -20,17 +20,17 @@
   --text: #f5f5f7;
   --text-muted: #8e8e93;
 
-  --neon-cyan: #00f0ff;
-  --neon-magenta: #ff00e6;
-  --neon-purple: #a855f7;
-  --neon-pink: #ff2d92;
+  --neon-cyan: #c8a96e;      /* champagne gold */
+  --neon-magenta: #e8b4c8;  /* blush rose */
+  --neon-purple: #c084fc;   /* soft lavender */
+  --neon-pink: #f0a8c0;     /* rose quartz */
   --neon-blue: #007aff;
-  --neon-amber: #f59e0b;
-  --neon-gold: #fbbf24;
-  --neon-orange: #fb923c;
+  --neon-amber: #d4af6a;
+  --neon-gold: #c8a96e;
+  --neon-orange: #e8b4c8;
 
-  --gradient-rgb: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ff00e6 100%);
-  --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #fb923c 50%, #f43f5e 100%);
+  --gradient-rgb: linear-gradient(135deg, #c8a96e 0%, #c084fc 50%, #e8b4c8 100%);
+  --gradient-warm: linear-gradient(135deg, #c8a96e 0%, #e8b4c8 100%);
 
   --status-offen: #f5f5f7;
   --status-angenommen: #34d399;
@@ -43,6 +43,7 @@
 
   --font-sys: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
     "Helvetica Neue", "Inter", "Segoe UI", Roboto, sans-serif;
+  --font-display: Georgia, "Book Antiqua", Palatino, "Palatino Linotype", serif;
 }
 
 html {
@@ -61,8 +62,8 @@ body {
   letter-spacing: -0.01em;
   min-height: 100vh;
   background-image:
-    radial-gradient(ellipse 80% 40% at 20% 0%, rgba(0, 240, 255, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168, 85, 247, 0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 40% at 20% 0%, rgba(200, 169, 110, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(192, 132, 252, 0.04) 0%, transparent 60%);
 }
 
 ::selection {
@@ -94,6 +95,12 @@ h1, h2, h3, h4 {
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
+}
+
+h1, h2, .section-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .section-title {
