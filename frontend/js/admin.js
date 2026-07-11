@@ -462,28 +462,44 @@
     });
   }
 
+  function transitionCalendar(applyChange) {
+    const grid = document.getElementById("calGrid");
+    const monthLabel = document.getElementById("calMonthLabel");
+    grid.classList.add("transitioning");
+    monthLabel.classList.add("transitioning");
+    setTimeout(() => {
+      applyChange();
+      renderCalendar();
+      grid.classList.remove("transitioning");
+      monthLabel.classList.remove("transitioning");
+    }, 220);
+  }
+
   document.getElementById("calPrev").addEventListener("click", () => {
-    calMonth--;
-    if (calMonth < 0) {
-      calMonth = 11;
-      calYear--;
-    }
-    renderCalendar();
+    transitionCalendar(() => {
+      calMonth--;
+      if (calMonth < 0) {
+        calMonth = 11;
+        calYear--;
+      }
+    });
   });
 
   document.getElementById("calNext").addEventListener("click", () => {
-    calMonth++;
-    if (calMonth > 11) {
-      calMonth = 0;
-      calYear++;
-    }
-    renderCalendar();
+    transitionCalendar(() => {
+      calMonth++;
+      if (calMonth > 11) {
+        calMonth = 0;
+        calYear++;
+      }
+    });
   });
 
   document.getElementById("calToday").addEventListener("click", () => {
-    calYear = new Date().getFullYear();
-    calMonth = new Date().getMonth();
-    renderCalendar();
+    transitionCalendar(() => {
+      calYear = new Date().getFullYear();
+      calMonth = new Date().getMonth();
+    });
   });
 
   // ---------- Day Modal ----------

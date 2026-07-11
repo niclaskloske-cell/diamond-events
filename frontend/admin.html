@@ -7,6 +7,9 @@
 <title>Admin Dashboard — Diamond Events</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="/css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
 </head>
 <body>
 
@@ -55,7 +58,7 @@
         <span class="label">Abgelehnt</span>
         <div class="value" id="statRejected">0</div>
       </div>
-      <div class="stat-card" style="border-color: rgba(245,158,11,0.25);">
+      <div class="stat-card" style="border-color: rgba(169,128,63,0.25);">
         <span class="label">Fotografie</span>
         <div class="value" id="statFoto">0</div>
       </div>
@@ -78,14 +81,14 @@
             <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
             <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
           </button>
-          <div id="adminMenuDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#1c1c1e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:0.4rem;min-width:200px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+          <div id="adminMenuDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:0.4rem;min-width:200px;z-index:200;box-shadow:0 8px 32px rgba(27,24,18,0.16);">
             <button class="btn btn-outline btn-sm" id="openGalleriesBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📸 Galerien</button>
             <button class="btn btn-outline btn-sm" id="openAvailabilityBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📅 Verfügbarkeit</button>
             <button class="btn btn-outline btn-sm" id="openReviewsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">⭐ Rezensionen</button>
-            <a href="/admin-event.html" style="display:block;text-decoration:none;color:inherit;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;font-size:.85rem;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">🎉 Event Manager</a>
+            <a href="/admin-event.html" style="display:block;text-decoration:none;color:inherit;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;font-size:.85rem;transition:background .15s;" onmouseover="this.style.background='rgba(27,24,18,0.06)'" onmouseout="this.style.background='none'">🎉 Event Manager</a>
             <button class="btn btn-outline btn-sm" id="openTemplatesBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">✉️ Auto-Nachrichten</button>
             <button class="btn btn-outline btn-sm" id="openPresetsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📝 E-Mail-Vorlagen</button>
-            <div style="height:1px;background:rgba(255,255,255,0.07);margin:.3rem 0;"></div>
+            <div style="height:1px;background:rgba(27,24,18,0.07);margin:.3rem 0;"></div>
             <button class="btn btn-outline btn-sm" id="csvExportBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;">⬇️ CSV Export</button>
           </div>
         </div>
@@ -235,7 +238,7 @@
 
       <div class="form-group">
         <label>An</label>
-        <div id="emailTo" style="padding:0.85rem 1rem; background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; font-size:0.95rem;"></div>
+        <div id="emailTo" style="padding:0.85rem 1rem; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:10px; font-size:0.95rem;"></div>
       </div>
 
       <div class="form-group">
@@ -364,9 +367,9 @@
           <code style="color:var(--neon-cyan);">{{email}}</code>
           <br/>
           <strong style="color:var(--text);">Mit Gradient (RGB-Verlauf wie auf der Website):</strong>
-          <code style="background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{nameStyled}}</code>
-          <code style="background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{lastNameStyled}}</code>
-          <code style="background: linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{firstNameStyled}}</code>
+          <code style="background: linear-gradient(135deg,#33465c,#b98b76,#a56a55); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{nameStyled}}</code>
+          <code style="background: linear-gradient(135deg,#33465c,#b98b76,#a56a55); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{lastNameStyled}}</code>
+          <code style="background: linear-gradient(135deg,#33465c,#b98b76,#a56a55); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight:700;">{{firstNameStyled}}</code>
           <br/>
           <strong style="color:var(--text);">Spezial:</strong>
           <code style="color:var(--neon-cyan);">{{summary}}</code>
@@ -378,10 +381,10 @@
         <button type="button" class="btn btn-outline btn-sm" id="previewTemplateBtn">Vorschau anzeigen</button>
       </div>
 
-      <div id="templatePreview" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:1rem; margin-bottom:1rem;">
+      <div id="templatePreview" style="display:none; background:rgba(27,24,18,0.02); border:1px solid var(--line); border-radius:12px; padding:1rem; margin-bottom:1rem;">
         <div style="font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:0.5rem;">Vorschau (mit Beispieldaten)</div>
         <div id="templatePreviewSubject" style="font-weight:600; margin-bottom:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--line);"></div>
-        <iframe id="templatePreviewFrame" style="width:100%; min-height:400px; border:none; background:#050507; border-radius:8px;"></iframe>
+        <iframe id="templatePreviewFrame" style="width:100%; min-height:400px; border:none; background:#fbfaf6; border-radius:8px;"></iframe>
       </div>
 
       <div class="modal-actions">
@@ -453,7 +456,7 @@
         </div>
       </div>
 
-      <div id="galleryShareInfo" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; line-height: 1.6;"></div>
+      <div id="galleryShareInfo" style="background: rgba(51, 70, 92, 0.05); border: 1px solid rgba(51, 70, 92, 0.2); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; line-height: 1.6;"></div>
 
       <div id="galleryUploadZone" style="border: 2px dashed var(--line); border-radius: 14px; padding: 2rem; text-align: center; margin-bottom: 1.25rem; cursor: pointer; transition: border-color 0.2s ease;">
         <div style="font-size: 0.95rem; color: var(--text); margin-bottom: 0.5rem;">📤 Bilder hierher ziehen oder klicken</div>
@@ -461,7 +464,7 @@
         <input type="file" id="galleryFileInput" multiple accept="image/*" style="display:none;" />
       </div>
 
-      <div id="galleryUploadProgress" style="display:none; margin-bottom: 1rem; padding: 0.85rem 1rem; background: rgba(255,255,255,0.04); border-radius: 10px; font-size: 0.9rem;"></div>
+      <div id="galleryUploadProgress" style="display:none; margin-bottom: 1rem; padding: 0.85rem 1rem; background: rgba(27,24,18,0.04); border-radius: 10px; font-size: 0.9rem;"></div>
 
       <div id="galleryImagesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.6rem;"></div>
     </div>
@@ -501,7 +504,7 @@
         <span>Buchung vorhanden</span>
       </div>
       <div class="avail-legend-item">
-        <span class="avail-legend-dot" style="background:#fbbf24; box-shadow:0 0 6px rgba(251,191,36,0.6);"></span>
+        <span class="avail-legend-dot" style="background:#c9a463; box-shadow:0 0 6px rgba(201,164,99,0.6);"></span>
         <span>⭐ Special</span>
       </div>
     </div>
@@ -526,7 +529,7 @@
       <button type="button" class="btn btn-outline btn-sm" id="availDayRemove" style="color:var(--text-muted);">Markierung entfernen</button>
       <button type="button" class="btn btn-outline btn-sm" id="availDayBelegt" style="color:#f87171; border-color:rgba(248,113,113,0.3);">Als belegt markieren</button>
       <button type="button" class="btn btn-outline btn-sm" id="availDayBlockieren" style="color:#9ca3af; border-color:rgba(156,163,175,0.3);">Blockieren</button>
-      <button type="button" class="btn btn-outline btn-sm" id="availDaySpecial" style="color:#fbbf24; border-color:rgba(251,191,36,0.4); background:rgba(251,191,36,0.08);">⭐ Special</button>
+      <button type="button" class="btn btn-outline btn-sm" id="availDaySpecial" style="color:#c9a463; border-color:rgba(201,164,99,0.4); background:rgba(201,164,99,0.08);">⭐ Special</button>
     </div>
   </div>
 </div>
@@ -563,14 +566,14 @@
       const reviews = await res.json();
       if (!reviews.length) { list.innerHTML = '<p style="color:var(--text-muted);">Noch keine Rezensionen.</p>'; return; }
       list.innerHTML = reviews.map(r => `
-        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;">
+        <div style="background:rgba(27,24,18,0.02);border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
             <div style="flex:1;">
               <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">
-                <span style="color:#fbbf24;font-size:0.85rem;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                <span style="color:#c9a463;font-size:0.85rem;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
                 <span style="font-weight:700;font-size:0.9rem;">${r.name}</span>
                 ${r.eventType ? `<span style="font-size:0.75rem;color:var(--text-muted);">· ${r.eventType}</span>` : ''}
-                <span style="font-size:0.72rem;padding:2px 8px;border-radius:100px;font-weight:600;${r.status==='approved'?'background:rgba(52,211,153,0.1);color:#34d399':r.status==='rejected'?'background:rgba(248,113,113,0.1);color:#f87171':'background:rgba(255,255,255,0.06);color:var(--text-muted)'}">${r.status==='approved'?'Freigegeben':r.status==='rejected'?'Abgelehnt':'Ausstehend'}</span>
+                <span style="font-size:0.72rem;padding:2px 8px;border-radius:100px;font-weight:600;${r.status==='approved'?'background:rgba(52,211,153,0.1);color:#34d399':r.status==='rejected'?'background:rgba(248,113,113,0.1);color:#f87171':'background:rgba(27,24,18,0.06);color:var(--text-muted)'}">${r.status==='approved'?'Freigegeben':r.status==='rejected'?'Abgelehnt':'Ausstehend'}</span>
               </div>
               <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;">"${r.text}"</p>
             </div>
@@ -613,10 +616,10 @@
 <button id="pushToggleBtn" style="
   position:fixed; bottom:1.5rem; left:1.5rem; z-index:999;
   width:52px; height:52px; border-radius:50%;
-  background:#1c1c1e; border:1.5px solid rgba(255,255,255,0.15);
+  background:#1c1c1e; border:1.5px solid rgba(251,250,246,0.2);
   color:#fff; font-size:1.3rem; cursor:pointer;
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  box-shadow:0 4px 20px rgba(27,24,18,0.3);
   transition:all .2s;
 " title="Push-Benachrichtigungen">🔕</button>
 
@@ -646,7 +649,7 @@
     } else {
       btn.textContent = '🔕';
       btn.style.background = '#1c1c1e';
-      btn.style.borderColor = 'rgba(255,255,255,0.15)';
+      btn.style.borderColor = 'rgba(27,24,18,0.15)';
       btn.title = 'Push aktivieren';
     }
   }

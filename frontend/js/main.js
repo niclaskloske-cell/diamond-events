@@ -301,22 +301,26 @@
         const mm = String(calMonth + 1).padStart(2, "0");
         const d = el.textContent.trim().padStart(2, "0");
         const dateStr = `${calYear}-${mm}-${d}`;
-        window.location.href = `/buchen.html?date=${dateStr}`;
+        window.navigateWithFade(`/buchen.html?date=${dateStr}`);
       });
     });
   }
 
-  document.getElementById("availPrev").addEventListener("click", () => {
-    calMonth--;
-    if (calMonth < 0) { calMonth = 11; calYear--; }
-    renderCalendar();
-  });
+  function goToMonth(delta) {
+    grid.classList.add("transitioning");
+    label.classList.add("transitioning");
+    setTimeout(() => {
+      calMonth += delta;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCalendar();
+      grid.classList.remove("transitioning");
+      label.classList.remove("transitioning");
+    }, 220);
+  }
 
-  document.getElementById("availNext").addEventListener("click", () => {
-    calMonth++;
-    if (calMonth > 11) { calMonth = 0; calYear++; }
-    renderCalendar();
-  });
+  document.getElementById("availPrev").addEventListener("click", () => goToMonth(-1));
+  document.getElementById("availNext").addEventListener("click", () => goToMonth(1));
 
   loadAvailability();
 })();
@@ -417,3 +421,28 @@ window.showToast = function (msg, type = "success") {
   requestAnimationFrame(() => toast.classList.add("visible"));
   setTimeout(() => toast.classList.remove("visible"), 3500);
 };
+
+// ── Page transitions (fade out before internal navigation) ──────────────────
+window.navigateWithFade = function (url) {
+  document.body.classList.add("page-leaving");
+  setTimeout(() => { window.location.href = url; }, 220);
+};
+
+(function () {
+  document.addEventListener("click", (e) => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    const link = e.target.closest("a");
+    if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+
+    let url;
+    try { url = new URL(href, location.href); } catch { return; }
+    if (url.origin !== location.origin) return;
+    if (url.pathname === location.pathname && url.hash) return; // same-page anchor
+
+    e.preventDefault();
+    window.navigateWithFade(url.href);
+  });
+})();

@@ -52,6 +52,9 @@ const ADMIN_PASS = process.env.ADMIN_PASS || "passwort";
 const VALID_STATUSES = ["offen", "angenommen", "abgelehnt", "storniert"];
 const VALID_PACKAGES = [
   "Diamond Lite", "Diamond Premium", "Diamond Exclusive",
+  "Hochzeit Basis", "Hochzeit Premium", "Hochzeit Exclusive",
+  "Mini Shooting", "Standard Shooting", "Shooting + Drohne",
+  // Legacy — alte Buchungen in der Datenbank nutzen noch diese Namen
   "Foto Portrait", "Foto Reportage", "Foto Premium"
 ];
 const VALID_SERVICE_TYPES = ["dj", "fotografie", "beides"];
@@ -625,6 +628,12 @@ function requireAuth(req, res, next) {
 // ---------- Static frontend (public pages) ----------
 app.get("/admin.html", requireAuth, (req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, "admin.html"));
+});
+
+// Legacy booking page — merged into buchen.html, keep old links/bookmarks working
+app.get("/booking.html", (req, res) => {
+  const query = req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : "";
+  res.redirect(301, "/buchen.html" + query);
 });
 
 app.use(express.static(FRONTEND_DIR));

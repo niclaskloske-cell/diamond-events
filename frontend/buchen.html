@@ -7,6 +7,9 @@
 <title>Buchen — Diamond Events</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="/css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
 <style>
   /* ── Page ── */
   .book-page { min-height: 100vh; padding: 7rem 1rem 5rem; display: flex; flex-direction: column; align-items: center; }
@@ -18,8 +21,8 @@
   .steps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 3rem; }
   .step-item { display: flex; align-items: center; gap: 0.5rem; }
   .step-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); transition: all 0.3s; flex-shrink: 0; }
-  .step-dot.active { border-color: var(--neon-cyan); color: var(--neon-cyan); box-shadow: 0 0 12px rgba(0,240,255,0.3); }
-  .step-dot.done { background: var(--neon-cyan); border-color: var(--neon-cyan); color: #050507; }
+  .step-dot.active { border-color: var(--neon-cyan); color: var(--neon-cyan); box-shadow: 0 0 12px rgba(51,70,92,0.3); }
+  .step-dot.done { background: var(--neon-cyan); border-color: var(--neon-cyan); color: #fbfaf6; }
   .step-label { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; transition: color 0.3s; }
   .step-item.active .step-label { color: var(--text); }
   .step-line { width: 48px; height: 1px; background: var(--line); margin: 0 0.25rem; flex-shrink: 0; transition: background 0.3s; }
@@ -34,13 +37,13 @@
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
   .step-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.6rem; }
-  .step-title-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(0,240,255,0.12); color: var(--neon-cyan); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-title-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(51,70,92,0.12); color: var(--neon-cyan); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
   /* ── Service cards ── */
   .svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
   .svc-card { border: 1.5px solid var(--line); border-radius: 14px; padding: 1.25rem 0.75rem; text-align: center; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text); }
-  .svc-card:hover { border-color: rgba(0,240,255,0.4); background: rgba(0,240,255,0.04); }
-  .svc-card.selected { border-color: var(--neon-cyan); background: rgba(0,240,255,0.08); box-shadow: 0 0 16px rgba(0,240,255,0.12); }
+  .svc-card:hover { border-color: rgba(51,70,92,0.4); background: rgba(51,70,92,0.04); }
+  .svc-card.selected { border-color: var(--neon-cyan); background: rgba(51,70,92,0.08); box-shadow: 0 0 16px rgba(51,70,92,0.12); }
   .svc-card svg { display: block; margin: 0 auto 0.6rem; opacity: 0.7; }
   .svc-card .svc-name { font-weight: 700; font-size: 0.9rem; }
   .svc-card .svc-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
@@ -48,8 +51,8 @@
   /* ── Package grid ── */
   .pkg-grid { display: grid; gap: 0.6rem; margin-bottom: 0.5rem; }
   .pkg-card { border: 1.5px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; background: transparent; color: var(--text); width: 100%; text-align: left; }
-  .pkg-card:hover { border-color: rgba(0,240,255,0.35); background: rgba(0,240,255,0.04); }
-  .pkg-card.selected { border-color: var(--neon-cyan); background: rgba(0,240,255,0.08); }
+  .pkg-card:hover { border-color: rgba(51,70,92,0.35); background: rgba(51,70,92,0.04); }
+  .pkg-card.selected { border-color: var(--neon-cyan); background: rgba(51,70,92,0.08); }
   .pkg-card .pkg-name { font-weight: 700; font-size: 0.92rem; }
   .pkg-card .pkg-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
   .pkg-card .pkg-price { font-size: 0.9rem; font-weight: 700; color: var(--neon-cyan); white-space: nowrap; }
@@ -60,23 +63,23 @@
   .f-group:last-child { margin-bottom: 0; }
   .f-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
   .f-group input, .f-group select, .f-group textarea {
-    background: rgba(255,255,255,0.04); border: 1.5px solid var(--line); border-radius: 10px;
+    background: rgba(27,24,18,0.04); border: 1.5px solid var(--line); border-radius: 10px;
     color: var(--text); padding: 0.75rem 1rem; font-size: 0.92rem; transition: border-color 0.2s; font-family: inherit;
     width: 100%; box-sizing: border-box;
   }
   .f-group input:focus, .f-group select:focus, .f-group textarea:focus { outline: none; border-color: var(--neon-cyan); }
-  .f-group select option { background: #0d0d18; }
+  .f-group select option { background: #ffffff; }
   .f-group textarea { resize: vertical; min-height: 90px; }
 
   /* ── Occasion pills ── */
   .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
   .pill { border: 1.5px solid var(--line); border-radius: 100px; padding: 0.35rem 1rem; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text); transition: all 0.2s; }
-  .pill:hover { border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.06); }
-  .pill.selected { border-color: #a855f7; background: rgba(168,85,247,0.12); color: #d8a4ff; }
+  .pill:hover { border-color: rgba(185,139,118,0.5); background: rgba(185,139,118,0.06); }
+  .pill.selected { border-color: #b98b76; background: rgba(185,139,118,0.12); color: #7a5c3e; }
 
   /* ── Summary box ── */
-  .summary-box { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
-  .summary-box .s-row { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+  .summary-box { background: rgba(27,24,18,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .summary-box .s-row { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0; border-bottom: 1px solid rgba(27,24,18,0.05); font-size: 0.85rem; }
   .summary-box .s-row:last-child { border-bottom: none; }
   .summary-box .s-label { color: var(--text-muted); }
   .summary-box .s-value { font-weight: 600; }
@@ -85,17 +88,17 @@
   .btn-row { display: flex; gap: 0.75rem; margin-top: 2rem; }
   .btn-back { background: transparent; border: 1.5px solid var(--line); color: var(--text-muted); border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; font-family: inherit; }
   .btn-back:hover { border-color: var(--text-muted); color: var(--text); }
-  .btn-next { flex: 1; background: var(--neon-cyan); color: #050507; border: none; border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
+  .btn-next { flex: 1; background: var(--neon-cyan); color: #fbfaf6; border: none; border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
   .btn-next:hover { opacity: 0.88; }
   .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* ── Cinematics early-bird card ── */
   .cinematics-card {
     margin-top: 1.25rem;
-    border: 1.5px solid rgba(168,85,247,0.4);
+    border: 1.5px solid rgba(185,139,118,0.4);
     border-radius: 16px;
     padding: 1.25rem 1.5rem;
-    background: linear-gradient(135deg, rgba(168,85,247,0.06) 0%, rgba(0,240,255,0.04) 100%);
+    background: linear-gradient(135deg, rgba(185,139,118,0.06) 0%, rgba(51,70,92,0.04) 100%);
     display: flex;
     align-items: center;
     gap: 1.25rem;
@@ -107,8 +110,8 @@
     color: var(--text);
     font-family: inherit;
   }
-  .cinematics-card:hover { border-color: rgba(168,85,247,0.7); background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(0,240,255,0.06) 100%); }
-  .cinematics-card.selected { border-color: #a855f7; box-shadow: 0 0 20px rgba(168,85,247,0.2); }
+  .cinematics-card:hover { border-color: rgba(185,139,118,0.7); background: linear-gradient(135deg, rgba(185,139,118,0.1) 0%, rgba(51,70,92,0.06) 100%); }
+  .cinematics-card.selected { border-color: #b98b76; box-shadow: 0 0 20px rgba(185,139,118,0.2); }
   .cinematics-icon { font-size: 2rem; flex-shrink: 0; width: 72px; height: 72px; border-radius: 12px; overflow: hidden; }
   .cinematics-icon img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
   .cinematics-body { flex: 1; min-width: 0; }
@@ -119,15 +122,15 @@
     font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
     padding: 3px 10px; border-radius: 100px;
   }
-  .c-badge.early { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-  .c-badge.coming { background: rgba(168,85,247,0.12); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+  .c-badge.early { background: rgba(201,164,99,0.12); color: #c9a463; border: 1px solid rgba(201,164,99,0.3); }
+  .c-badge.coming { background: rgba(185,139,118,0.12); color: #b98b76; border: 1px solid rgba(185,139,118,0.3); }
   .cinematics-countdown { font-size: 0.78rem; color: var(--text-muted); text-align: right; white-space: nowrap; }
-  .cinematics-countdown strong { display: block; font-size: 1.1rem; font-weight: 800; color: #a855f7; }
+  .cinematics-countdown strong { display: block; font-size: 1.1rem; font-weight: 800; color: #b98b76; }
 
   /* ── Cinematics form panel ── */
   .cinematics-info-box {
-    background: rgba(168,85,247,0.06);
-    border: 1px solid rgba(168,85,247,0.2);
+    background: rgba(185,139,118,0.06);
+    border: 1px solid rgba(185,139,118,0.2);
     border-radius: 12px;
     padding: 1.25rem;
     margin-bottom: 1.5rem;
@@ -135,7 +138,7 @@
     color: var(--text-muted);
     line-height: 1.6;
   }
-  .cinematics-info-box strong { color: #d8a4ff; }
+  .cinematics-info-box strong { color: #7a5c3e; }
 
   /* ── Error / status ── */
   .f-error { font-size: 0.8rem; color: #f87171; margin-top: 1rem; display: none; }
@@ -143,7 +146,7 @@
 
   /* ── Success ── */
   .success-panel { text-align: center; padding: 1rem 0; }
-  .success-panel .check { width: 64px; height: 64px; border-radius: 50%; background: rgba(0,240,255,0.1); border: 2px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem; }
+  .success-panel .check { width: 64px; height: 64px; border-radius: 50%; background: rgba(51,70,92,0.1); border: 2px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem; }
 
   @media (max-width: 540px) {
     .book-card { padding: 1.5rem 1.25rem; }
@@ -160,8 +163,10 @@
 <nav class="nav scrolled" id="nav">
   <div class="container nav-inner">
     <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
-    <ul class="nav-links" id="navLinks">
+        <ul class="nav-links" id="navLinks">
       <li><a href="/">Start</a></li>
+      <li><a href="/portfolio.html">Mein Team</a></li>
+      <li><a href="/fotografie.html">Fotografie</a></li>
       <li><a href="/galerie.html">Galerie</a></li>
       <li><a href="/preise.html">Preise</a></li>
       <li><a href="/buchen.html" class="active">Buchen</a></li>
@@ -210,10 +215,15 @@
           <div class="svc-name">DJ Service</div>
           <div class="svc-desc">Musik & Sound</div>
         </button>
-        <button class="svc-card" data-svc="fotografie">
+        <button class="svc-card" data-svc="hochzeit">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h3l2-3h8l2 3h3v13H3z"/><circle cx="12" cy="13" r="4"/></svg>
-          <div class="svc-name">Fotografie</div>
-          <div class="svc-desc">Event-Fotos</div>
+          <div class="svc-name">Hochzeitsfotos</div>
+          <div class="svc-desc">Ganztags-Reportage</div>
+        </button>
+        <button class="svc-card" data-svc="shooting">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h3l2-3h8l2 3h3v13H3z"/><circle cx="12" cy="13" r="4"/></svg>
+          <div class="svc-name">Freies Shooting</div>
+          <div class="svc-desc">Portrait, Familie & mehr</div>
         </button>
       </div>
 
@@ -231,27 +241,63 @@
           </button>
           <button class="pkg-card" data-pkg="dj" data-val="Diamond Exclusive">
             <div><div class="pkg-name">Diamond Exclusive</div><div class="pkg-sub">Volles Setup · Premium</div></div>
-            <div class="pkg-price">ab 949 €</div>
+            <div class="pkg-price">ab 999 €</div>
           </button>
         </div>
       </div>
 
-      <!-- Foto Pakete -->
-      <div id="fotoPkgs" style="display:none; margin-bottom: 1.25rem;">
-        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Foto Paket</div>
+      <!-- Hochzeit Pakete -->
+      <div id="hochzeitPkgs" style="display:none; margin-bottom: 1.25rem;">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Hochzeit Paket</div>
         <div class="pkg-grid">
-          <button class="pkg-card" data-pkg="foto" data-val="Foto Portrait">
-            <div><div class="pkg-name">Portrait</div><div class="pkg-sub">Bis 2 Stunden · Highlights</div></div>
+          <button class="pkg-card" data-pkg="foto" data-val="Hochzeit Basis">
+            <div><div class="pkg-name">Basis</div><div class="pkg-sub">Standesamt + Feier, kompakt</div></div>
+            <div class="pkg-price">ab 899 €</div>
+          </button>
+          <button class="pkg-card" data-pkg="foto" data-val="Hochzeit Premium">
+            <div><div class="pkg-name">Premium</div><div class="pkg-sub">Ganztags + 🚁 Drohne</div></div>
+            <div class="pkg-price">ab 1.399 €</div>
+          </button>
+          <button class="pkg-card" data-pkg="foto" data-val="Hochzeit Exclusive">
+            <div><div class="pkg-name">Exclusive</div><div class="pkg-sub">Ganztags + 🚁 Drohne + Same-Day Edit</div></div>
+            <div class="pkg-price">ab 1.899 €</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Shooting Pakete -->
+      <div id="shootingPkgs" style="display:none; margin-bottom: 1.25rem;">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Shooting Paket</div>
+        <div class="pkg-grid">
+          <button class="pkg-card" data-pkg="foto" data-val="Mini Shooting">
+            <div><div class="pkg-name">Mini</div><div class="pkg-sub">Spontan, kompakt, emotional</div></div>
             <div class="pkg-price">ab 199 €</div>
           </button>
-          <button class="pkg-card" data-pkg="foto" data-val="Foto Reportage">
-            <div><div class="pkg-name">Reportage</div><div class="pkg-sub">Halbtags · Dokumentation</div></div>
+          <button class="pkg-card" data-pkg="foto" data-val="Standard Shooting">
+            <div><div class="pkg-name">Standard</div><div class="pkg-sub">Für Familien, Kinder & Pärchen</div></div>
             <div class="pkg-price">ab 349 €</div>
           </button>
-          <button class="pkg-card" data-pkg="foto" data-val="Foto Premium">
-            <div><div class="pkg-name">Premium</div><div class="pkg-sub">Ganztags · Alles inklusive</div></div>
-            <div class="pkg-price">ab 599 €</div>
+          <button class="pkg-card" data-pkg="foto" data-val="Shooting + Drohne">
+            <div><div class="pkg-name">+ Drohne</div><div class="pkg-sub">Boden & Luft 🚁 · besondere Locations</div></div>
+            <div class="pkg-price">ab 549 €</div>
           </button>
+        </div>
+      </div>
+
+      <!-- Personenanzahl (nur freies Shooting) -->
+      <div id="peopleCountGroup" style="display:none; margin-bottom: 1.25rem;">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Wie viele Personen?</div>
+        <div class="pill-row" id="peopleCountPills">
+          <button type="button" class="pill" data-people="1">1</button>
+          <button type="button" class="pill" data-people="2">2</button>
+          <button type="button" class="pill" data-people="3">3</button>
+          <button type="button" class="pill" data-people="4">4</button>
+          <button type="button" class="pill" data-people="5">5</button>
+          <button type="button" class="pill" data-people="6">6</button>
+          <button type="button" class="pill" data-people="7">7</button>
+          <button type="button" class="pill" data-people="8">8</button>
+          <button type="button" class="pill" data-people="9">9</button>
+          <button type="button" class="pill" data-people="10+">10+</button>
         </div>
       </div>
 
@@ -319,7 +365,7 @@
         <input type="text" id="eventLocation" placeholder="z. B. München, Event-Halle XY" />
       </div>
 
-      <div class="f-group">
+      <div class="f-group" id="guestCountGroup">
         <label>Gästezahl (ca.)</label>
         <select id="guestCount">
           <option value="">Keine Angabe</option>
@@ -415,7 +461,7 @@
 <script>
 (function () {
   // ── State ──
-  const state = { svc: null, djPkg: null, fotoPkg: null, occasion: null, eventDate: '', eventLocation: '', eventDuration: '', guestCount: '', name: '', email: '', phone: '', message: '' };
+  const state = { svc: null, djPkg: null, fotoPkg: null, occasion: null, eventDate: '', eventLocation: '', eventDuration: '', guestCount: '', peopleCount: '', name: '', email: '', phone: '', message: '' };
   let currentStep = 1;
 
   // ── Step navigation ──
@@ -466,8 +512,12 @@
       btn.classList.add('selected');
       state.svc = btn.dataset.svc;
       document.getElementById('djPkgs').style.display = state.svc === 'dj' ? 'block' : 'none';
-      document.getElementById('fotoPkgs').style.display = state.svc === 'fotografie' ? 'block' : 'none';
+      document.getElementById('hochzeitPkgs').style.display = state.svc === 'hochzeit' ? 'block' : 'none';
+      document.getElementById('shootingPkgs').style.display = state.svc === 'shooting' ? 'block' : 'none';
+      document.getElementById('peopleCountGroup').style.display = state.svc === 'shooting' ? 'block' : 'none';
       document.getElementById('cinematicsInfo').style.display = 'none';
+      const guestGroup = document.getElementById('guestCountGroup');
+      if (guestGroup) guestGroup.style.display = state.svc === 'shooting' ? 'none' : '';
     });
   });
   document.getElementById('cinematicsCard').addEventListener('click', () => {
@@ -475,8 +525,19 @@
     document.getElementById('cinematicsCard').classList.add('selected');
     state.svc = 'cinematics';
     document.getElementById('djPkgs').style.display = 'none';
-    document.getElementById('fotoPkgs').style.display = 'none';
+    document.getElementById('hochzeitPkgs').style.display = 'none';
+    document.getElementById('shootingPkgs').style.display = 'none';
+    document.getElementById('peopleCountGroup').style.display = 'none';
     document.getElementById('cinematicsInfo').style.display = 'block';
+  });
+
+  // ── People-count pills (freies Shooting) ──
+  document.querySelectorAll('#peopleCountPills .pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#peopleCountPills .pill').forEach(x => x.classList.remove('selected'));
+      p.classList.add('selected');
+      state.peopleCount = p.dataset.people;
+    });
   });
 
   // ── Package selection ──
@@ -490,9 +551,9 @@
   });
 
   // ── Occasion pills ──
-  document.querySelectorAll('.pill').forEach(p => {
+  document.querySelectorAll('#occasionPills .pill').forEach(p => {
     p.addEventListener('click', () => {
-      document.querySelectorAll('.pill').forEach(x => x.classList.remove('selected'));
+      document.querySelectorAll('#occasionPills .pill').forEach(x => x.classList.remove('selected'));
       p.classList.add('selected');
       state.occasion = p.dataset.occ;
     });
@@ -501,7 +562,7 @@
   // ── Step 1 → 2 ──
   document.getElementById('next1').addEventListener('click', () => {
     const needDj = state.svc === 'dj';
-    const needFoto = state.svc === 'fotografie';
+    const needFoto = state.svc === 'hochzeit' || state.svc === 'shooting';
     const err = !state.svc || (needDj && !state.djPkg) || (needFoto && !state.fotoPkg) || false;
     document.getElementById('err1').className = 'f-error' + (err ? ' show' : '');
     if (!err) showStep(2);
@@ -523,7 +584,12 @@
 
   // ── Build summary ──
   function buildSummary() {
-    const svcLabel = { dj: 'DJ Service', fotografie: 'Fotografie', cinematics: '🎬 Diamond Cinematics (Frühbucher)' }[state.svc] || '';
+    const svcLabel = {
+      dj: 'DJ Service',
+      hochzeit: 'Hochzeitsfotos',
+      shooting: 'Freies Shooting',
+      cinematics: '🎬 Diamond Cinematics (Frühbucher)',
+    }[state.svc] || '';
     let pkgs = [];
     if (state.djPkg) pkgs.push(state.djPkg);
     if (state.fotoPkg) pkgs.push(state.fotoPkg);
@@ -537,6 +603,7 @@
       ${row('Ort', state.eventLocation)}
       ${state.eventDuration ? row('Dauer', state.eventDuration) : ''}
       ${state.guestCount ? row('Gäste', state.guestCount) : ''}
+      ${state.peopleCount ? row('Personen', state.peopleCount) : ''}
     `;
   }
   function row(l, v) { return `<div class="s-row"><span class="s-label">${l}</span><span class="s-value">${v}</span></div>`; }
@@ -555,11 +622,22 @@
     btn.disabled = true;
     btn.textContent = 'Wird gesendet…';
 
+    // Extra details that the backend doesn't store as separate fields yet —
+    // fold them into the message so they still reach the Admin-Dashboard/E-Mail.
+    const detailLines = [];
+    if (state.occasion) detailLines.push('Anlass: ' + state.occasion);
+    if (state.eventDuration) detailLines.push('Dauer: ' + state.eventDuration);
+    if (state.guestCount) detailLines.push('Gäste: ' + state.guestCount);
+    if (state.peopleCount) detailLines.push('Personen: ' + state.peopleCount);
+    if (phone) detailLines.push('Telefon: ' + phone);
+    const fullMessage = (detailLines.length ? detailLines.join(' · ') + '\n\n' : '') + message;
+
     const data = {
-      name, email, message,
+      name, email,
+      message: fullMessage,
       eventDate: state.eventDate,
       eventLocation: state.eventLocation,
-      serviceType: state.svc,
+      serviceType: state.svc === 'dj' ? 'dj' : 'fotografie',
       package: state.djPkg || state.fotoPkg || '',
       photoPackage: state.fotoPkg || undefined,
     };
@@ -567,6 +645,7 @@
     if (state.occasion) data.occasion = state.occasion;
     if (state.eventDuration) data.eventDuration = state.eventDuration;
     if (state.guestCount) data.guestCount = state.guestCount;
+    if (state.peopleCount) data.peopleCount = state.peopleCount;
 
     try {
       const res = await fetch('/api/bookings', {
@@ -590,6 +669,51 @@
   // Pre-fill date from URL param ?date=YYYY-MM-DD
   const urlDate = new URLSearchParams(location.search).get('date');
   if (urlDate) document.getElementById('eventDate').value = urlDate;
+
+  // ── Pre-fill from links elsewhere on the site (Startseite, Fotografie, Konfigurator) ──
+  // ?service=dj|hochzeit|shooting  ?package="Diamond Premium"|"Standard Shooting" etc.  ?occasion=Hochzeit  ?configMessage=...
+  const urlParams = new URLSearchParams(location.search);
+  // Alte Paketnamen (vor der Preise-Überarbeitung) auf die aktuellen ummünzen,
+  // damit alte Links/Bookmarks nicht ins Leere laufen.
+  const LEGACY_PACKAGE_ALIASES = {
+    'Foto Portrait': 'Mini Shooting',
+    'Foto Reportage': 'Standard Shooting',
+    'Foto Premium': 'Shooting + Drohne',
+  };
+  const rawPkgParam = urlParams.get('package');
+  const pkgParam = rawPkgParam && LEGACY_PACKAGE_ALIASES[rawPkgParam] ? LEGACY_PACKAGE_ALIASES[rawPkgParam] : rawPkgParam;
+  const svcParam = urlParams.get('service');
+  const occasionParam = urlParams.get('occasion');
+  const configMessage = urlParams.get('configMessage');
+
+  const matchedPkgBtn = pkgParam
+    ? Array.from(document.querySelectorAll('.pkg-card')).find((b) => b.dataset.val === pkgParam)
+    : null;
+
+  let targetSvc = null;
+  if (matchedPkgBtn) {
+    if (matchedPkgBtn.dataset.pkg === 'dj') targetSvc = 'dj';
+    else if (matchedPkgBtn.closest('#hochzeitPkgs')) targetSvc = 'hochzeit';
+    else if (matchedPkgBtn.closest('#shootingPkgs')) targetSvc = 'shooting';
+  } else if (svcParam === 'dj' || svcParam === 'hochzeit' || svcParam === 'shooting') {
+    targetSvc = svcParam;
+  }
+
+  if (targetSvc) {
+    const svcBtn = document.querySelector(`.svc-card[data-svc="${targetSvc}"]`);
+    if (svcBtn) svcBtn.click();
+  }
+  if (matchedPkgBtn) matchedPkgBtn.click();
+
+  if (occasionParam) {
+    const pillBtn = Array.from(document.querySelectorAll('#occasionPills .pill')).find((p) => p.dataset.occ === occasionParam);
+    if (pillBtn) pillBtn.click();
+  }
+
+  if (configMessage) {
+    const msgField = document.getElementById('contactMessage');
+    if (msgField) msgField.value = configMessage + '\n\n';
+  }
 })();
 </script>
 <a href="https://wa.me/4901638557552" target="_blank" rel="noopener" class="wa-btn" title="WhatsApp" aria-label="WhatsApp"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.122 1.529 5.855L.057 23.526a.5.5 0 00.617.617l5.671-1.472A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.666-.523-5.183-1.432l-.371-.22-3.367.874.893-3.367-.241-.384A10 10 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg></a>

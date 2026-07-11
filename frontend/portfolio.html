@@ -9,7 +9,7 @@
 <meta property="og:type" content="profile" />
 <meta property="og:url" content="https://eventsdiamond.de/portfolio.html" />
 <meta property="og:title" content="Niclas Justvan — DJ Diamond" />
-<meta property="og:description" content="DJ &amp; Event-Entertainer aus Niederbayern. Über mich, mein Team und meine Vision." />
+<meta property="og:description" content="DJ &amp; Event-Entertainer aus Niederbayern. Mein Team und meine Vision." />
 <meta property="og:image" content="https://i.ibb.co/PZQRKCRz/6ff00cbf-c148-4b7a-ad99-9dbeaf816a89.jpg" />
 <meta property="og:locale" content="de_DE" />
 <meta property="og:site_name" content="Diamond Events" />
@@ -19,174 +19,16 @@
 <meta name="twitter:description" content="DJ &amp; Event-Entertainer. Premium Entertainment für jede Crowd." />
 <meta name="twitter:image" content="https://i.ibb.co/PZQRKCRz/6ff00cbf-c148-4b7a-ad99-9dbeaf816a89.jpg" />
 
-<meta name="theme-color" content="#050507" />
-<title>Über mich — Diamond Events</title>
+<meta name="theme-color" content="#fbfaf6" />
+<title>Mein Team — Diamond Events</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="/css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
 <style>
   /* Portfolio-spezifische Styles — nur auf dieser Seite genutzt */
-
-  .portrait-hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-end;
-    overflow: hidden;
-    padding: 6rem 0 4rem;
-  }
-
-  .portrait-bg {
-    position: absolute;
-    inset: 0;
-    z-index: -3;
-  }
-
-  .portrait-bg img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 20%;
-    filter: brightness(0.95) contrast(1.05) saturate(1.1);
-  }
-
-  /* Multi-layer RGB gradient overlay */
-  .portrait-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: -2;
-    background:
-      radial-gradient(ellipse at 25% 20%, rgba(0, 240, 255, 0.25), transparent 55%),
-      radial-gradient(ellipse at 80% 70%, rgba(255, 0, 230, 0.28), transparent 55%),
-      radial-gradient(ellipse at 60% 40%, rgba(168, 85, 247, 0.18), transparent 60%);
-    mix-blend-mode: overlay;
-  }
-
-  /* Dark fade at the bottom so text is readable */
-  .portrait-fade {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background:
-      linear-gradient(180deg, rgba(5, 5, 7, 0.3) 0%, transparent 25%, transparent 50%, rgba(5, 5, 7, 0.85) 85%, var(--bg) 100%);
-  }
-
-  .portrait-content {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: var(--maxw);
-    margin: 0 auto;
-    padding: 0 2rem;
-  }
-
-  .portrait-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--text);
-    padding: 0.5rem 1.1rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 50px;
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-  }
-
-  .portrait-tag::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--neon-cyan);
-    animation: pulse 2.4s ease-in-out infinite;
-  }
-
-  .portrait-name {
-    font-size: clamp(3.5rem, 11vw, 8.5rem);
-    font-weight: 800;
-    letter-spacing: -0.05em;
-    line-height: 0.95;
-    margin: 0 0 1rem;
-  }
-
-  .portrait-name .last {
-    background: var(--gradient-rgb);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    display: inline-block;
-  }
-
-  .portrait-role {
-    font-size: clamp(1rem, 1.5vw, 1.25rem);
-    color: var(--text);
-    max-width: 560px;
-    font-weight: 400;
-    margin-bottom: 2rem;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
-  }
-
-  .portrait-cta {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  /* Bio section */
-  .bio {
-    padding: 7rem 0;
-  }
-
-  .bio-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 4rem;
-    align-items: start;
-  }
-
-  @media (max-width: 768px) {
-    .bio-grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-  }
-
-  .bio-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-  }
-
-  .bio-heading {
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
-    font-weight: 700;
-    letter-spacing: -0.035em;
-    line-height: 1.15;
-  }
-
-  .bio-text p {
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    line-height: 1.7;
-    margin-bottom: 1.25rem;
-  }
-
-  .bio-text p:last-child {
-    margin-bottom: 0;
-  }
-
-  .bio-text strong {
-    color: var(--text);
-    font-weight: 600;
-  }
+  /* (portrait-hero/bio Styles liegen jetzt zentral in style.css) */
 
   /* Team section */
   .team {
@@ -196,10 +38,13 @@
 
   .team-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     margin-top: 3.5rem;
     text-align: left;
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   @media (max-width: 968px) {
@@ -221,7 +66,7 @@
 
   .team-member:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(27, 24, 18, 0.18);
     box-shadow: var(--shadow-card);
   }
 
@@ -247,7 +92,7 @@
     align-items: center;
     justify-content: center;
     font-family: var(--font-sys);
-    font-size: 3rem;
+    font-size: 1.9rem;
     font-weight: 700;
     color: #fff;
     letter-spacing: -0.04em;
@@ -361,14 +206,14 @@
 
   .highlight-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(27, 24, 18, 0.18);
   }
 
   .highlight-card .icon {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(27, 24, 18, 0.04);
     border: 1px solid var(--line);
     display: flex;
     align-items: center;
@@ -421,8 +266,10 @@
 <nav class="nav" id="nav">
   <div class="container nav-inner">
     <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
-    <ul class="nav-links" id="navLinks">
+        <ul class="nav-links" id="navLinks">
       <li><a href="/">Start</a></li>
+      <li><a href="/portfolio.html" class="active">Mein Team</a></li>
+      <li><a href="/fotografie.html">Fotografie</a></li>
       <li><a href="/galerie.html">Galerie</a></li>
       <li><a href="/preise.html">Preise</a></li>
       <li><a href="/buchen.html">Buchen</a></li>
@@ -435,22 +282,21 @@
 
 <!-- Portrait Hero -->
 <header class="portrait-hero">
-  <div class="portrait-bg">
-    <img src="https://i.ibb.co/PZQRKCRz/6ff00cbf-c148-4b7a-ad99-9dbeaf816a89.jpg" alt="Niclas Justvan — DJ Diamond" />
-  </div>
-  <div class="portrait-overlay"></div>
-  <div class="portrait-fade"></div>
-
-  <div class="portrait-content">
-    <span class="portrait-tag">DJ &amp; Event-Entertainer</span>
-    <h1 class="portrait-name">Niclas <span class="last">Justvan</span></h1>
-    <p class="portrait-role">
-      Hinter Diamond Events steckt mehr als nur Musik. Es geht um Atmosphäre,
-      Energie und unvergessliche Momente.
-    </p>
-    <div class="portrait-cta">
-      <a href="/buchen.html" class="btn btn-primary">Event mit mir buchen</a>
-      <a href="#bio" class="btn btn-outline">Mehr über mich</a>
+  <div class="container">
+    <div class="portrait-content">
+      <span class="portrait-tag">DJ &amp; Event-Entertainer</span>
+      <h1 class="portrait-name">Niclas <span class="last">Justvan</span></h1>
+      <p class="portrait-role">
+        Hinter Diamond Events steckt mehr als nur Musik. Es geht um Atmosphäre,
+        Energie und unvergessliche Momente.
+      </p>
+      <div class="portrait-cta">
+        <a href="/buchen.html" class="btn btn-primary">Event mit mir buchen</a>
+        <a href="#bio" class="btn btn-outline">Mehr über mich</a>
+      </div>
+    </div>
+    <div class="portrait-bg">
+      <img src="/img/team/niclas-portrait.jpg" alt="Niclas Justvan — DJ Diamond" />
     </div>
   </div>
 </header>
@@ -496,13 +342,13 @@
     <span class="section-subtitle reveal">Das Team</span>
     <h2 class="section-title reveal">Hinter Diamond <span class="gradient-text">Events</span></h2>
     <p class="reveal" style="color:var(--text-muted); max-width:560px; margin:1rem auto 0;">
-      Zwei Köpfe, eine Vision — perfekte Events bis ins kleinste Detail.
+      Vier Köpfe, eine Vision — perfekte Events bis ins kleinste Detail.
     </p>
 
     <div class="team-grid">
       <div class="team-member reveal">
         <div class="member-photo">
-          <img src="https://i.ibb.co/PZQRKCRz/6ff00cbf-c148-4b7a-ad99-9dbeaf816a89.jpg" alt="Niclas Justvan" />
+          <img src="/img/team/niclas-team.jpg" alt="Niclas Justvan" />
         </div>
         <div class="member-info">
           <span class="member-role">DJ &amp; Inhaber</span>
@@ -515,21 +361,23 @@
         </div>
       </div>
 
-      <div class="team-member reveal">
-        <div class="member-photo placeholder">J</div>
+      <a href="/jason.html" class="team-member reveal">
+        <div class="member-photo">
+          <img src="/img/team/jason-hero.jpg" alt="Jason Tesch" />
+        </div>
         <div class="member-info">
-          <span class="member-role">Crew &amp; Customer Support</span>
+          <span class="member-role">Secondshooter</span>
           <h3>Jason <span class="gradient-text">Tesch</span></h3>
           <p>
-            Das Rückgrat im Hintergrund. Sorgt für reibungslosen Auf- und
-            Abbau, hat ein Auge auf die Technik und ist erster Ansprechpartner
-            für alle Gäste vor Ort.
+            Der zweite Blick fürs Detail. Fängt die Momente ein, die man beim
+            ersten Hinsehen verpasst — Reaktionen, Zwischenmomente, das volle
+            Bild vom Tag.
           </p>
         </div>
-      </div>
+      </a>
 
       <div class="team-member reveal">
-        <div class="member-photo placeholder">L</div>
+        <div class="member-photo placeholder">LT</div>
         <div class="member-info">
           <span class="member-role">Buchhaltung &amp; Finanzen</span>
           <h3>Lukas <span class="gradient-text">Thämlitz</span></h3>
@@ -540,6 +388,21 @@
           </p>
         </div>
       </div>
+
+      <a href="/liam.html" class="team-member reveal">
+        <div class="member-photo">
+          <img src="/img/team/liam-hero.jpg" alt="Liam Steffens" />
+        </div>
+        <div class="member-info">
+          <span class="member-role">Locations &amp; Drohne</span>
+          <h3>Liam <span class="gradient-text">Steffens</span></h3>
+          <p>
+            Zuständig für Location und Deko — hält Räume und Details fotografisch
+            fest und steuert bei Immobilienaufnahmen die Drohne für den perfekten
+            Blick von oben.
+          </p>
+        </div>
+      </a>
     </div>
   </div>
 </section>
@@ -650,7 +513,7 @@
     </div>
     <div class="footer-links">
       <a href="/">Start</a>
-      <a href="/portfolio.html">Über mich</a>
+      <a href="/portfolio.html">Mein Team</a>
       <a href="/#services">Services</a>
       <a href="/#packages">Pakete</a>
       <a href="/buchen.html">Event buchen</a>

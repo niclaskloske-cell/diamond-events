@@ -140,7 +140,7 @@
     if (state.occasion) {
       params.set("occasion", OCCASIONS[state.occasion]);
     }
-    link.href = "/booking.html?" + params.toString();
+    link.href = "/buchen.html?" + params.toString();
   }
 
   // ---------- Refresh orchestrator ----------
