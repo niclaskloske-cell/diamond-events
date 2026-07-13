@@ -3095,3 +3095,17 @@ footer .footer-links a:hover {
 .fun-gallery-grid img:hover {
   transform: translateY(-6px);
 }
+
+/* ---------- Included-feature badge (z.B. "2 Fotografen inklusive") ---------- */
+.included-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  background: rgba(169, 128, 63, 0.08);
+  border: 1px solid rgba(169, 128, 63, 0.25);
+  border-radius: 50px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--neon-amber);
+}

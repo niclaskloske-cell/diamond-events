@@ -265,6 +265,17 @@
         </div>
       </div>
 
+      <!-- Fotografen (nur Hochzeit) -->
+      <div id="photographerCountGroup" style="display:none; margin-bottom: 1.25rem;">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Wie viele Fotografen?</div>
+        <div class="pill-row" id="photographerCountPills">
+          <button type="button" class="pill" data-photographers="1">1</button>
+          <button type="button" class="pill" data-photographers="2">2</button>
+          <button type="button" class="pill" data-photographers="3">3</button>
+        </div>
+        <div class="included-badge" id="photographerCountLocked" style="display:none;"></div>
+      </div>
+
       <!-- Shooting Pakete -->
       <div id="shootingPkgs" style="display:none; margin-bottom: 1.25rem;">
         <div style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem;">Shooting Paket</div>
@@ -451,6 +462,7 @@
       <a href="/buchen.html">Buchen</a>
       <a href="/impressum.html">Impressum</a>
       <a href="/datenschutz.html">Datenschutz</a>
+      <a href="/agb.html">AGB</a>
       <a href="/login.html" style="opacity:0.3;font-size:0.75rem;">Admin</a>
     </div>
     <div>© <span id="year"></span> Diamond Events</div>
@@ -461,7 +473,7 @@
 <script>
 (function () {
   // ── State ──
-  const state = { svc: null, djPkg: null, fotoPkg: null, occasion: null, eventDate: '', eventLocation: '', eventDuration: '', guestCount: '', peopleCount: '', name: '', email: '', phone: '', message: '' };
+  const state = { svc: null, djPkg: null, fotoPkg: null, occasion: null, eventDate: '', eventLocation: '', eventDuration: '', guestCount: '', peopleCount: '', photographerCount: '', name: '', email: '', phone: '', message: '' };
   let currentStep = 1;
 
   // ── Step navigation ──
@@ -515,6 +527,10 @@
       document.getElementById('hochzeitPkgs').style.display = state.svc === 'hochzeit' ? 'block' : 'none';
       document.getElementById('shootingPkgs').style.display = state.svc === 'shooting' ? 'block' : 'none';
       document.getElementById('peopleCountGroup').style.display = state.svc === 'shooting' ? 'block' : 'none';
+      if (state.svc !== 'hochzeit') {
+        document.getElementById('photographerCountGroup').style.display = 'none';
+        state.photographerCount = '';
+      }
       document.getElementById('cinematicsInfo').style.display = 'none';
       const guestGroup = document.getElementById('guestCountGroup');
       if (guestGroup) guestGroup.style.display = state.svc === 'shooting' ? 'none' : '';
@@ -528,6 +544,8 @@
     document.getElementById('hochzeitPkgs').style.display = 'none';
     document.getElementById('shootingPkgs').style.display = 'none';
     document.getElementById('peopleCountGroup').style.display = 'none';
+    document.getElementById('photographerCountGroup').style.display = 'none';
+    state.photographerCount = '';
     document.getElementById('cinematicsInfo').style.display = 'block';
   });
 
@@ -541,12 +559,52 @@
   });
 
   // ── Package selection ──
+  const PHOTOGRAPHER_LOCK = {
+    'Hochzeit Premium': '2',
+    'Hochzeit Exclusive': '3',
+  };
+
+  function updatePhotographerCount(pkgVal) {
+    const group = document.getElementById('photographerCountGroup');
+    const pills = document.getElementById('photographerCountPills');
+    const locked = document.getElementById('photographerCountLocked');
+
+    if (!pkgVal || !pkgVal.startsWith('Hochzeit')) {
+      group.style.display = 'none';
+      return;
+    }
+    group.style.display = 'block';
+
+    const lockedCount = PHOTOGRAPHER_LOCK[pkgVal];
+    if (lockedCount) {
+      pills.style.display = 'none';
+      locked.style.display = 'inline-flex';
+      locked.textContent = `✓ ${lockedCount} Fotografen inklusive`;
+      state.photographerCount = lockedCount;
+    } else {
+      // Basis — frei wählbar
+      pills.style.display = 'flex';
+      locked.style.display = 'none';
+      pills.querySelectorAll('.pill').forEach(x => x.classList.remove('selected'));
+      state.photographerCount = '';
+    }
+  }
+
   document.querySelectorAll('.pkg-card').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll(`.pkg-card[data-pkg="${btn.dataset.pkg}"]`).forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       if (btn.dataset.pkg === 'dj') state.djPkg = btn.dataset.val;
       else state.fotoPkg = btn.dataset.val;
+      updatePhotographerCount(btn.dataset.val);
+    });
+  });
+
+  document.querySelectorAll('#photographerCountPills .pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#photographerCountPills .pill').forEach(x => x.classList.remove('selected'));
+      p.classList.add('selected');
+      state.photographerCount = p.dataset.photographers;
     });
   });
 
@@ -604,6 +662,7 @@
       ${state.eventDuration ? row('Dauer', state.eventDuration) : ''}
       ${state.guestCount ? row('Gäste', state.guestCount) : ''}
       ${state.peopleCount ? row('Personen', state.peopleCount) : ''}
+      ${state.photographerCount ? row('Fotografen', state.photographerCount) : ''}
     `;
   }
   function row(l, v) { return `<div class="s-row"><span class="s-label">${l}</span><span class="s-value">${v}</span></div>`; }
@@ -629,6 +688,7 @@
     if (state.eventDuration) detailLines.push('Dauer: ' + state.eventDuration);
     if (state.guestCount) detailLines.push('Gäste: ' + state.guestCount);
     if (state.peopleCount) detailLines.push('Personen: ' + state.peopleCount);
+    if (state.photographerCount) detailLines.push('Fotografen: ' + state.photographerCount);
     if (phone) detailLines.push('Telefon: ' + phone);
     const fullMessage = (detailLines.length ? detailLines.join(' · ') + '\n\n' : '') + message;
 
@@ -646,6 +706,7 @@
     if (state.eventDuration) data.eventDuration = state.eventDuration;
     if (state.guestCount) data.guestCount = state.guestCount;
     if (state.peopleCount) data.peopleCount = state.peopleCount;
+    if (state.photographerCount) data.photographerCount = state.photographerCount;
 
     try {
       const res = await fetch('/api/bookings', {
