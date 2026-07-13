@@ -278,6 +278,8 @@
               <td style="padding:6px 0;">${escapeHtml(b.serviceType || "dj")}</td></tr>
           <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Fotografie</td>
               <td style="padding:6px 0;">${b.photography ? "Ja" : "Nein"}</td></tr>
+          ${b.discountCode ? `<tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Rabattcode</td>
+              <td style="padding:6px 0; color:#c9a463; font-weight:600;">${escapeHtml(b.discountCode)} (${b.discountType === "percent" ? b.discountValue + "%" : b.discountValue + "€"})</td></tr>` : ""}
           <tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Eingegangen</td>
               <td style="padding:6px 0;">${fmtDateTime(b.createdAt)}</td></tr>
           ${b.updatedAt ? `<tr><td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;">Geändert</td>

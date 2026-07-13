@@ -401,6 +401,15 @@
       <!-- Summary -->
       <div class="summary-box" id="summaryBox"></div>
 
+      <div class="f-group">
+        <label>Rabattcode (optional)</label>
+        <div style="display:flex; gap:0.6rem;">
+          <input type="text" id="discountCodeInput" placeholder="z.B. HOCHZEIT10" style="flex:1; text-transform:uppercase;" />
+          <button type="button" class="btn-back" id="applyDiscountBtn" style="white-space:nowrap;">Einlösen</button>
+        </div>
+        <div id="discountCodeStatus" style="font-size:0.85rem; margin-top:0.5rem;"></div>
+      </div>
+
       <div class="f-row">
         <div class="f-group">
           <label>Name *</label>
@@ -473,8 +482,32 @@
 <script>
 (function () {
   // ── State ──
-  const state = { svc: null, djPkg: null, fotoPkg: null, occasion: null, eventDate: '', eventLocation: '', eventDuration: '', guestCount: '', peopleCount: '', photographerCount: '', name: '', email: '', phone: '', message: '' };
+  const state = { svc: null, djPkg: null, fotoPkg: null, occasion: null, eventDate: '', eventLocation: '', eventDuration: '', guestCount: '', peopleCount: '', photographerCount: '', name: '', email: '', phone: '', message: '', discount: null };
   let currentStep = 1;
+
+  // ── Package prices (must match preise.html) ──
+  const PACKAGE_PRICES = {
+    'Diamond Lite': 449,
+    'Diamond Premium': 749,
+    'Diamond Exclusive': 999,
+    'Hochzeit Basis': 899,
+    'Hochzeit Premium': 1399,
+    'Hochzeit Exclusive': 1899,
+    'Mini Shooting': 199,
+    'Standard Shooting': 349,
+    'Shooting + Drohne': 549,
+  };
+
+  function currentBasePrice() {
+    const pkgName = state.djPkg || state.fotoPkg;
+    return PACKAGE_PRICES[pkgName] || 0;
+  }
+
+  function discountedPrice(base) {
+    if (!state.discount) return base;
+    if (state.discount.type === 'percent') return Math.max(0, base - (base * state.discount.value) / 100);
+    return Math.max(0, base - state.discount.value);
+  }
 
   // ── Step navigation ──
   function showStep(n) {
@@ -653,9 +686,23 @@
     if (state.fotoPkg) pkgs.push(state.fotoPkg);
     const d = new Date(state.eventDate);
     const dateStr = isNaN(d) ? state.eventDate : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+    const base = currentBasePrice();
+    let priceRow = '';
+    if (base) {
+      if (state.discount) {
+        const final = discountedPrice(base);
+        priceRow = row('Preis (ca.)', `<span style="text-decoration:line-through;color:var(--text-muted);margin-right:0.5rem;">ab ${base} €</span><strong style="color:#c9a463;">ab ${final.toFixed(0)} €</strong>`);
+      } else {
+        priceRow = row('Preis (ca.)', `ab ${base} €`);
+      }
+    }
+
     document.getElementById('summaryBox').innerHTML = `
       ${row('Service', svcLabel)}
       ${row('Paket', pkgs.join(' + '))}
+      ${priceRow}
+      ${state.discount ? row('Rabattcode', `${state.discount.code} (${state.discount.type === 'percent' ? state.discount.value + '%' : state.discount.value + '€'})`) : ''}
       ${state.occasion ? row('Anlass', state.occasion) : ''}
       ${row('Datum', dateStr)}
       ${row('Ort', state.eventLocation)}
@@ -666,6 +713,36 @@
     `;
   }
   function row(l, v) { return `<div class="s-row"><span class="s-label">${l}</span><span class="s-value">${v}</span></div>`; }
+
+  // ── Discount code ──
+  document.getElementById('applyDiscountBtn').addEventListener('click', async () => {
+    const input = document.getElementById('discountCodeInput');
+    const status = document.getElementById('discountCodeStatus');
+    const code = input.value.trim();
+    if (!code) return;
+
+    status.textContent = 'Prüfe Code…';
+    status.style.color = 'var(--text-muted)';
+
+    try {
+      const res = await fetch('/api/discount-codes/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const json = await res.json();
+      if (!json.valid) throw new Error(json.error || 'Code ungültig.');
+      state.discount = { code: json.code, type: json.type, value: json.value };
+      status.textContent = `✓ Code eingelöst — ${json.type === 'percent' ? json.value + '% Rabatt' : json.value + '€ Rabatt'}`;
+      status.style.color = '#34d399';
+      buildSummary();
+    } catch (e) {
+      state.discount = null;
+      status.textContent = e.message;
+      status.style.color = '#f87171';
+      buildSummary();
+    }
+  });
 
   // ── Submit ──
   document.getElementById('submitBtn').addEventListener('click', async () => {
@@ -707,6 +784,7 @@
     if (state.guestCount) data.guestCount = state.guestCount;
     if (state.peopleCount) data.peopleCount = state.peopleCount;
     if (state.photographerCount) data.photographerCount = state.photographerCount;
+    if (state.discount) data.discountCode = state.discount.code;
 
     try {
       const res = await fetch('/api/bookings', {

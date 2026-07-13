@@ -440,6 +440,7 @@ function adminEmailHtml(b) {
         <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Ort</td><td style="padding:8px 0; color:#f5f5f7;">${b.eventLocation}</td></tr>
         <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Paket</td><td style="padding:8px 0; color:#f5f5f7;">${b.package}</td></tr>
         <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Fotografie</td><td style="padding:8px 0; color:#f5f5f7;">${b.photography ? "Ja" : "Nein"}</td></tr>
+        ${b.discountCode ? `<tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Rabattcode</td><td style="padding:8px 0; color:#f5f5f7;">${b.discountCode} (${b.discountType === "percent" ? b.discountValue + "%" : b.discountValue + "€"})</td></tr>` : ""}
         <tr><td style="padding:8px 0; color:#8e8e93; font-size:0.85rem;">Referenz</td><td style="padding:8px 0; color:#f5f5f7; font-family:monospace; font-size:0.85rem;">${b.id}</td></tr>
       </table>
 
@@ -671,6 +672,7 @@ app.post("/api/bookings", async (req, res) => {
     photography,
     message,
     serviceType,
+    discountCode,
   } = req.body || {};
 
   if (!name || !email || !eventDate || !eventLocation) {
@@ -694,6 +696,14 @@ app.post("/api/bookings", async (req, res) => {
     return res.status(400).json({ error: "Ungültige E-Mail-Adresse." });
   }
 
+  // Re-validate the discount code server-side — never trust the client's number.
+  let discountCodes = readDiscountCodes();
+  let appliedDiscount = null;
+  if (discountCode) {
+    const { code: match } = findActiveDiscountCode(discountCodes, discountCode);
+    if (match) appliedDiscount = match;
+  }
+
   const booking = {
     id: genId(),
     name: String(name).trim(),
@@ -707,11 +717,22 @@ app.post("/api/bookings", async (req, res) => {
     message: message ? String(message).trim() : "",
     status: "offen",
     createdAt: new Date().toISOString(),
+    discountCode: appliedDiscount ? appliedDiscount.code : "",
+    discountType: appliedDiscount ? appliedDiscount.type : "",
+    discountValue: appliedDiscount ? appliedDiscount.value : null,
   };
 
   const bookings = readBookings();
   bookings.push(booking);
   writeBookings(bookings);
+
+  if (appliedDiscount) {
+    const idx = discountCodes.findIndex((c) => c.id === appliedDiscount.id);
+    if (idx !== -1) {
+      discountCodes[idx].usageCount = (discountCodes[idx].usageCount || 0) + 1;
+      writeDiscountCodes(discountCodes);
+    }
+  }
 
   // Fire-and-forget emails (don't block API response)
   const customerMail = renderEmailFromTemplate("booking_received", booking);
@@ -1409,6 +1430,104 @@ app.delete("/api/admin/reviews/:id", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+
+// ---------- Discount Codes ----------
+const DISCOUNT_CODES_FILE = path.join(DATA_DIR, "discount-codes.json");
+function readDiscountCodes() {
+  if (!fs.existsSync(DISCOUNT_CODES_FILE)) return [];
+  try { return JSON.parse(fs.readFileSync(DISCOUNT_CODES_FILE, "utf8") || "[]"); } catch { return []; }
+}
+function writeDiscountCodes(c) { fs.writeFileSync(DISCOUNT_CODES_FILE, JSON.stringify(c, null, 2), "utf8"); }
+
+function findActiveDiscountCode(codes, rawCode) {
+  if (!rawCode) return { code: null, error: "Kein Code angegeben." };
+  const clean = String(rawCode).trim().toLowerCase();
+  const match = codes.find((c) => c.code.toLowerCase() === clean);
+  if (!match) return { code: null, error: "Code nicht gefunden." };
+  if (!match.active) return { code: null, error: "Code ist nicht mehr aktiv." };
+  if (match.expiresAt && match.expiresAt < new Date().toISOString().split("T")[0]) {
+    return { code: null, error: "Code ist abgelaufen." };
+  }
+  if (match.maxUses && match.usageCount >= match.maxUses) {
+    return { code: null, error: "Code wurde bereits zu oft eingelöst." };
+  }
+  return { code: match, error: null };
+}
+
+// Public: validate a code (used live in the booking form)
+app.post("/api/discount-codes/validate", (req, res) => {
+  const { code } = req.body || {};
+  const { code: match, error } = findActiveDiscountCode(readDiscountCodes(), code);
+  if (!match) return res.status(400).json({ valid: false, error });
+  res.json({ valid: true, code: match.code, type: match.type, value: match.value });
+});
+
+// Admin: list all
+app.get("/api/admin/discount-codes", requireAuth, (req, res) =>
+  res.json(readDiscountCodes().sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1)))
+);
+
+// Admin: create
+app.post("/api/admin/discount-codes", requireAuth, (req, res) => {
+  const { code, type, value, maxUses, expiresAt } = req.body || {};
+  if (!code || !type || value == null || value === "") {
+    return res.status(400).json({ error: "Code, Typ und Wert erforderlich." });
+  }
+  if (!["percent", "fixed"].includes(type)) {
+    return res.status(400).json({ error: "Ungültiger Typ." });
+  }
+  const numValue = parseFloat(value);
+  if (isNaN(numValue) || numValue <= 0) {
+    return res.status(400).json({ error: "Ungültiger Wert." });
+  }
+  if (type === "percent" && numValue > 100) {
+    return res.status(400).json({ error: "Prozent darf nicht über 100 liegen." });
+  }
+  const cleanCode = String(code).trim().toUpperCase();
+  if (!cleanCode) return res.status(400).json({ error: "Ungültiger Code." });
+  const codes = readDiscountCodes();
+  if (codes.some((c) => c.code.toLowerCase() === cleanCode.toLowerCase())) {
+    return res.status(400).json({ error: "Code existiert bereits." });
+  }
+  const entry = {
+    id: genId(),
+    code: cleanCode,
+    type,
+    value: numValue,
+    active: true,
+    maxUses: maxUses ? parseInt(maxUses, 10) : null,
+    usageCount: 0,
+    expiresAt: expiresAt || null,
+    createdAt: new Date().toISOString(),
+  };
+  codes.push(entry);
+  writeDiscountCodes(codes);
+  res.json({ ok: true, code: entry });
+});
+
+// Admin: toggle active / edit
+app.patch("/api/admin/discount-codes/:id", requireAuth, (req, res) => {
+  const codes = readDiscountCodes();
+  const idx = codes.findIndex((c) => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Nicht gefunden." });
+  const { active, value, maxUses, expiresAt } = req.body || {};
+  if (active !== undefined) codes[idx].active = !!active;
+  if (value !== undefined) {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue) && numValue > 0) codes[idx].value = numValue;
+  }
+  if (maxUses !== undefined) codes[idx].maxUses = maxUses ? parseInt(maxUses, 10) : null;
+  if (expiresAt !== undefined) codes[idx].expiresAt = expiresAt || null;
+  writeDiscountCodes(codes);
+  res.json({ ok: true });
+});
+
+// Admin: delete
+app.delete("/api/admin/discount-codes/:id", requireAuth, (req, res) => {
+  const codes = readDiscountCodes().filter((c) => c.id !== req.params.id);
+  writeDiscountCodes(codes);
+  res.json({ ok: true });
+});
 
 // ---------- Start ----------
 // Backfill uploadedAt for existing images (set to 8 days ago so they don't show NEU)

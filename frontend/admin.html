@@ -88,6 +88,7 @@
             <a href="/admin-event.html" style="display:block;text-decoration:none;color:inherit;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;font-size:.85rem;transition:background .15s;" onmouseover="this.style.background='rgba(27,24,18,0.06)'" onmouseout="this.style.background='none'">🎉 Event Manager</a>
             <button class="btn btn-outline btn-sm" id="openTemplatesBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">✉️ Auto-Nachrichten</button>
             <button class="btn btn-outline btn-sm" id="openPresetsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📝 E-Mail-Vorlagen</button>
+            <button class="btn btn-outline btn-sm" id="openDiscountsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">🏷️ Rabattcodes</button>
             <div style="height:1px;background:rgba(27,24,18,0.07);margin:.3rem 0;"></div>
             <button class="btn btn-outline btn-sm" id="csvExportBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;">⬇️ CSV Export</button>
           </div>
@@ -545,6 +546,50 @@
   </div>
 </div>
 
+<!-- Discount Codes Modal -->
+<div class="modal-backdrop" id="discountsModal">
+  <div class="modal" style="max-width:700px; max-height:85vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <h2 style="font-size:1.2rem; margin:0;">Rabattcodes</h2>
+      <button class="btn btn-outline btn-sm" id="closeDiscountsModal">✕</button>
+    </div>
+
+    <form id="discountCreateForm" style="background:rgba(27,24,18,0.02); border:1px solid var(--line); border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+        <div class="f-group" style="margin:0;">
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Code</label>
+          <input type="text" id="discCode" placeholder="z.B. HOCHZEIT10" style="width:100%; box-sizing:border-box; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:8px; padding:0.6rem 0.75rem; color:var(--text); font-family:inherit;" />
+        </div>
+        <div class="f-group" style="margin:0;">
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Typ</label>
+          <select id="discType" style="width:100%; box-sizing:border-box; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:8px; padding:0.6rem 0.75rem; color:var(--text); font-family:inherit;">
+            <option value="percent">Prozent (%)</option>
+            <option value="fixed">Fester Betrag (€)</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-bottom:0.9rem;">
+        <div class="f-group" style="margin:0;">
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Wert</label>
+          <input type="number" id="discValue" min="0" step="0.01" placeholder="10" style="width:100%; box-sizing:border-box; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:8px; padding:0.6rem 0.75rem; color:var(--text); font-family:inherit;" />
+        </div>
+        <div class="f-group" style="margin:0;">
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Max. Nutzungen</label>
+          <input type="number" id="discMaxUses" min="1" step="1" placeholder="unbegrenzt" style="width:100%; box-sizing:border-box; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:8px; padding:0.6rem 0.75rem; color:var(--text); font-family:inherit;" />
+        </div>
+        <div class="f-group" style="margin:0;">
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Gültig bis</label>
+          <input type="date" id="discExpiresAt" style="width:100%; box-sizing:border-box; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:8px; padding:0.6rem 0.75rem; color:var(--text); font-family:inherit;" />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm" style="width:100%;">+ Code anlegen</button>
+      <div id="discCreateError" style="color:#f87171; font-size:0.82rem; margin-top:0.6rem; display:none;"></div>
+    </form>
+
+    <div id="discountsList"><p style="color:var(--text-muted);">Lade...</p></div>
+  </div>
+</div>
+
 <script src="/js/main.js"></script>
 <script src="/js/admin.js"></script>
 <script src="/js/admin-galleries.js"></script>
@@ -598,6 +643,112 @@
     loadAdminReviews();
     window.showToast('Gelöscht', 'success');
   };
+})();
+</script>
+
+<script>
+// ── Discount Codes Admin ─────────────────────────────────────────────────────
+(function () {
+  const modal = document.getElementById('discountsModal');
+  const openBtn = document.getElementById('openDiscountsBtn');
+  if (!modal || !openBtn) return;
+
+  openBtn.addEventListener('click', () => {
+    modal.classList.add('open');
+    loadDiscountCodes();
+  });
+  document.getElementById('closeDiscountsModal').addEventListener('click', () => modal.classList.remove('open'));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+  function fmtValue(c) {
+    return c.type === 'percent' ? `${c.value}%` : `${c.value}€`;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str).replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c])
+    );
+  }
+
+  async function loadDiscountCodes() {
+    const list = document.getElementById('discountsList');
+    try {
+      const res = await fetch('/api/admin/discount-codes');
+      const codes = await res.json();
+      if (!codes.length) { list.innerHTML = '<p style="color:var(--text-muted);">Noch keine Rabattcodes.</p>'; return; }
+      list.innerHTML = codes.map(c => {
+        const usage = c.maxUses ? `${c.usageCount}/${c.maxUses}` : `${c.usageCount}×`;
+        const expired = c.expiresAt && c.expiresAt < new Date().toISOString().split('T')[0];
+        return `
+        <div style="background:rgba(27,24,18,0.02);border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div>
+            <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.3rem;">
+              <span style="font-weight:700;font-family:monospace;letter-spacing:0.02em;">${escapeHtml(c.code)}</span>
+              <span style="font-size:0.78rem;color:#c9a463;font-weight:600;">${fmtValue(c)}</span>
+              <span style="font-size:0.72rem;padding:2px 8px;border-radius:100px;font-weight:600;${c.active && !expired ? 'background:rgba(52,211,153,0.1);color:#34d399' : 'background:rgba(248,113,113,0.1);color:#f87171'}">${expired ? 'Abgelaufen' : c.active ? 'Aktiv' : 'Deaktiviert'}</span>
+            </div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">
+              ${usage} eingelöst${c.expiresAt ? ` · gültig bis ${fmtDate(c.expiresAt)}` : ''}
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-shrink:0;">
+            <button onclick="discountToggle('${c.id}', ${!c.active})" class="btn btn-outline btn-sm">${c.active ? 'Deaktivieren' : 'Aktivieren'}</button>
+            <button onclick="discountDelete('${c.id}')" class="btn btn-outline btn-sm" style="color:#f87171;border-color:rgba(248,113,113,0.3);">Löschen</button>
+          </div>
+        </div>`;
+      }).join('');
+    } catch (e) { list.innerHTML = '<p style="color:#f87171;">Fehler beim Laden.</p>'; }
+  }
+
+  window.discountToggle = async (id, active) => {
+    await fetch(`/api/admin/discount-codes/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ active }) });
+    loadDiscountCodes();
+    window.showToast(active ? 'Code aktiviert ✓' : 'Code deaktiviert', 'success');
+  };
+
+  window.discountDelete = async (id) => {
+    if (!confirm('Rabattcode wirklich löschen?')) return;
+    await fetch(`/api/admin/discount-codes/${id}`, { method: 'DELETE' });
+    loadDiscountCodes();
+    window.showToast('Gelöscht', 'success');
+  };
+
+  document.getElementById('discountCreateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errBox = document.getElementById('discCreateError');
+    errBox.style.display = 'none';
+
+    const code = document.getElementById('discCode').value.trim();
+    const type = document.getElementById('discType').value;
+    const value = document.getElementById('discValue').value;
+    const maxUses = document.getElementById('discMaxUses').value;
+    const expiresAt = document.getElementById('discExpiresAt').value;
+
+    try {
+      const res = await fetch('/api/admin/discount-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, type, value, maxUses: maxUses || null, expiresAt: expiresAt || null }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Fehler');
+      document.getElementById('discountCreateForm').reset();
+      document.getElementById('discType').value = 'percent';
+      loadDiscountCodes();
+      window.showToast('Rabattcode angelegt ✓', 'success');
+    } catch (err) {
+      errBox.textContent = err.message;
+      errBox.style.display = 'block';
+    }
+  });
 })();
 </script>
 
