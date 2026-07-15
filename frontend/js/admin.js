@@ -189,6 +189,7 @@
           <div class="row-actions" style="justify-content:flex-end;">
             <button data-action="detail" data-id="${b.id}">Details</button>
             <button data-action="email" data-id="${b.id}">E-Mail</button>
+            <button data-action="questionnaire" data-id="${b.id}">${b.questionnaire ? "📋 Fragebogen" : "🔗 Fragebogen-Link"}</button>
             ${
               b.status !== "angenommen"
                 ? `<button class="success" data-action="accept" data-id="${b.id}">Annehmen</button>`
@@ -223,6 +224,14 @@
     if (action === "delete") return deleteBooking(id, b);
     if (action === "detail") return openDetailModal(b);
     if (action === "email") return openEmailModal(b);
+    if (action === "questionnaire") {
+      if (b.questionnaire) return openDetailModal(b);
+      const link = `${location.origin}/fragebogen.html?id=${b.id}`;
+      return navigator.clipboard.writeText(link).then(
+        () => window.showToast("Fragebogen-Link kopiert", "success"),
+        () => window.showToast(link, "success")
+      );
+    }
   }
 
   async function setStatus(id, status) {
@@ -296,9 +305,45 @@
             </div>`
           : ""
       }
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:1.25rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:${b.questionnaire ? "0.9rem" : "0"};">
+          <div style="font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Hochzeits-Fragebogen</div>
+          <button type="button" id="copyQuestionnaireLink" class="btn btn-outline btn-sm" style="white-space:nowrap;">🔗 Link kopieren</button>
+        </div>
+        ${
+          b.questionnaire
+            ? `<table style="width:100%; border-collapse:collapse;">
+                ${questionnaireRow("Ansprechpartner", b.questionnaire.contactName)}
+                ${questionnaireRow("Telefon", b.questionnaire.contactPhone)}
+                ${questionnaireRow("Zeitplan", b.questionnaire.timeline)}
+                ${questionnaireRow("Eröffnungstanz", b.questionnaire.firstDanceSong)}
+                ${questionnaireRow("Muss-Songs", b.questionnaire.mustPlaySongs)}
+                ${questionnaireRow("No-Gos", b.questionnaire.noPlaySongs)}
+                ${questionnaireRow("Musikrichtungen", (b.questionnaire.genres || []).join(", "))}
+                ${questionnaireRow("Anmerkungen", b.questionnaire.notes)}
+              </table>
+              <div style="color:var(--text-muted); font-size:0.75rem; margin-top:0.6rem;">Ausgefüllt am ${fmtDateTime(b.questionnaire.submittedAt)}</div>`
+            : `<div style="color:var(--text-muted); font-size:0.85rem;">Noch nicht ausgefüllt. Schick dem Kunden den Link oben per E-Mail oder WhatsApp.</div>`
+        }
+      </div>
     `;
     document.getElementById("editFromDetail").dataset.id = b.id;
+    document.getElementById("copyQuestionnaireLink").addEventListener("click", () => {
+      const link = `${location.origin}/fragebogen.html?id=${b.id}`;
+      navigator.clipboard.writeText(link).then(
+        () => window.showToast("Link kopiert", "success"),
+        () => window.showToast(link, "success")
+      );
+    });
     detailModal.classList.add("open");
+  }
+
+  function questionnaireRow(label, value) {
+    if (!value) return "";
+    return `<tr>
+      <td style="padding:6px 0; color:var(--text-muted); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; width:40%; vertical-align:top;">${escapeHtml(label)}</td>
+      <td style="padding:6px 0; white-space:pre-wrap; line-height:1.4;">${escapeHtml(value)}</td>
+    </tr>`;
   }
 
   document.getElementById("closeDetail").addEventListener("click", () =>

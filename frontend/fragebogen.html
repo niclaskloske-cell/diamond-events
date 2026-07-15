@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Hochzeits-Fragebogen — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
+<style>
+  .fb-page { min-height: 100vh; padding: 7rem 1rem 5rem; display: flex; flex-direction: column; align-items: center; }
+  .fb-header { text-align: center; margin-bottom: 2.5rem; max-width: 560px; }
+  .fb-header .eyebrow { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--neon-cyan); font-weight: 700; margin-bottom: 0.6rem; }
+  .fb-header h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; margin: 0 0 0.6rem; }
+  .fb-header p { color: var(--text-muted); }
+
+  .fb-card { width: 100%; max-width: 640px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 20px; padding: 2.5rem; }
+
+  .fb-note { background: rgba(51,70,92,0.06); border: 1px solid rgba(51,70,92,0.2); border-radius: 10px; padding: 0.85rem 1.1rem; font-size: 0.83rem; color: var(--text-muted); margin-bottom: 2rem; }
+
+  .fb-section { margin-bottom: 2.25rem; }
+  .fb-section:last-of-type { margin-bottom: 0; }
+  .fb-section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 1.1rem; }
+
+  .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .f-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+  .f-group:last-child { margin-bottom: 0; }
+  .f-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .f-group input, .f-group textarea {
+    background: rgba(27,24,18,0.04); border: 1.5px solid var(--line); border-radius: 10px;
+    color: var(--text); padding: 0.75rem 1rem; font-size: 0.92rem; transition: border-color 0.2s; font-family: inherit;
+    width: 100%; box-sizing: border-box;
+  }
+  .f-group input:focus, .f-group textarea:focus { outline: none; border-color: var(--neon-cyan); }
+  .f-group textarea { resize: vertical; min-height: 80px; }
+  .f-hint { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: normal; margin-top: -0.2rem; }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pill { border: 1.5px solid var(--line); border-radius: 100px; padding: 0.35rem 1rem; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text); transition: all 0.2s; font-family: inherit; }
+  .pill:hover { border-color: rgba(51,70,92,0.4); background: rgba(51,70,92,0.05); }
+  .pill.selected { border-color: var(--neon-cyan); background: rgba(51,70,92,0.1); color: var(--neon-cyan); font-weight: 600; }
+
+  .fb-submit { width: 100%; background: var(--neon-cyan); color: #fbfaf6; border: none; border-radius: 10px; padding: 0.9rem 1.5rem; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; font-family: inherit; margin-top: 0.5rem; }
+  .fb-submit:hover { opacity: 0.88; }
+  .fb-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fb-error { color: #c0392b; font-size: 0.85rem; margin-top: 1rem; display: none; }
+
+  .fb-state { text-align: center; max-width: 480px; }
+  .fb-state svg { margin-bottom: 1.25rem; }
+  .fb-state h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 0.75rem; }
+  .fb-state p { color: var(--text-muted); }
+
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+  </div>
+</nav>
+
+<section class="fb-page">
+
+  <div id="loadingState" class="fb-state">
+    <p>Lädt …</p>
+  </div>
+
+  <div id="errorState" class="fb-state" hidden>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <h2>Link nicht gültig</h2>
+    <p>Dieser Fragebogen-Link konnte nicht gefunden werden. Bitte prüfe den Link oder frag bei uns nach.</p>
+  </div>
+
+  <div id="successState" class="fb-state" hidden>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <h2>Danke dir!</h2>
+    <p>Deine Angaben sind bei uns eingegangen. Du kannst diese Seite jederzeit über denselben Link wieder öffnen und deine Antworten anpassen.</p>
+  </div>
+
+  <div id="formWrap" hidden>
+    <div class="fb-header">
+      <div class="eyebrow">Hochzeits-Fragebogen</div>
+      <h1 id="fbTitle">Fragebogen</h1>
+      <p id="fbSubtitle"></p>
+    </div>
+
+    <div class="fb-card">
+      <div id="prefillNote" class="fb-note" hidden></div>
+
+      <form id="fbForm">
+        <div class="fb-section">
+          <div class="fb-section-title">Ansprechpartner am Hochzeitstag</div>
+          <div class="f-row">
+            <div class="f-group">
+              <label for="contactName">Name</label>
+              <input type="text" id="contactName" placeholder="z.B. Trauzeugin Anna" />
+            </div>
+            <div class="f-group">
+              <label for="contactPhone">Telefonnummer</label>
+              <input type="tel" id="contactPhone" placeholder="Für Rückfragen am Tag selbst" />
+            </div>
+          </div>
+        </div>
+
+        <div class="fb-section">
+          <div class="fb-section-title">Ablauf des Tages</div>
+          <div class="f-group">
+            <label for="timeline">Grober Zeitplan</label>
+            <textarea id="timeline" placeholder="z.B. 15:00 Trauung · 16:30 Sektempfang · 19:00 Eröffnungstanz · 20:00 Anschnitt …"></textarea>
+          </div>
+        </div>
+
+        <div class="fb-section">
+          <div class="fb-section-title">Musik</div>
+          <div class="f-group">
+            <label for="firstDanceSong">Song für den Eröffnungstanz</label>
+            <input type="text" id="firstDanceSong" placeholder="Titel — Interpret" />
+          </div>
+          <div class="f-group">
+            <label for="mustPlaySongs">Muss-Songs / Lieblingslieder</label>
+            <textarea id="mustPlaySongs" placeholder="Songs, die auf jeden Fall laufen sollen"></textarea>
+          </div>
+          <div class="f-group">
+            <label for="noPlaySongs">No-Gos</label>
+            <textarea id="noPlaySongs" placeholder="Songs oder Genres, die NICHT gespielt werden sollen"></textarea>
+          </div>
+          <div class="f-group">
+            <label>Musikrichtungen</label>
+            <div class="pill-row" id="genrePills">
+              <button type="button" class="pill" data-genre="Charts &amp; Pop">Charts &amp; Pop</button>
+              <button type="button" class="pill" data-genre="90er &amp; 2000er">90er &amp; 2000er</button>
+              <button type="button" class="pill" data-genre="Rock">Rock</button>
+              <button type="button" class="pill" data-genre="Hip-Hop &amp; RnB">Hip-Hop &amp; RnB</button>
+              <button type="button" class="pill" data-genre="Schlager">Schlager</button>
+              <button type="button" class="pill" data-genre="Elektro &amp; House">Elektro &amp; House</button>
+              <button type="button" class="pill" data-genre="Oldies">Oldies</button>
+              <button type="button" class="pill" data-genre="Latin">Latin</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fb-section">
+          <div class="fb-section-title">Ansagen &amp; Sonstiges</div>
+          <div class="f-group">
+            <label for="notes">Anmerkungen</label>
+            <textarea id="notes" placeholder="Besondere Ansagen, Überraschungen, Allergien oder sonstige Wünsche"></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="fb-submit" id="fbSubmitBtn">Fragebogen absenden</button>
+        <div class="fb-error" id="fbError"></div>
+      </form>
+    </div>
+  </div>
+
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Diamond<span class="dot">.</span>Events</div>
+    <div class="footer-contact">
+      <a href="mailto:hallo@eventsdiamond.de">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        hallo@eventsdiamond.de
+      </a>
+      <a href="tel:+4901638557552">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        0163 8557552
+      </a>
+    </div>
+    <div>© <span id="year"></span> Diamond Events</div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script>
+(function () {
+  const id = new URLSearchParams(location.search).get("id");
+  const loadingState = document.getElementById("loadingState");
+  const errorState = document.getElementById("errorState");
+  const successState = document.getElementById("successState");
+  const formWrap = document.getElementById("formWrap");
+  const genrePills = document.getElementById("genrePills");
+  const selectedGenres = new Set();
+
+  function showOnly(el) {
+    [loadingState, errorState, successState, formWrap].forEach((e) => (e.hidden = e !== el));
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
+  }
+
+  genrePills.addEventListener("click", (e) => {
+    const btn = e.target.closest(".pill");
+    if (!btn) return;
+    const g = btn.dataset.genre;
+    if (selectedGenres.has(g)) {
+      selectedGenres.delete(g);
+      btn.classList.remove("selected");
+    } else {
+      selectedGenres.add(g);
+      btn.classList.add("selected");
+    }
+  });
+
+  if (!id) {
+    showOnly(errorState);
+    return;
+  }
+
+  fetch(`/api/questionnaire/${encodeURIComponent(id)}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("not found");
+      return res.json();
+    })
+    .then((data) => {
+      document.getElementById("fbTitle").textContent = `Fragebogen für ${data.name}`;
+      document.getElementById("fbSubtitle").textContent =
+        [fmtDate(data.eventDate), data.eventLocation].filter(Boolean).join(" · ");
+
+      if (data.questionnaire) {
+        const q = data.questionnaire;
+        document.getElementById("contactName").value = q.contactName || "";
+        document.getElementById("contactPhone").value = q.contactPhone || "";
+        document.getElementById("timeline").value = q.timeline || "";
+        document.getElementById("firstDanceSong").value = q.firstDanceSong || "";
+        document.getElementById("mustPlaySongs").value = q.mustPlaySongs || "";
+        document.getElementById("noPlaySongs").value = q.noPlaySongs || "";
+        document.getElementById("notes").value = q.notes || "";
+        (q.genres || []).forEach((g) => {
+          selectedGenres.add(g);
+          const btn = genrePills.querySelector(`[data-genre="${CSS.escape(g)}"]`);
+          if (btn) btn.classList.add("selected");
+        });
+        const note = document.getElementById("prefillNote");
+        note.hidden = false;
+        note.textContent = `Zuletzt ausgefüllt am ${new Date(q.submittedAt).toLocaleDateString("de-DE")}. Du kannst deine Antworten unten jederzeit anpassen und erneut absenden.`;
+      }
+
+      showOnly(formWrap);
+    })
+    .catch(() => showOnly(errorState));
+
+  document.getElementById("fbForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("fbSubmitBtn");
+    const errorBox = document.getElementById("fbError");
+    errorBox.style.display = "none";
+    btn.disabled = true;
+    btn.textContent = "Wird gesendet …";
+
+    const payload = {
+      contactName: document.getElementById("contactName").value.trim(),
+      contactPhone: document.getElementById("contactPhone").value.trim(),
+      timeline: document.getElementById("timeline").value.trim(),
+      firstDanceSong: document.getElementById("firstDanceSong").value.trim(),
+      mustPlaySongs: document.getElementById("mustPlaySongs").value.trim(),
+      noPlaySongs: document.getElementById("noPlaySongs").value.trim(),
+      genres: Array.from(selectedGenres),
+      notes: document.getElementById("notes").value.trim(),
+    };
+
+    try {
+      const res = await fetch(`/api/questionnaire/${encodeURIComponent(id)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Fehler beim Senden.");
+      showOnly(successState);
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Fragebogen absenden";
+    }
+  });
+})();
+</script>
+</body>
+</html>

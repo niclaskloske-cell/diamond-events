@@ -1529,6 +1529,67 @@ app.delete("/api/admin/discount-codes/:id", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Fragebogen (event questionnaire, sent per-booking link) ----------
+const QUESTIONNAIRE_FIELDS = [
+  "contactName", "contactPhone", "timeline",
+  "firstDanceSong", "mustPlaySongs", "noPlaySongs", "genres", "notes",
+];
+
+// Public: booking context + existing answers, keyed by the booking's own id
+app.get("/api/questionnaire/:bookingId", (req, res) => {
+  const booking = readBookings().find((b) => b.id === req.params.bookingId);
+  if (!booking) return res.status(404).json({ error: "Fragebogen nicht gefunden." });
+  res.json({
+    name: booking.name,
+    eventDate: booking.eventDate,
+    eventLocation: booking.eventLocation,
+    package: booking.package,
+    questionnaire: booking.questionnaire || null,
+  });
+});
+
+// Public: submit or update answers
+app.post("/api/questionnaire/:bookingId", (req, res) => {
+  const bookings = readBookings();
+  const idx = bookings.findIndex((b) => b.id === req.params.bookingId);
+  if (idx === -1) return res.status(404).json({ error: "Fragebogen nicht gefunden." });
+
+  const body = req.body || {};
+  const answers = {};
+  QUESTIONNAIRE_FIELDS.forEach((f) => {
+    answers[f] = f === "genres"
+      ? (Array.isArray(body.genres) ? body.genres.map(String) : [])
+      : (body[f] ? String(body[f]).trim() : "");
+  });
+  answers.submittedAt = new Date().toISOString();
+
+  bookings[idx].questionnaire = answers;
+  writeBookings(bookings);
+
+  if (ADMIN_EMAIL) {
+    sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `Fragebogen ausgefüllt: ${bookings[idx].name}`,
+      html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#050507; color:#f5f5f7; padding:40px 20px;">
+        <div style="max-width:560px; margin:0 auto; background:#0d0d14; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:40px;">
+          <div style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; background:linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; margin-bottom:8px;">Fragebogen ausgefüllt</div>
+          <h1 style="font-size:1.75rem; font-weight:700; letter-spacing:-0.03em; margin:0 0 24px;">${escapeHtmlServer(bookings[idx].name)}</h1>
+          <p style="color:#8e8e93; font-size:0.85rem; line-height:1.5;">Hochzeit am ${fmtDate(bookings[idx].eventDate)}. Die Antworten stehen jetzt bei der Buchung im Admin-Dashboard.</p>
+        </div>
+      </div>`,
+    });
+  }
+
+  sendPushToAll({
+    title: "📋 Fragebogen ausgefüllt!",
+    body: `${bookings[idx].name} hat den Hochzeits-Fragebogen abgeschickt.`,
+    url: "/admin.html",
+  });
+
+  res.json({ ok: true });
+});
+
 // ---------- Start ----------
 // Backfill uploadedAt for existing images (set to 8 days ago so they don't show NEU)
 function backfillUploadedAt() {
