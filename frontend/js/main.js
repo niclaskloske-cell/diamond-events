@@ -11,6 +11,16 @@
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // Pageview tracking (self-hosted, no cookies) — skip admin/login, fire once per load
+  if (!/^\/(admin|login\.html)/.test(location.pathname)) {
+    const payload = JSON.stringify({ path: location.pathname, ref: document.referrer || "" });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon("/api/track", new Blob([payload], { type: "application/json" }));
+    } else {
+      fetch("/api/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+    }
+  }
+
   // Navbar scroll
   const nav = document.getElementById("nav");
   if (nav) {

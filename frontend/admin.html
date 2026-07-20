@@ -28,105 +28,164 @@
 </nav>
 
 <div class="admin-shell">
+
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-brand">Diamond<span class="dot">.</span>Events</div>
+    <button class="admin-sidebar-item active" data-page="bookings">📋 Buchungen</button>
+    <button class="admin-sidebar-item" data-page="analytics">📊 Analytics</button>
+    <div class="admin-sidebar-divider"></div>
+    <button class="admin-sidebar-item" id="openGalleriesBtn">📸 Galerien</button>
+    <button class="admin-sidebar-item" id="openAvailabilityBtn">🗓️ Verfügbarkeit</button>
+    <button class="admin-sidebar-item" id="openReviewsBtn">⭐ Rezensionen</button>
+    <a class="admin-sidebar-item" href="/admin-event.html">🎉 Event Manager</a>
+    <button class="admin-sidebar-item" id="openTemplatesBtn">✉️ Auto-Nachrichten</button>
+    <button class="admin-sidebar-item" id="openPresetsBtn">📝 E-Mail-Vorlagen</button>
+    <button class="admin-sidebar-item" id="openDiscountsBtn">🏷️ Rabattcodes</button>
+    <div class="admin-sidebar-divider"></div>
+    <button class="admin-sidebar-item" id="csvExportBtn">⬇️ CSV Export</button>
+  </aside>
+
+  <div class="admin-main">
   <div class="container">
 
-    <div class="admin-header">
-      <h1>
-        <small>Admin Dashboard</small>
-        Buchungen verwalten
-      </h1>
-      <div style="color: var(--text-muted); font-size: 0.85rem;">
-        Eingeloggt als <strong style="color: var(--text);">DJ DIAMOND</strong>
-      </div>
-    </div>
+    <!-- ═══════════ Buchungen Page ═══════════ -->
+    <div id="bookingsPage" class="admin-page active">
 
-    <!-- Stats -->
-    <div class="admin-stats">
-      <div class="stat-card cyan">
-        <span class="label">Gesamt</span>
-        <div class="value" id="statTotal">0</div>
-      </div>
-      <div class="stat-card">
-        <span class="label">Offen</span>
-        <div class="value" id="statOpen">0</div>
-      </div>
-      <div class="stat-card green">
-        <span class="label">Angenommen</span>
-        <div class="value" id="statAccepted">0</div>
-      </div>
-      <div class="stat-card red">
-        <span class="label">Abgelehnt</span>
-        <div class="value" id="statRejected">0</div>
-      </div>
-      <div class="stat-card" style="border-color: rgba(169,128,63,0.25);">
-        <span class="label">Fotografie</span>
-        <div class="value" id="statFoto">0</div>
-      </div>
-    </div>
-
-    <!-- Toolbar: filters + view toggle -->
-    <div class="admin-toolbar">
-      <div class="admin-tabs" id="filterTabs">
-        <div class="admin-tab active" data-filter="all">Alle</div>
-        <div class="admin-tab" data-filter="offen">Offen</div>
-        <div class="admin-tab" data-filter="angenommen">Angenommen</div>
-        <div class="admin-tab" data-filter="abgelehnt">Abgelehnt</div>
-        <div class="admin-tab" data-filter="storniert">Storniert</div>
-      </div>
-
-      <div style="display:flex; gap:0.75rem; align-items:center;">
-        <div style="position:relative;">
-          <button id="adminMenuBtn" class="btn btn-outline btn-sm" style="width:38px;height:38px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
-            <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
-            <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
-            <span style="display:block;width:16px;height:2px;background:currentColor;border-radius:2px;"></span>
-          </button>
-          <div id="adminMenuDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:0.4rem;min-width:200px;z-index:200;box-shadow:0 8px 32px rgba(27,24,18,0.16);">
-            <button class="btn btn-outline btn-sm" id="openGalleriesBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📸 Galerien</button>
-            <button class="btn btn-outline btn-sm" id="openAvailabilityBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📅 Verfügbarkeit</button>
-            <button class="btn btn-outline btn-sm" id="openReviewsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">⭐ Rezensionen</button>
-            <a href="/admin-event.html" style="display:block;text-decoration:none;color:inherit;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;font-size:.85rem;transition:background .15s;" onmouseover="this.style.background='rgba(27,24,18,0.06)'" onmouseout="this.style.background='none'">🎉 Event Manager</a>
-            <button class="btn btn-outline btn-sm" id="openTemplatesBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">✉️ Auto-Nachrichten</button>
-            <button class="btn btn-outline btn-sm" id="openPresetsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">📝 E-Mail-Vorlagen</button>
-            <button class="btn btn-outline btn-sm" id="openDiscountsBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;margin-bottom:2px;">🏷️ Rabattcodes</button>
-            <div style="height:1px;background:rgba(27,24,18,0.07);margin:.3rem 0;"></div>
-            <button class="btn btn-outline btn-sm" id="csvExportBtn" style="width:100%;text-align:left;border:none;border-radius:9px;padding:.6rem 1rem;">⬇️ CSV Export</button>
-          </div>
+      <div class="admin-header">
+        <h1>
+          <small>Admin Dashboard</small>
+          Buchungen verwalten
+        </h1>
+        <div style="color: var(--text-muted); font-size: 0.85rem;">
+          Eingeloggt als <strong style="color: var(--text);">DJ DIAMOND</strong>
         </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="admin-stats">
+        <div class="stat-card cyan">
+          <span class="label">Gesamt</span>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <span class="label">Offen</span>
+          <div class="value" id="statOpen">0</div>
+        </div>
+        <div class="stat-card green">
+          <span class="label">Angenommen</span>
+          <div class="value" id="statAccepted">0</div>
+        </div>
+        <div class="stat-card red">
+          <span class="label">Abgelehnt</span>
+          <div class="value" id="statRejected">0</div>
+        </div>
+        <div class="stat-card" style="border-color: rgba(169,128,63,0.25);">
+          <span class="label">Fotografie</span>
+          <div class="value" id="statFoto">0</div>
+        </div>
+      </div>
+
+      <!-- Toolbar: filters + view toggle -->
+      <div class="admin-toolbar">
+        <div class="admin-tabs" id="filterTabs">
+          <div class="admin-tab active" data-filter="all">Alle</div>
+          <div class="admin-tab" data-filter="offen">Offen</div>
+          <div class="admin-tab" data-filter="angenommen">Angenommen</div>
+          <div class="admin-tab" data-filter="abgelehnt">Abgelehnt</div>
+          <div class="admin-tab" data-filter="storniert">Storniert</div>
+        </div>
+
         <div class="view-toggle" id="viewToggle">
           <button class="active" data-view="list">Liste</button>
           <button data-view="calendar">Kalender</button>
         </div>
       </div>
-    </div>
 
-    <!-- List View -->
-    <div id="listView">
-      <div class="bookings-card">
-        <div id="bookingsContent">
-          <div class="empty-state">
-            <h3>Lade Buchungen...</h3>
-            <p>Einen Moment bitte.</p>
+      <!-- List View -->
+      <div id="listView">
+        <div class="bookings-card">
+          <div id="bookingsContent">
+            <div class="empty-state">
+              <h3>Lade Buchungen...</h3>
+              <p>Einen Moment bitte.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Calendar View -->
-    <div id="calendarView" style="display:none;">
-      <div class="calendar-card">
-        <div class="calendar-header">
-          <h3 id="calMonthLabel">—</h3>
-          <div class="calendar-nav">
-            <button id="calPrev" aria-label="Vorheriger Monat">‹</button>
-            <button id="calToday">Heute</button>
-            <button id="calNext" aria-label="Nächster Monat">›</button>
+      <!-- Calendar View -->
+      <div id="calendarView" style="display:none;">
+        <div class="calendar-card">
+          <div class="calendar-header">
+            <h3 id="calMonthLabel">—</h3>
+            <div class="calendar-nav">
+              <button id="calPrev" aria-label="Vorheriger Monat">‹</button>
+              <button id="calToday">Heute</button>
+              <button id="calNext" aria-label="Nächster Monat">›</button>
+            </div>
           </div>
+          <div class="calendar-grid" id="calGrid"></div>
         </div>
-        <div class="calendar-grid" id="calGrid"></div>
       </div>
+
     </div>
 
+    <!-- ═══════════ Analytics Page ═══════════ -->
+    <div id="analyticsPage" class="admin-page">
+
+      <div class="admin-header">
+        <h1>
+          <small>Admin Dashboard</small>
+          Website-Analytics
+        </h1>
+        <div class="admin-tabs" id="analyticsRange">
+          <div class="an-tab" data-days="7">7 Tage</div>
+          <div class="an-tab active" data-days="30">30 Tage</div>
+          <div class="an-tab" data-days="90">90 Tage</div>
+        </div>
+      </div>
+
+      <div class="admin-stats">
+        <div class="stat-card cyan">
+          <span class="label">Seitenaufrufe</span>
+          <div class="value" id="anTotalViews">0</div>
+        </div>
+        <div class="stat-card">
+          <span class="label">Besucher</span>
+          <div class="value" id="anUniqueVisitors">0</div>
+        </div>
+        <div class="stat-card">
+          <span class="label">Meistbesucht</span>
+          <div class="value" id="anTopPage" style="font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
+        </div>
+        <div class="stat-card" style="border-color: rgba(169,128,63,0.25);">
+          <span class="label">Mobile-Anteil</span>
+          <div class="value" id="anMobileShare">0%</div>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="analytics-card wide">
+          <div class="analytics-card-title">Aufrufe pro Tag</div>
+          <div class="an-chart" id="anChart"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Top-Seiten</div>
+          <div class="an-list" id="anTopPages"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Geräte</div>
+          <div class="an-list" id="anDevices"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Herkunft</div>
+          <div class="an-list" id="anReferrers"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
   </div>
 </div>
 
@@ -753,13 +812,115 @@
 </script>
 
 <script>
-(function(){
-  const btn = document.getElementById('adminMenuBtn');
-  const drop = document.getElementById('adminMenuDropdown');
-  if (!btn || !drop) return;
-  btn.addEventListener('click', (e) => { e.stopPropagation(); drop.style.display = drop.style.display === 'none' ? 'block' : 'none'; });
-  document.addEventListener('click', () => { drop.style.display = 'none'; });
-  drop.addEventListener('click', () => { drop.style.display = 'none'; });
+// ── Sidebar page switcher ────────────────────────────────────────────────────
+(function () {
+  const items = document.querySelectorAll(".admin-sidebar-item[data-page]");
+  const pages = document.querySelectorAll(".admin-page");
+  items.forEach((item) => {
+    item.addEventListener("click", () => {
+      items.forEach((i) => i.classList.remove("active"));
+      item.classList.add("active");
+      const target = item.dataset.page;
+      pages.forEach((p) => p.classList.toggle("active", p.id === target + "Page"));
+      if (target === "analytics" && window.loadAnalytics) window.loadAnalytics();
+    });
+  });
+})();
+</script>
+
+<script>
+// ── Analytics ─────────────────────────────────────────────────────────────────
+(function () {
+  const chart = document.getElementById("anChart");
+  const rangeTabs = document.getElementById("analyticsRange");
+  if (!chart || !rangeTabs) return;
+
+  let currentDays = 30;
+  let loaded = false;
+
+  function escapeHtml(str) {
+    if (str == null) return "";
+    return String(str).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c])
+    );
+  }
+
+  function fmtShortDate(iso) {
+    const d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+  }
+
+  function renderList(el, rows, labelKey, valueKey, emptyText) {
+    if (!rows.length) {
+      el.innerHTML = `<p class="an-list-empty">${emptyText}</p>`;
+      return;
+    }
+    const max = Math.max(...rows.map((r) => r[valueKey]), 1);
+    el.innerHTML = rows.map((r) => `
+      <div class="an-row">
+        <div class="an-row-top">
+          <span class="an-row-label" title="${escapeHtml(r[labelKey])}">${escapeHtml(r[labelKey])}</span>
+          <span class="an-row-value">${r[valueKey]}</span>
+        </div>
+        <div class="an-row-bar-track"><div class="an-row-bar-fill" style="width:${(r[valueKey] / max * 100).toFixed(0)}%;"></div></div>
+      </div>
+    `).join("");
+  }
+
+  const DEVICE_LABELS = { desktop: "Desktop", mobile: "Mobile", tablet: "Tablet" };
+
+  async function loadAnalytics() {
+    chart.innerHTML = '<p class="an-list-empty">Lädt …</p>';
+    try {
+      const res = await fetch(`/api/admin/analytics?days=${currentDays}`);
+      if (!res.ok) throw new Error("Fehler beim Laden");
+      const data = await res.json();
+
+      document.getElementById("anTotalViews").textContent = data.totalViews;
+      document.getElementById("anUniqueVisitors").textContent = data.uniqueVisitors;
+      document.getElementById("anTopPage").textContent = data.topPages[0] ? data.topPages[0].path : "—";
+      const mobileShare = data.totalViews
+        ? Math.round(((data.deviceCounts.mobile || 0) / data.totalViews) * 100)
+        : 0;
+      document.getElementById("anMobileShare").textContent = mobileShare + "%";
+
+      // Daily bar chart
+      const maxViews = Math.max(...data.dailySeries.map((d) => d.views), 1);
+      chart.innerHTML = data.dailySeries.map((d) => `
+        <div class="an-bar-col">
+          <div class="an-bar-tooltip">${fmtShortDate(d.date)}: ${d.views}</div>
+          <div class="an-bar" style="height:${Math.max(d.views / maxViews * 100, d.views > 0 ? 3 : 0)}%;"></div>
+        </div>
+      `).join("");
+
+      renderList(document.getElementById("anTopPages"), data.topPages, "path", "views", "Noch keine Aufrufe.");
+
+      const deviceRows = Object.entries(data.deviceCounts)
+        .map(([key, count]) => ({ label: DEVICE_LABELS[key] || key, count }))
+        .filter((r) => r.count > 0)
+        .sort((a, b) => b.count - a.count);
+      renderList(document.getElementById("anDevices"), deviceRows, "label", "count", "Noch keine Daten.");
+
+      const refRows = data.topReferrers.map((r) => ({ ref: r.ref, count: r.count }));
+      renderList(document.getElementById("anReferrers"), refRows, "ref", "count", "Noch keine externen Verweise.");
+
+      loaded = true;
+    } catch (err) {
+      chart.innerHTML = `<p class="an-list-empty">${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  rangeTabs.querySelectorAll(".an-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      rangeTabs.querySelectorAll(".an-tab").forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentDays = parseInt(tab.dataset.days, 10);
+      loadAnalytics();
+    });
+  });
+
+  window.loadAnalytics = loadAnalytics;
 })();
 </script>
 

@@ -13,6 +13,7 @@ const archiver = require("archiver");
 const { v2: cloudinary } = require("cloudinary");
 const streamifier = require("streamifier");
 const webpush = require("web-push");
+const crypto = require("crypto");
 
 // ---------- Cloudinary ----------
 const CLOUDINARY_ENABLED = !!(
@@ -91,6 +92,7 @@ async function sendPushToAll(payload) {
 
 // ---------- App ----------
 const app = express();
+app.set("trust proxy", true); // Render sits behind a proxy — needed so req.ip is the real visitor IP, not the proxy's
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -1527,6 +1529,122 @@ app.delete("/api/admin/discount-codes/:id", requireAuth, (req, res) => {
   const codes = readDiscountCodes().filter((c) => c.id !== req.params.id);
   writeDiscountCodes(codes);
   res.json({ ok: true });
+});
+
+// ---------- Analytics (self-hosted, privacy-friendly pageview tracking) ----------
+// No cookies, no persistent identifiers. "Unique visitor" = a hash of IP+UA that
+// is salted with the calendar day, so it can't be linked across days and the raw
+// IP is never written to disk.
+const ANALYTICS_FILE = path.join(DATA_DIR, "analytics.json");
+const ANALYTICS_RETENTION_DAYS = 400;
+const ANALYTICS_SKIP_PREFIXES = ["/admin", "/login.html", "/api/"];
+
+function readAnalytics() {
+  if (!fs.existsSync(ANALYTICS_FILE)) return [];
+  try { return JSON.parse(fs.readFileSync(ANALYTICS_FILE, "utf8") || "[]"); } catch { return []; }
+}
+function writeAnalytics(events) { fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(events), "utf8"); }
+
+function detectDevice(ua) {
+  ua = ua || "";
+  if (/iPad|Tablet(?!.*Mobile)/i.test(ua)) return "tablet";
+  if (/Mobi|Android|iPhone|iPod/i.test(ua)) return "mobile";
+  return "desktop";
+}
+
+function isBotUA(ua) {
+  return /bot|crawl|spider|slurp|facebookexternalhit|preview|monitor|pingdom|curl|wget|python-requests|headlesschrome/i.test(ua || "");
+}
+
+function hashVisitor(req, dayKey) {
+  const ip = req.ip || req.connection?.remoteAddress || "";
+  const ua = req.get("user-agent") || "";
+  return crypto.createHash("sha256").update(`${dayKey}|${ip}|${ua}`).digest("hex").slice(0, 16);
+}
+
+// Public: fired via navigator.sendBeacon from every public page (see main.js).
+// Responds immediately — tracking must never slow the page down.
+app.post("/api/track", (req, res) => {
+  res.status(204).end();
+  try {
+    const ua = req.get("user-agent") || "";
+    if (isBotUA(ua)) return;
+
+    let reqPath = String((req.body && req.body.path) || "").split("?")[0].split("#")[0].slice(0, 200);
+    if (!reqPath.startsWith("/")) reqPath = "/" + reqPath;
+    if (ANALYTICS_SKIP_PREFIXES.some((p) => reqPath.startsWith(p))) return;
+
+    let refDomain = "";
+    const ref = (req.body && req.body.ref) || "";
+    if (ref) {
+      try { refDomain = new URL(ref).hostname.replace(/^www\./, "").slice(0, 100); } catch {}
+    }
+
+    const now = new Date();
+    const dayKey = now.toISOString().slice(0, 10);
+
+    const events = readAnalytics();
+    events.push({
+      path: reqPath,
+      device: detectDevice(ua),
+      ref: refDomain,
+      vh: hashVisitor(req, dayKey),
+      ts: now.toISOString(),
+    });
+
+    const cutoff = new Date(now.getTime() - ANALYTICS_RETENTION_DAYS * 86400000).toISOString();
+    writeAnalytics(events.filter((e) => e.ts >= cutoff));
+  } catch (err) {
+    console.error("Tracking error:", err);
+  }
+});
+
+// Admin: aggregated stats for the analytics dashboard
+app.get("/api/admin/analytics", requireAuth, (req, res) => {
+  const days = Math.min(parseInt(req.query.days, 10) || 30, 365);
+  const events = readAnalytics();
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - days * 86400000);
+
+  const inRange = events.filter((e) => new Date(e.ts) >= cutoff);
+
+  const uniqueVisitors = new Set(inRange.map((e) => e.vh)).size;
+
+  const pageCounts = {};
+  inRange.forEach((e) => { pageCounts[e.path] = (pageCounts[e.path] || 0) + 1; });
+  const topPages = Object.entries(pageCounts)
+    .map(([path, views]) => ({ path, views }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 10);
+
+  const deviceCounts = { desktop: 0, mobile: 0, tablet: 0 };
+  inRange.forEach((e) => { deviceCounts[e.device] = (deviceCounts[e.device] || 0) + 1; });
+
+  const refCounts = {};
+  inRange.forEach((e) => { if (e.ref) refCounts[e.ref] = (refCounts[e.ref] || 0) + 1; });
+  const topReferrers = Object.entries(refCounts)
+    .map(([ref, count]) => ({ ref, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
+  const dayMap = {};
+  inRange.forEach((e) => {
+    const d = e.ts.slice(0, 10);
+    if (!dayMap[d]) dayMap[d] = { views: 0, visitors: new Set() };
+    dayMap[d].views++;
+    dayMap[d].visitors.add(e.vh);
+  });
+  const dailySeries = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 86400000).toISOString().slice(0, 10);
+    dailySeries.push({
+      date: d,
+      views: dayMap[d]?.views || 0,
+      visitors: dayMap[d]?.visitors.size || 0,
+    });
+  }
+
+  res.json({ totalViews: inRange.length, uniqueVisitors, topPages, deviceCounts, topReferrers, dailySeries });
 });
 
 // ---------- Fragebogen (event questionnaire, sent per-booking link) ----------
