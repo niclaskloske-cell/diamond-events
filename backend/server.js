@@ -263,7 +263,7 @@ function renderEmailFrame(htmlBody) {
 }
 
 // ---------- Auto-message Templates (editable in admin) ----------
-const TEMPLATE_KEYS = ["booking_received", "status_angenommen", "status_abgelehnt", "status_storniert"];
+const TEMPLATE_KEYS = ["booking_received", "status_angenommen", "status_abgelehnt", "status_storniert", "callsheet_confirmed"];
 
 const TEMPLATE_META = {
   booking_received: {
@@ -281,6 +281,10 @@ const TEMPLATE_META = {
   status_storniert: {
     label: "Buchung storniert",
     description: "Wird gesendet, wenn du eine Buchung im Admin als 'Storniert' markierst.",
+  },
+  callsheet_confirmed: {
+    label: "Alle Daten erfasst (Telefon-Erfassungsbogen)",
+    description: "Wird gesendet, wenn du den Telefon-Erfassungsbogen abschließt und den Kunden darüber informierst.",
   },
 };
 
@@ -331,6 +335,19 @@ wir bestätigen hiermit die Stornierung deiner Buchung. Falls das ein Versehen w
 {{summary}}
 
 Beste Grüße
+Diamond Events`,
+  },
+  callsheet_confirmed: {
+    subject: "Alle Daten erfasst — Diamond Events",
+    body: `Hallo {{firstName}} {{lastNameStyled}},
+
+vielen Dank für das nette Telefonat! Ich habe jetzt alle Details zu eurem Tag erfasst — Zeitplan, Musikwünsche und alles Wichtige rund um Location und Ablauf.
+
+{{summary}}
+
+Falls euch später noch etwas einfällt oder sich etwas ändert, meldet euch jederzeit einfach per E-Mail oder Telefon.
+
+Wir freuen uns auf euren Tag!
 Diamond Events`,
   },
 };
@@ -867,15 +884,80 @@ app.delete("/api/bookings/:id", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// Admin: save the phone call-sheet (Erfassungsbogen) for a booking — filled in
-// live by the DJ during the phone call, not customer-facing.
-app.patch("/api/admin/bookings/:id/callsheet", requireAuth, (req, res) => {
+// Admin: save the phone call-sheet (Erfassungsbogen) — filled in live by the DJ
+// during the phone call, not customer-facing. Runs standalone: if bookingId is
+// given, it updates that booking; otherwise it creates a new one from the core
+// fields captured on the call. Optionally emails the customer when done.
+app.post("/api/admin/callsheet/save", requireAuth, async (req, res) => {
+  const { bookingId, core, callSheet, sendEmail: shouldEmail } = req.body || {};
   const bookings = readBookings();
-  const idx = bookings.findIndex((b) => b.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: "Buchung nicht gefunden" });
-  bookings[idx].callSheet = { ...(req.body || {}), updatedAt: new Date().toISOString() };
+  let booking;
+
+  if (bookingId) {
+    const idx = bookings.findIndex((b) => b.id === bookingId);
+    if (idx === -1) return res.status(404).json({ error: "Buchung nicht gefunden" });
+    if (core) {
+      if (core.name) bookings[idx].name = String(core.name).trim();
+      if (core.email) bookings[idx].email = String(core.email).trim();
+      if (core.eventDate) bookings[idx].eventDate = String(core.eventDate);
+      if (core.eventLocation) bookings[idx].eventLocation = String(core.eventLocation).trim();
+      if (core.package && VALID_PACKAGES.includes(core.package)) bookings[idx].package = core.package;
+      if (core.serviceType && VALID_SERVICE_TYPES.includes(core.serviceType)) bookings[idx].serviceType = core.serviceType;
+      if (core.photography !== undefined) bookings[idx].photography = !!core.photography;
+    }
+    bookings[idx].callSheet = { ...(callSheet || {}), updatedAt: new Date().toISOString() };
+    booking = bookings[idx];
+  } else {
+    const name = core && core.name ? String(core.name).trim() : "";
+    const email = core && core.email ? String(core.email).trim() : "";
+    const eventDate = core && core.eventDate ? String(core.eventDate) : "";
+    const eventLocation = core && core.eventLocation ? String(core.eventLocation).trim() : "";
+
+    if (!name || !email || !eventDate || !eventLocation) {
+      return res.status(400).json({ error: "Name, E-Mail, Datum und Ort sind Pflichtfelder, um eine neue Buchung anzulegen." });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Ungültige E-Mail-Adresse." });
+    }
+
+    booking = {
+      id: genId(),
+      name,
+      email,
+      eventDate,
+      eventLocation,
+      package: core.package && VALID_PACKAGES.includes(core.package) ? core.package : "",
+      serviceType: core.serviceType && VALID_SERVICE_TYPES.includes(core.serviceType) ? core.serviceType : "dj",
+      photography: !!(core && core.photography),
+      message: "",
+      status: "offen",
+      createdAt: new Date().toISOString(),
+      discountCode: "",
+      discountType: "",
+      discountValue: null,
+      callSheet: { ...(callSheet || {}), updatedAt: new Date().toISOString() },
+    };
+    bookings.push(booking);
+  }
+
   writeBookings(bookings);
-  res.json({ ok: true, callSheet: bookings[idx].callSheet });
+
+  if (shouldEmail && booking.email) {
+    const mail = renderEmailFromTemplate("callsheet_confirmed", booking);
+    if (mail) {
+      await sendEmail({ to: booking.email, subject: mail.subject, html: mail.html, replyTo: ADMIN_EMAIL || undefined });
+      booking.callSheet.emailSentAt = new Date().toISOString();
+      const freshBookings = readBookings();
+      const bIdx = freshBookings.findIndex((b) => b.id === booking.id);
+      if (bIdx !== -1) {
+        freshBookings[bIdx].callSheet = booking.callSheet;
+        writeBookings(freshBookings);
+      }
+    }
+  }
+
+  res.json({ ok: true, booking });
 });
 
 // ---------- API: Send custom email to a customer ----------

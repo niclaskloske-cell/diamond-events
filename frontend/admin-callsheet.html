@@ -24,10 +24,6 @@
   .cs-letterhead .cs-logo .dot { color: var(--neon-amber); }
   .cs-letterhead .cs-doctitle { font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
 
-  .cs-summary { margin-bottom: 2rem; }
-  .cs-summary .cs-name { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
-  .cs-summary .cs-meta { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem; }
-
   .cs-section { background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; }
   .cs-section h2 { font-size: 1.02rem; font-weight: 700; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
   .cs-section h2 .cs-num { color: var(--neon-amber); font-variant-numeric: tabular-nums; }
@@ -36,6 +32,8 @@
 
   .cs-page .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   .cs-page .form-group textarea { min-height: 60px; overflow: hidden; resize: none; }
+  .cs-checkbox { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; margin-top: 0.4rem; }
+  .cs-page select#cs_linkBooking { background: rgba(27,24,18,0.04); border: 1.5px solid var(--line); border-radius: 10px; color: var(--text); padding: 0.75rem 1rem; font-size: 0.92rem; font-family: inherit; width: 100%; box-sizing: border-box; }
 
   .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .pill { border: 1.5px solid var(--line); border-radius: 100px; padding: 0.35rem 1rem; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text); transition: all 0.2s; font-family: inherit; }
@@ -91,7 +89,8 @@
     <div class="cs-actions">
       <span class="cs-save-indicator" id="saveIndicator"></span>
       <button type="button" class="btn btn-outline btn-sm" id="saveBtn">💾 Speichern</button>
-      <button type="button" class="btn btn-primary btn-sm" id="printBtn">🖨️ Als PDF drucken</button>
+      <button type="button" class="btn btn-outline btn-sm" id="printBtn">🖨️ Als PDF drucken</button>
+      <button type="button" class="btn btn-primary btn-sm" id="completeBtn">✅ Abschließen &amp; Kunde informieren</button>
     </div>
   </div>
 
@@ -104,15 +103,66 @@
       <div class="cs-doctitle">Telefon-Erfassungsbogen</div>
     </div>
 
-    <div class="cs-summary">
-      <div class="cs-name" id="csName"></div>
-      <div class="cs-meta" id="csMeta"></div>
-    </div>
-
     <form id="csForm">
 
+      <section class="cs-section cs-noprint" id="linkSection" hidden>
+        <h2><span class="cs-num">🔗</span> Mit bestehender Buchung verknüpfen</h2>
+        <div class="cs-hint">Optional — falls es zu diesem Kunden schon eine Buchung gibt, wähle sie hier aus, statt eine neue anzulegen.</div>
+        <div class="form-group">
+          <label>Buchung</label>
+          <select id="cs_linkBooking">
+            <option value="">— Neue Buchung anlegen —</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="cs-section cs-noprint" id="linkedBadgeSection" hidden>
+        <div style="display:flex; align-items:center; gap:0.6rem; color:var(--text-muted); font-size:0.85rem;">
+          <span>🔗</span>
+          <span>Verknüpft mit bestehender Buchung — Änderungen hier aktualisieren diese Buchung direkt.</span>
+        </div>
+      </section>
+
       <section class="cs-section">
-        <h2><span class="cs-num">1</span> Kontakt am Hochzeitstag</h2>
+        <h2><span class="cs-num">1</span> Kundendaten &amp; Buchung</h2>
+        <div class="form-row">
+          <div class="form-group"><label>Name</label><input type="text" id="cs_name" required /></div>
+          <div class="form-group"><label>E-Mail</label><input type="email" id="cs_email" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Eventdatum</label><input type="date" id="cs_eventDate" required /></div>
+          <div class="form-group"><label>Ort</label><input type="text" id="cs_eventLocation" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Paket</label>
+            <select id="cs_package">
+              <option value="">—</option>
+              <option>Diamond Lite</option>
+              <option>Diamond Premium</option>
+              <option>Diamond Exclusive</option>
+              <option>Hochzeit Basis</option>
+              <option>Hochzeit Premium</option>
+              <option>Hochzeit Exclusive</option>
+              <option>Mini Shooting</option>
+              <option>Standard Shooting</option>
+              <option>Shooting + Drohne</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Service-Typ</label>
+            <select id="cs_serviceType">
+              <option value="dj">DJ Service</option>
+              <option value="fotografie">Fotografie</option>
+              <option value="beides">Beides</option>
+            </select>
+          </div>
+        </div>
+        <label class="cs-checkbox"><input type="checkbox" id="cs_photography" /> Fotografie hinzugebucht</label>
+      </section>
+
+      <section class="cs-section">
+        <h2><span class="cs-num">2</span> Kontakt am Hochzeitstag</h2>
         <div class="cs-hint">💡 Frag: „Wer ist am Tag selbst mein Ansprechpartner, falls es kurzfristig Rückfragen gibt?“</div>
         <div class="form-row">
           <div class="form-group"><label>Name</label><input type="text" id="cs_contactName" /></div>
@@ -126,7 +176,7 @@
       </section>
 
       <section class="cs-section">
-        <h2><span class="cs-num">2</span> Location &amp; Logistik</h2>
+        <h2><span class="cs-num">3</span> Location &amp; Logistik</h2>
         <div class="cs-hint">💡 Frag: „Wie lautet die genaue Adresse der Feier — und findet sie drinnen, draußen oder beides statt?“</div>
         <div class="form-group"><label>Vollständige Adresse</label><input type="text" id="cs_address" /></div>
         <div class="form-row">
@@ -161,7 +211,7 @@
       </section>
 
       <section class="cs-section">
-        <h2><span class="cs-num">3</span> Zeitplan des Tages</h2>
+        <h2><span class="cs-num">4</span> Zeitplan des Tages</h2>
         <div class="cs-hint">💡 Frag: „Können Sie mir den groben Ablauf nennen — von der Ankunft der Gäste bis zum Ende der Feier?“</div>
         <table class="cs-timeline">
           <thead><tr><th style="width:120px;">Uhrzeit</th><th>Programmpunkt</th><th class="cs-noprint" style="width:30px;"></th></tr></thead>
@@ -171,7 +221,7 @@
       </section>
 
       <section class="cs-section">
-        <h2><span class="cs-num">4</span> Musik &amp; Ablauf</h2>
+        <h2><span class="cs-num">5</span> Musik &amp; Ablauf</h2>
         <div class="cs-hint">💡 Frag: „Welchen Song wünschen Sie sich für den Eröffnungstanz?“</div>
         <div class="form-row">
           <div class="form-group"><label>Eröffnungstanz-Song</label><input type="text" id="cs_firstDance" placeholder="Titel — Interpret" /></div>
@@ -198,7 +248,7 @@
       </section>
 
       <section class="cs-section">
-        <h2><span class="cs-num">5</span> Gäste &amp; Besonderes</h2>
+        <h2><span class="cs-num">6</span> Gäste &amp; Besonderes</h2>
         <div class="cs-hint">💡 Frag: „Wie viele Gäste werden es ungefähr sein, und sind auch Kinder dabei?“</div>
         <div class="form-row">
           <div class="form-group"><label>Gästezahl (ca.)</label><input type="text" id="cs_guestCount" /></div>
@@ -213,7 +263,7 @@
       </section>
 
       <section class="cs-section">
-        <h2><span class="cs-num">6</span> Weitere Dienstleister vor Ort</h2>
+        <h2><span class="cs-num">7</span> Weitere Dienstleister vor Ort</h2>
         <div class="cs-hint">💡 Frag: „Sind noch andere Dienstleister vor Ort, mit denen ich mich abstimmen sollte — Planer, Catering, Fotograf?“</div>
         <div class="form-row">
           <div class="form-group"><label>Wedding Planner</label><input type="text" id="cs_planner" placeholder="Name + Telefon" /></div>
@@ -223,7 +273,7 @@
       </section>
 
       <section class="cs-section">
-        <h2><span class="cs-num">7</span> Sonstiges</h2>
+        <h2><span class="cs-num">8</span> Sonstiges</h2>
         <div class="form-group"><label>Notizen zu Zahlung / Vertrag</label><textarea id="cs_paymentNotes"></textarea></div>
         <div class="form-group"><label>Weitere Notizen</label><textarea id="cs_notes"></textarea></div>
       </section>
@@ -235,12 +285,19 @@
 <script src="/js/main.js"></script>
 <script>
 (function () {
-  const id = new URLSearchParams(location.search).get("id");
+  let linkedId = new URLSearchParams(location.search).get("id") || null;
   const loadingState = document.getElementById("loadingState");
   const errorState = document.getElementById("errorState");
   const sheet = document.getElementById("sheet");
   const saveIndicator = document.getElementById("saveIndicator");
+  const linkSection = document.getElementById("linkSection");
+  const linkedBadgeSection = document.getElementById("linkedBadgeSection");
+  const linkSelect = document.getElementById("cs_linkBooking");
+  const completeBtn = document.getElementById("completeBtn");
   const selectedGenres = new Set();
+  let emailSent = false;
+
+  const CORE_FIELD_IDS = ["name", "email", "eventDate", "eventLocation", "package", "serviceType"];
 
   const FIELD_IDS = [
     "contactName", "contactPhone", "contact2Name", "contact2Phone",
@@ -262,6 +319,8 @@
     el.style.height = "auto";
     el.style.height = el.scrollHeight + "px";
   }
+
+  document.getElementById("csForm").addEventListener("submit", (e) => e.preventDefault());
 
   document.querySelectorAll("#csForm textarea").forEach((t) => {
     t.addEventListener("input", () => { autoGrow(t); scheduleSave(); });
@@ -298,8 +357,96 @@
   });
 
   document.querySelectorAll("#csForm input, #csForm select").forEach((el) => {
+    if (el.id === "cs_linkBooking") return;
     el.addEventListener("input", scheduleSave);
     el.addEventListener("change", scheduleSave);
+  });
+
+  function collectCore() {
+    const core = {};
+    CORE_FIELD_IDS.forEach((f) => {
+      const el = document.getElementById("cs_" + f);
+      core[f] = el ? el.value.trim() : "";
+    });
+    core.photography = document.getElementById("cs_photography").checked;
+    return core;
+  }
+
+  function prefillFromBooking(b) {
+    CORE_FIELD_IDS.forEach((f) => {
+      const el = document.getElementById("cs_" + f);
+      if (el) el.value = b[f] || "";
+    });
+    document.getElementById("cs_photography").checked = !!b.photography;
+
+    if (b.questionnaire) {
+      const map = {
+        contactName: b.questionnaire.contactName,
+        contactPhone: b.questionnaire.contactPhone,
+        firstDance: b.questionnaire.firstDanceSong,
+        mustPlay: b.questionnaire.mustPlaySongs,
+        noPlay: b.questionnaire.noPlaySongs,
+        announcements: b.questionnaire.notes,
+      };
+      Object.entries(map).forEach(([f, v]) => {
+        const el = document.getElementById("cs_" + f);
+        if (el && v && !el.value) el.value = v;
+      });
+      (b.questionnaire.genres || []).forEach((g) => {
+        selectedGenres.add(g);
+        const btn = document.querySelector(`#genrePills [data-genre="${CSS.escape(g)}"]`);
+        if (btn) btn.classList.add("selected");
+      });
+    }
+
+    Array.from(timelineBody.querySelectorAll("tr")).forEach((tr) => tr.remove());
+    if (b.callSheet) {
+      applyData(b.callSheet);
+      if (b.callSheet.emailSentAt) markEmailSent(b.callSheet.emailSentAt);
+    } else {
+      for (let i = 0; i < 6; i++) timelineBody.appendChild(timelineRow("", ""));
+    }
+    document.querySelectorAll("#csForm textarea").forEach(autoGrow);
+  }
+
+  function markEmailSent(iso) {
+    emailSent = true;
+    completeBtn.textContent = `✅ Erneut senden (zuletzt ${new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })})`;
+  }
+
+  async function loadBookingList(preselect) {
+    try {
+      const res = await fetch("/api/bookings");
+      if (!res.ok) return;
+      const bookings = await res.json();
+      linkSelect.innerHTML = '<option value="">— Neue Buchung anlegen —</option>' + bookings.map((b) =>
+        `<option value="${b.id}">${escapeAttr(b.name)} — ${fmtDate(b.eventDate)} — ${escapeAttr(b.eventLocation || "")}</option>`
+      ).join("");
+      if (preselect) linkSelect.value = preselect;
+    } catch {}
+  }
+
+  linkSelect.addEventListener("change", async () => {
+    const chosen = linkSelect.value;
+    if (!chosen) {
+      linkedId = null;
+      linkedBadgeSection.hidden = true;
+      CORE_FIELD_IDS.forEach((f) => { const el = document.getElementById("cs_" + f); if (el) el.value = ""; });
+      document.getElementById("cs_photography").checked = false;
+      return;
+    }
+    try {
+      const res = await fetch(`/api/bookings/${chosen}`);
+      if (!res.ok) throw new Error();
+      const b = await res.json();
+      linkedId = b.id;
+      prefillFromBooking(b);
+      linkedBadgeSection.hidden = false;
+      history.replaceState(null, "", `?id=${b.id}`);
+      saveIndicator.textContent = "Buchung verknüpft";
+    } catch {
+      window.alert("Buchung konnte nicht geladen werden.");
+    }
   });
 
   function collectData() {
@@ -336,70 +483,86 @@
     }
   }
 
-  let saveTimer = null;
-  function scheduleSave() {
-    saveIndicator.textContent = "Ungespeicherte Änderungen …";
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(save, 2000);
+  function coreIsComplete() {
+    const core = collectCore();
+    return !!(core.name && core.email && core.eventDate && core.eventLocation);
   }
 
-  async function save() {
+  let saveTimer = null;
+  function scheduleSave() {
+    if (!linkedId && !coreIsComplete()) {
+      saveIndicator.textContent = "Name, E-Mail, Datum und Ort ausfüllen zum Speichern";
+      return;
+    }
+    saveIndicator.textContent = "Ungespeicherte Änderungen …";
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => save({ sendEmail: false }), 2000);
+  }
+
+  async function save({ sendEmail }) {
+    if (!linkedId && !coreIsComplete()) {
+      saveIndicator.textContent = "Name, E-Mail, Datum und Ort ausfüllen zum Speichern";
+      return false;
+    }
     try {
-      saveIndicator.textContent = "Speichert …";
-      const res = await fetch(`/api/admin/bookings/${id}/callsheet`, {
-        method: "PATCH",
+      saveIndicator.textContent = sendEmail ? "Speichert & sendet E-Mail …" : "Speichert …";
+      const res = await fetch("/api/admin/callsheet/save", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(collectData()),
+        body: JSON.stringify({
+          bookingId: linkedId,
+          core: collectCore(),
+          callSheet: collectData(),
+          sendEmail: !!sendEmail,
+        }),
       });
-      if (!res.ok) throw new Error();
-      saveIndicator.textContent = `Gespeichert um ${new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}`;
-    } catch {
-      saveIndicator.textContent = "Fehler beim Speichern";
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Fehler beim Speichern");
+
+      if (!linkedId && json.booking) {
+        linkedId = json.booking.id;
+        history.replaceState(null, "", `?id=${linkedId}`);
+        linkSelect.value = linkedId;
+        linkedBadgeSection.hidden = false;
+      }
+
+      if (sendEmail && json.booking?.callSheet?.emailSentAt) {
+        markEmailSent(json.booking.callSheet.emailSentAt);
+        saveIndicator.textContent = `E-Mail gesendet um ${new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}`;
+      } else {
+        saveIndicator.textContent = `Gespeichert um ${new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}`;
+      }
+      return true;
+    } catch (err) {
+      saveIndicator.textContent = err.message || "Fehler beim Speichern";
+      return false;
     }
   }
 
-  document.getElementById("saveBtn").addEventListener("click", () => { clearTimeout(saveTimer); save(); });
-  document.getElementById("printBtn").addEventListener("click", () => { clearTimeout(saveTimer); save().then(() => window.print()); });
+  document.getElementById("saveBtn").addEventListener("click", () => { clearTimeout(saveTimer); save({ sendEmail: false }); });
+  document.getElementById("printBtn").addEventListener("click", () => { clearTimeout(saveTimer); save({ sendEmail: false }).then(() => window.print()); });
+  completeBtn.addEventListener("click", () => { clearTimeout(saveTimer); save({ sendEmail: true }); });
 
-  if (!id) {
-    loadingState.hidden = true;
-    errorState.hidden = false;
-  } else {
-    fetch(`/api/bookings/${id}`)
+  // ---------- Init ----------
+  loadingState.hidden = true;
+
+  if (linkedId) {
+    linkSection.hidden = true;
+    fetch(`/api/bookings/${linkedId}`)
       .then((res) => { if (!res.ok) throw new Error(); return res.json(); })
       .then((b) => {
-        document.getElementById("csName").textContent = b.name;
-        document.getElementById("csMeta").textContent =
-          [fmtDate(b.eventDate), b.eventLocation, b.package].filter(Boolean).join(" · ");
-
-        if (b.questionnaire) {
-          document.getElementById("cs_contactName").value = b.questionnaire.contactName || "";
-          document.getElementById("cs_contactPhone").value = b.questionnaire.contactPhone || "";
-          document.getElementById("cs_firstDance").value = b.questionnaire.firstDanceSong || "";
-          document.getElementById("cs_mustPlay").value = b.questionnaire.mustPlaySongs || "";
-          document.getElementById("cs_noPlay").value = b.questionnaire.noPlaySongs || "";
-          document.getElementById("cs_announcements").value = b.questionnaire.notes || "";
-          (b.questionnaire.genres || []).forEach((g) => {
-            selectedGenres.add(g);
-            const btn = document.querySelector(`#genrePills [data-genre="${CSS.escape(g)}"]`);
-            if (btn) btn.classList.add("selected");
-          });
-        }
-
-        if (b.callSheet) {
-          applyData(b.callSheet);
-        } else if (!timelineBody.children.length) {
-          for (let i = 0; i < 6; i++) timelineBody.appendChild(timelineRow("", ""));
-        }
-        document.querySelectorAll("#csForm textarea").forEach(autoGrow);
-
-        loadingState.hidden = true;
+        prefillFromBooking(b);
+        linkedBadgeSection.hidden = false;
         sheet.hidden = false;
       })
       .catch(() => {
-        loadingState.hidden = true;
         errorState.hidden = false;
       });
+  } else {
+    linkSection.hidden = false;
+    for (let i = 0; i < 6; i++) timelineBody.appendChild(timelineRow("", ""));
+    loadBookingList();
+    sheet.hidden = false;
   }
 
   document.getElementById("logoutLink")?.addEventListener("click", async (e) => {
