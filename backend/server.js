@@ -633,6 +633,10 @@ app.get("/admin.html", requireAuth, (req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, "admin.html"));
 });
 
+app.get("/admin-callsheet.html", requireAuth, (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "admin-callsheet.html"));
+});
+
 // Legacy booking page — merged into buchen.html, keep old links/bookmarks working
 app.get("/booking.html", (req, res) => {
   const query = req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : "";
@@ -861,6 +865,17 @@ app.delete("/api/bookings/:id", requireAuth, (req, res) => {
     return res.status(404).json({ error: "Buchung nicht gefunden" });
   writeBookings(bookings);
   res.json({ ok: true });
+});
+
+// Admin: save the phone call-sheet (Erfassungsbogen) for a booking — filled in
+// live by the DJ during the phone call, not customer-facing.
+app.patch("/api/admin/bookings/:id/callsheet", requireAuth, (req, res) => {
+  const bookings = readBookings();
+  const idx = bookings.findIndex((b) => b.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Buchung nicht gefunden" });
+  bookings[idx].callSheet = { ...(req.body || {}), updatedAt: new Date().toISOString() };
+  writeBookings(bookings);
+  res.json({ ok: true, callSheet: bookings[idx].callSheet });
 });
 
 // ---------- API: Send custom email to a customer ----------

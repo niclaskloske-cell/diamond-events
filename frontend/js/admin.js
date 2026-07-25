@@ -190,6 +190,7 @@
             <button data-action="detail" data-id="${b.id}">Details</button>
             <button data-action="email" data-id="${b.id}">E-Mail</button>
             <button data-action="questionnaire" data-id="${b.id}">${b.questionnaire ? "📋 Fragebogen" : "🔗 Fragebogen-Link"}</button>
+            <button data-action="callsheet" data-id="${b.id}">${b.callSheet ? "📞 Erfassung ✓" : "📞 Erfassungsbogen"}</button>
             ${
               b.status !== "angenommen"
                 ? `<button class="success" data-action="accept" data-id="${b.id}">Annehmen</button>`
@@ -231,6 +232,9 @@
         () => window.showToast("Fragebogen-Link kopiert", "success"),
         () => window.showToast(link, "success")
       );
+    }
+    if (action === "callsheet") {
+      return window.open(`/admin-callsheet.html?id=${b.id}`, "_blank");
     }
   }
 
@@ -326,8 +330,20 @@
             : `<div style="color:var(--text-muted); font-size:0.85rem;">Noch nicht ausgefüllt. Schick dem Kunden den Link oben per E-Mail oder WhatsApp.</div>`
         }
       </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:12px; padding:1.25rem; margin-top:1.25rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+          <div>
+            <div style="font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:0.3rem;">Telefon-Erfassungsbogen</div>
+            <div style="color:var(--text-muted); font-size:0.85rem;">${b.callSheet ? `Zuletzt bearbeitet am ${fmtDateTime(b.callSheet.updatedAt)}` : "Noch nicht angelegt — zum Ausfüllen während des Anrufs."}</div>
+          </div>
+          <button type="button" id="openCallSheet" class="btn btn-outline btn-sm" style="white-space:nowrap;">📞 Öffnen</button>
+        </div>
+      </div>
     `;
     document.getElementById("editFromDetail").dataset.id = b.id;
+    document.getElementById("openCallSheet").addEventListener("click", () => {
+      window.open(`/admin-callsheet.html?id=${b.id}`, "_blank");
+    });
     document.getElementById("copyQuestionnaireLink").addEventListener("click", () => {
       const link = `${location.origin}/fragebogen.html?id=${b.id}`;
       navigator.clipboard.writeText(link).then(

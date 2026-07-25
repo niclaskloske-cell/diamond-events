@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Telefon-Erfassungsbogen — Diamond Events</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
+<style>
+  .cs-page { max-width: 780px; margin: 0 auto; padding: 6.5rem 1.25rem 5rem; }
+
+  .cs-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .cs-back { color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
+  .cs-back:hover { color: var(--text); }
+  .cs-actions { display: flex; align-items: center; gap: 0.75rem; }
+  .cs-save-indicator { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+
+  .cs-letterhead { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--neon-amber); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+  .cs-letterhead .cs-logo { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; }
+  .cs-letterhead .cs-logo .dot { color: var(--neon-amber); }
+  .cs-letterhead .cs-doctitle { font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
+
+  .cs-summary { margin-bottom: 2rem; }
+  .cs-summary .cs-name { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+  .cs-summary .cs-meta { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem; }
+
+  .cs-section { background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; }
+  .cs-section h2 { font-size: 1.02rem; font-weight: 700; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .cs-section h2 .cs-num { color: var(--neon-amber); font-variant-numeric: tabular-nums; }
+
+  .cs-hint { display: flex; gap: 0.5rem; background: rgba(169,128,63,0.06); border: 1px solid rgba(169,128,63,0.2); border-radius: 10px; padding: 0.65rem 0.9rem; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.9rem; line-height: 1.45; }
+
+  .cs-page .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .cs-page .form-group textarea { min-height: 60px; overflow: hidden; resize: none; }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pill { border: 1.5px solid var(--line); border-radius: 100px; padding: 0.35rem 1rem; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text); transition: all 0.2s; font-family: inherit; }
+  .pill:hover { border-color: rgba(169,128,63,0.5); background: rgba(169,128,63,0.06); }
+  .pill.selected { border-color: var(--neon-amber); background: rgba(169,128,63,0.12); color: var(--neon-amber); font-weight: 600; }
+
+  .cs-timeline { width: 100%; border-collapse: collapse; margin-bottom: 0.9rem; }
+  .cs-timeline th { text-align: left; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; padding-bottom: 0.5rem; }
+  .cs-timeline td { padding: 3px 6px 3px 0; vertical-align: middle; }
+  .cs-timeline input { background: rgba(27,24,18,0.04); border: 1.5px solid var(--line); border-radius: 8px; color: var(--text); padding: 0.5rem 0.7rem; font-size: 0.88rem; font-family: inherit; width: 100%; box-sizing: border-box; }
+  .cs-timeline input:focus { outline: none; border-color: var(--neon-amber); }
+  .cs-row-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 4px; }
+  .cs-row-remove:hover { color: #b8493f; }
+
+  .cs-state { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
+
+  [hidden] { display: none !important; }
+
+  @media print {
+    .nav, .cs-toolbar, .cs-hint, .cs-noprint { display: none !important; }
+    body { background: #fff; }
+    .cs-page { padding: 0.5rem 0; max-width: none; }
+    .cs-section { border: 1px solid #ddd; border-radius: 10px; break-inside: avoid; page-break-inside: avoid; box-shadow: none; }
+    input, select, textarea {
+      border: none !important; border-bottom: 1px solid #bbb !important; background: transparent !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; padding-left: 0 !important;
+    }
+    .cs-timeline input { border: none !important; border-bottom: 1px solid #bbb !important; }
+    .pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Diamond<span class="dot">.</span>Events</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/">Website</a></li>
+      <li><a href="/admin.html">Dashboard</a></li>
+      <li><a href="#" id="logoutLink">Logout</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="cs-page">
+
+  <div class="cs-toolbar cs-noprint">
+    <a href="/admin.html" class="cs-back">← Zurück zum Dashboard</a>
+    <div class="cs-actions">
+      <span class="cs-save-indicator" id="saveIndicator"></span>
+      <button type="button" class="btn btn-outline btn-sm" id="saveBtn">💾 Speichern</button>
+      <button type="button" class="btn btn-primary btn-sm" id="printBtn">🖨️ Als PDF drucken</button>
+    </div>
+  </div>
+
+  <div id="loadingState" class="cs-state">Lädt …</div>
+  <div id="errorState" class="cs-state" hidden>Buchung nicht gefunden.</div>
+
+  <div id="sheet" hidden>
+    <div class="cs-letterhead">
+      <div class="cs-logo">Diamond<span class="dot">.</span>Events</div>
+      <div class="cs-doctitle">Telefon-Erfassungsbogen</div>
+    </div>
+
+    <div class="cs-summary">
+      <div class="cs-name" id="csName"></div>
+      <div class="cs-meta" id="csMeta"></div>
+    </div>
+
+    <form id="csForm">
+
+      <section class="cs-section">
+        <h2><span class="cs-num">1</span> Kontakt am Hochzeitstag</h2>
+        <div class="cs-hint">💡 Frag: „Wer ist am Tag selbst mein Ansprechpartner, falls es kurzfristig Rückfragen gibt?“</div>
+        <div class="form-row">
+          <div class="form-group"><label>Name</label><input type="text" id="cs_contactName" /></div>
+          <div class="form-group"><label>Telefon</label><input type="tel" id="cs_contactPhone" /></div>
+        </div>
+        <div class="cs-hint">💡 Frag: „Gibt es noch eine zweite Person, die ich notfalls erreichen kann — z.B. Trauzeuge oder -zeugin?“</div>
+        <div class="form-row">
+          <div class="form-group"><label>Zweiter Kontakt — Name</label><input type="text" id="cs_contact2Name" /></div>
+          <div class="form-group"><label>Zweiter Kontakt — Telefon</label><input type="tel" id="cs_contact2Phone" /></div>
+        </div>
+      </section>
+
+      <section class="cs-section">
+        <h2><span class="cs-num">2</span> Location &amp; Logistik</h2>
+        <div class="cs-hint">💡 Frag: „Wie lautet die genaue Adresse der Feier — und findet sie drinnen, draußen oder beides statt?“</div>
+        <div class="form-group"><label>Vollständige Adresse</label><input type="text" id="cs_address" /></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Indoor / Outdoor</label>
+            <select id="cs_indoorOutdoor">
+              <option value="">—</option>
+              <option>Drinnen</option>
+              <option>Draußen</option>
+              <option>Beides</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Parkmöglichkeiten</label><input type="text" id="cs_parking" /></div>
+        </div>
+        <div class="cs-hint">💡 Frag: „Gibt es vor Ort einen Stromanschluss in der Nähe des DJ-Pults, oder sollte ich ein langes Verlängerungskabel mitbringen?“</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stromanschluss vorhanden?</label>
+            <select id="cs_power">
+              <option value="">—</option>
+              <option>Ja</option>
+              <option>Nein</option>
+              <option>Unsicher</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Aufbauzeit / Load-in</label><input type="text" id="cs_loadIn" placeholder="z.B. ab 14:00 Uhr" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Soundcheck-Zeit</label><input type="text" id="cs_soundcheck" /></div>
+          <div class="form-group"><label>Ansprechpartner der Location</label><input type="text" id="cs_venueContact" placeholder="Name + Telefon" /></div>
+        </div>
+      </section>
+
+      <section class="cs-section">
+        <h2><span class="cs-num">3</span> Zeitplan des Tages</h2>
+        <div class="cs-hint">💡 Frag: „Können Sie mir den groben Ablauf nennen — von der Ankunft der Gäste bis zum Ende der Feier?“</div>
+        <table class="cs-timeline">
+          <thead><tr><th style="width:120px;">Uhrzeit</th><th>Programmpunkt</th><th class="cs-noprint" style="width:30px;"></th></tr></thead>
+          <tbody id="timelineBody"></tbody>
+        </table>
+        <button type="button" id="addTimelineRow" class="btn btn-outline btn-sm cs-noprint">+ Zeile hinzufügen</button>
+      </section>
+
+      <section class="cs-section">
+        <h2><span class="cs-num">4</span> Musik &amp; Ablauf</h2>
+        <div class="cs-hint">💡 Frag: „Welchen Song wünschen Sie sich für den Eröffnungstanz?“</div>
+        <div class="form-row">
+          <div class="form-group"><label>Eröffnungstanz-Song</label><input type="text" id="cs_firstDance" placeholder="Titel — Interpret" /></div>
+          <div class="form-group"><label>Weitere besondere Tänze</label><input type="text" id="cs_specialDances" placeholder="z.B. Vater-Tochter-Tanz" /></div>
+        </div>
+        <div class="cs-hint">💡 Frag: „Gibt es einen Song, der auf jeden Fall laufen muss — und einen, den wir auf keinen Fall spielen sollen?“</div>
+        <div class="form-group"><label>Muss-Songs</label><textarea id="cs_mustPlay"></textarea></div>
+        <div class="form-group"><label>No-Gos</label><textarea id="cs_noPlay"></textarea></div>
+        <div class="form-group">
+          <label>Musikrichtungen</label>
+          <div class="pill-row" id="genrePills">
+            <button type="button" class="pill" data-genre="Charts &amp; Pop">Charts &amp; Pop</button>
+            <button type="button" class="pill" data-genre="90er &amp; 2000er">90er &amp; 2000er</button>
+            <button type="button" class="pill" data-genre="Rock">Rock</button>
+            <button type="button" class="pill" data-genre="Hip-Hop &amp; RnB">Hip-Hop &amp; RnB</button>
+            <button type="button" class="pill" data-genre="Schlager">Schlager</button>
+            <button type="button" class="pill" data-genre="Elektro &amp; House">Elektro &amp; House</button>
+            <button type="button" class="pill" data-genre="Oldies">Oldies</button>
+            <button type="button" class="pill" data-genre="Latin">Latin</button>
+          </div>
+        </div>
+        <div class="cs-hint">💡 Frag: „Gibt es Namen, die ich bei Ansagen beachten sollte — z.B. besondere Aussprache oder eine geplante Überraschung?“</div>
+        <div class="form-group"><label>Ansagen &amp; Besonderes</label><textarea id="cs_announcements"></textarea></div>
+      </section>
+
+      <section class="cs-section">
+        <h2><span class="cs-num">5</span> Gäste &amp; Besonderes</h2>
+        <div class="cs-hint">💡 Frag: „Wie viele Gäste werden es ungefähr sein, und sind auch Kinder dabei?“</div>
+        <div class="form-row">
+          <div class="form-group"><label>Gästezahl (ca.)</label><input type="text" id="cs_guestCount" /></div>
+          <div class="form-group"><label>Kinder vor Ort?</label><input type="text" id="cs_children" /></div>
+        </div>
+        <div class="cs-hint">💡 Frag: „Isst unser Team bei Ihnen mit — und gibt es Allergien oder Unverträglichkeiten, auf die wir achten sollten?“</div>
+        <div class="form-row">
+          <div class="form-group"><label>Verpflegung fürs Team gestellt?</label><input type="text" id="cs_catering" /></div>
+          <div class="form-group"><label>Allergien / Unverträglichkeiten</label><input type="text" id="cs_allergies" /></div>
+        </div>
+        <div class="form-group"><label>Sonstige Sensibilitäten</label><textarea id="cs_sensitivities" placeholder="z.B. Patchwork-Familie, Trauerfall, korrekte Namen für Ansagen"></textarea></div>
+      </section>
+
+      <section class="cs-section">
+        <h2><span class="cs-num">6</span> Weitere Dienstleister vor Ort</h2>
+        <div class="cs-hint">💡 Frag: „Sind noch andere Dienstleister vor Ort, mit denen ich mich abstimmen sollte — Planer, Catering, Fotograf?“</div>
+        <div class="form-row">
+          <div class="form-group"><label>Wedding Planner</label><input type="text" id="cs_planner" placeholder="Name + Telefon" /></div>
+          <div class="form-group"><label>Catering</label><input type="text" id="cs_cateringCompany" placeholder="Name + Telefon" /></div>
+        </div>
+        <div class="form-group"><label>Weitere (Band, Fotograf, etc.)</label><input type="text" id="cs_otherVendors" /></div>
+      </section>
+
+      <section class="cs-section">
+        <h2><span class="cs-num">7</span> Sonstiges</h2>
+        <div class="form-group"><label>Notizen zu Zahlung / Vertrag</label><textarea id="cs_paymentNotes"></textarea></div>
+        <div class="form-group"><label>Weitere Notizen</label><textarea id="cs_notes"></textarea></div>
+      </section>
+
+    </form>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script>
+(function () {
+  const id = new URLSearchParams(location.search).get("id");
+  const loadingState = document.getElementById("loadingState");
+  const errorState = document.getElementById("errorState");
+  const sheet = document.getElementById("sheet");
+  const saveIndicator = document.getElementById("saveIndicator");
+  const selectedGenres = new Set();
+
+  const FIELD_IDS = [
+    "contactName", "contactPhone", "contact2Name", "contact2Phone",
+    "address", "indoorOutdoor", "parking", "power", "loadIn", "soundcheck", "venueContact",
+    "firstDance", "specialDances", "mustPlay", "noPlay", "announcements",
+    "guestCount", "children", "catering", "allergies", "sensitivities",
+    "planner", "cateringCompany", "otherVendors",
+    "paymentNotes", "notes",
+  ];
+
+  function fmtDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
+  }
+
+  function autoGrow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  document.querySelectorAll("#csForm textarea").forEach((t) => {
+    t.addEventListener("input", () => { autoGrow(t); scheduleSave(); });
+  });
+
+  document.getElementById("genrePills").addEventListener("click", (e) => {
+    const btn = e.target.closest(".pill");
+    if (!btn) return;
+    const g = btn.dataset.genre;
+    if (selectedGenres.has(g)) { selectedGenres.delete(g); btn.classList.remove("selected"); }
+    else { selectedGenres.add(g); btn.classList.add("selected"); }
+    scheduleSave();
+  });
+
+  function timelineRow(time, label) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" class="tl-time" placeholder="15:00" value="${escapeAttr(time || "")}"></td>
+      <td><input type="text" class="tl-label" placeholder="z.B. Trauung" value="${escapeAttr(label || "")}"></td>
+      <td class="cs-noprint"><button type="button" class="cs-row-remove" title="Zeile entfernen">✕</button></td>
+    `;
+    tr.querySelectorAll("input").forEach((inp) => inp.addEventListener("input", scheduleSave));
+    tr.querySelector(".cs-row-remove").addEventListener("click", () => { tr.remove(); scheduleSave(); });
+    return tr;
+  }
+
+  function escapeAttr(str) {
+    return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+
+  const timelineBody = document.getElementById("timelineBody");
+  document.getElementById("addTimelineRow").addEventListener("click", () => {
+    timelineBody.appendChild(timelineRow("", ""));
+  });
+
+  document.querySelectorAll("#csForm input, #csForm select").forEach((el) => {
+    el.addEventListener("input", scheduleSave);
+    el.addEventListener("change", scheduleSave);
+  });
+
+  function collectData() {
+    const data = {};
+    FIELD_IDS.forEach((f) => {
+      const el = document.getElementById("cs_" + f);
+      data[f] = el ? el.value.trim() : "";
+    });
+    data.genres = Array.from(selectedGenres);
+    data.timeline = Array.from(timelineBody.querySelectorAll("tr")).map((tr) => ({
+      time: tr.querySelector(".tl-time").value.trim(),
+      label: tr.querySelector(".tl-label").value.trim(),
+    })).filter((row) => row.time || row.label);
+    return data;
+  }
+
+  function applyData(cs) {
+    if (!cs) return;
+    FIELD_IDS.forEach((f) => {
+      const el = document.getElementById("cs_" + f);
+      if (el && cs[f]) el.value = cs[f];
+    });
+    document.querySelectorAll("#csForm textarea").forEach(autoGrow);
+    (cs.genres || []).forEach((g) => {
+      selectedGenres.add(g);
+      const btn = document.querySelector(`#genrePills [data-genre="${CSS.escape(g)}"]`);
+      if (btn) btn.classList.add("selected");
+    });
+    if (cs.timeline && cs.timeline.length) {
+      cs.timeline.forEach((row) => timelineBody.appendChild(timelineRow(row.time, row.label)));
+    }
+    if (cs.updatedAt) {
+      saveIndicator.textContent = `Gespeichert am ${new Date(cs.updatedAt).toLocaleString("de-DE")}`;
+    }
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    saveIndicator.textContent = "Ungespeicherte Änderungen …";
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 2000);
+  }
+
+  async function save() {
+    try {
+      saveIndicator.textContent = "Speichert …";
+      const res = await fetch(`/api/admin/bookings/${id}/callsheet`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(collectData()),
+      });
+      if (!res.ok) throw new Error();
+      saveIndicator.textContent = `Gespeichert um ${new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}`;
+    } catch {
+      saveIndicator.textContent = "Fehler beim Speichern";
+    }
+  }
+
+  document.getElementById("saveBtn").addEventListener("click", () => { clearTimeout(saveTimer); save(); });
+  document.getElementById("printBtn").addEventListener("click", () => { clearTimeout(saveTimer); save().then(() => window.print()); });
+
+  if (!id) {
+    loadingState.hidden = true;
+    errorState.hidden = false;
+  } else {
+    fetch(`/api/bookings/${id}`)
+      .then((res) => { if (!res.ok) throw new Error(); return res.json(); })
+      .then((b) => {
+        document.getElementById("csName").textContent = b.name;
+        document.getElementById("csMeta").textContent =
+          [fmtDate(b.eventDate), b.eventLocation, b.package].filter(Boolean).join(" · ");
+
+        if (b.questionnaire) {
+          document.getElementById("cs_contactName").value = b.questionnaire.contactName || "";
+          document.getElementById("cs_contactPhone").value = b.questionnaire.contactPhone || "";
+          document.getElementById("cs_firstDance").value = b.questionnaire.firstDanceSong || "";
+          document.getElementById("cs_mustPlay").value = b.questionnaire.mustPlaySongs || "";
+          document.getElementById("cs_noPlay").value = b.questionnaire.noPlaySongs || "";
+          document.getElementById("cs_announcements").value = b.questionnaire.notes || "";
+          (b.questionnaire.genres || []).forEach((g) => {
+            selectedGenres.add(g);
+            const btn = document.querySelector(`#genrePills [data-genre="${CSS.escape(g)}"]`);
+            if (btn) btn.classList.add("selected");
+          });
+        }
+
+        if (b.callSheet) {
+          applyData(b.callSheet);
+        } else if (!timelineBody.children.length) {
+          for (let i = 0; i < 6; i++) timelineBody.appendChild(timelineRow("", ""));
+        }
+        document.querySelectorAll("#csForm textarea").forEach(autoGrow);
+
+        loadingState.hidden = true;
+        sheet.hidden = false;
+      })
+      .catch(() => {
+        loadingState.hidden = true;
+        errorState.hidden = false;
+      });
+  }
+
+  document.getElementById("logoutLink")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await fetch("/api/logout", { method: "POST" });
+    location.href = "/login.html";
+  });
+})();
+</script>
+</body>
+</html>
