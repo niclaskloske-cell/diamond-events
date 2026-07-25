@@ -1,0 +1,49 @@
+{
+  "name": "diamond-events-admin",
+  "productName": "Diamond Events Admin",
+  "version": "1.0.0",
+  "description": "Desktop-App für das Diamond Events Admin-Dashboard",
+  "main": "main.js",
+  "author": "Diamond Events",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win",
+    "dist:installer": "electron-builder --win nsis",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "de.eventsdiamond.admin",
+    "productName": "Diamond Events Admin",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Diamond Events Admin"
+    },
+    "portable": {
+      "artifactName": "DiamondEventsAdmin-portable.exe"
+    }
+  }
+}
