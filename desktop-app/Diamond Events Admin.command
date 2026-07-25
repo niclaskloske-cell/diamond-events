@@ -1,7 +1,16 @@
 #!/bin/bash
 # Startet die Diamond Events Admin-App direkt aus dem Quellcode — kein
 # signiertes App-Paket, das macOS blockieren könnte, komplett kostenlos.
-cd "$(dirname "$0")" || exit 1
+#
+# Läuft hier per "cd zum eigenen Ordner", weil diese Kopie IM desktop-app-
+# Projektordner liegt. Eine auf den Desktop kopierte Version braucht
+# stattdessen den festen Pfad zum Projektordner (PROJECT_DIR statt
+# dirname "$0") — siehe die Kopie auf dem Desktop als Beispiel.
+cd "$(dirname "$0")" || {
+  echo "Projektordner nicht gefunden."
+  read -p "Enter zum Schließen..."
+  exit 1
+}
 
 if [ ! -d "node_modules" ]; then
   echo "Erste Einrichtung — installiere Abhängigkeiten, einen Moment..."
