@@ -172,14 +172,13 @@ function escapeHtmlServer(str) {
   );
 }
 
-// Renders text with the gold gradient for clients that support
-// background-clip:text, falling back to a plain solid gold color inside an
-// MSO conditional comment for Outlook desktop, which doesn't support that
-// CSS and would otherwise render the text invisible (color:transparent
-// applies, the gradient fill doesn't).
+// Plain solid gold color — not a background-clip:text gradient. That
+// technique is unreliable across real email clients: many (not just
+// Outlook desktop) strip unrecognized CSS like background-clip and leave
+// color:transparent applied, rendering the text invisible. A solid color
+// is the only version that reliably shows up everywhere.
 function goldGradientSpan(text, extraStyle = "font-weight:700;") {
-  const escaped = escapeHtmlServer(text);
-  return `<!--[if mso]><span style="color:#a9803f; ${extraStyle}">${escaped}</span><![endif]--><!--[if !mso]><!--><span style="background:linear-gradient(135deg,#8a6a34,#c9a463,#a9803f); -webkit-background-clip:text; background-clip:text; color:transparent; ${extraStyle}">${escaped}</span><!--<![endif]-->`;
+  return `<span style="color:#a9803f; ${extraStyle}">${escapeHtmlServer(text)}</span>`;
 }
 
 function gradientSpan(text) {
