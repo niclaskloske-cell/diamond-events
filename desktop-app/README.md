@@ -1,11 +1,11 @@
-# Diamond Events Admin — Desktop-App (Windows)
+# Diamond Events Admin — Desktop-App (Windows & Mac)
 
 Eine schlanke Electron-App, die euer Admin-Dashboard (`https://eventsdiamond.de/admin.html`)
-als eigenständiges Windows-Programm öffnet — eigenes Fenster, eigenes Icon, in der
-Taskleiste anpinnbar, kein Browser-Tab. Es läuft weiterhin alles über die echte
+als eigenständiges Programm öffnet — eigenes Fenster, eigenes Icon, in der
+Taskleiste/im Dock anpinnbar, kein Browser-Tab. Es läuft weiterhin alles über die echte
 Website — die App speichert nichts lokal außer eurer Fenstergröße/-position.
 
-## Einmalig einrichten (auf dem Windows-Rechner)
+## Einmalig einrichten
 
 Voraussetzung: [Node.js](https://nodejs.org) ist installiert (Version 18 oder neuer).
 
@@ -40,6 +40,29 @@ Erzeugt zwei Dateien in `desktop-app/dist/`:
 Nur den Installer bauen: `npm run dist:installer`
 Nur die portable Version bauen: `npm run dist:portable`
 
+## Mac-App bauen
+
+```bash
+npm run dist:mac
+```
+
+Erzeugt in `desktop-app/dist/`:
+
+- **`Diamond Events Admin-<Version>-universal.dmg`** — zum Öffnen und die App
+  in den Programme-Ordner ziehen (läuft nativ auf Intel- und Apple-Silicon-Macs).
+- **`Diamond Events Admin-<Version>-universal-mac.zip`** — die gleiche App
+  gezippt, falls lieber direkt entpackt statt über DMG installiert wird.
+
+Die App ist nicht codesigniert (kein Apple-Entwicklerzertifikat hinterlegt).
+Beim ersten Start meldet macOS deshalb "nicht verifizierter Entwickler" —
+einmalig per Rechtsklick auf die App → **Öffnen** bestätigen, danach läuft
+sie normal.
+
+**Falls der Build mit `Command failed: which python` abbricht:** Das passiert,
+wenn die Xcode Command Line Tools nicht vollständig installiert sind (moderne
+Macs bringen nur `python3` mit, kein `python`). Fix: `xcode-select --install`
+ausführen und danach den Build erneut starten.
+
 ## Was die App macht
 
 - Öffnet `eventsdiamond.de/admin.html` in einem eigenen Fenster mit eigenem
@@ -53,5 +76,6 @@ Nur die portable Version bauen: `npm run dist:portable`
 
 ## Icon ändern
 
-`assets/icon.ico` (Windows) und `assets/icon.png` (Taskleiste/Titelleiste)
-einfach ersetzen und `npm run dist` erneut ausführen.
+`assets/icon.ico` (Windows), `assets/icon.icns` (Mac) und `assets/icon.png`
+(Taskleiste/Titelleiste) einfach ersetzen und den jeweiligen Build erneut
+ausführen.
