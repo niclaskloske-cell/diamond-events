@@ -174,7 +174,7 @@ function escapeHtmlServer(str) {
 
 // Returns HTML span with the brand RGB gradient applied to text
 function gradientSpan(text) {
-  return `<span style="background:linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700;">${escapeHtmlServer(text)}</span>`;
+  return `<span style="background:linear-gradient(135deg,#8a6a34,#c9a463,#a9803f); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700;">${escapeHtmlServer(text)}</span>`;
 }
 
 // Returns the styled summary card HTML with booking details
@@ -251,7 +251,7 @@ function renderEmailFrame(htmlBody) {
   <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#050507; color:#f5f5f7; padding:40px 20px;">
     <div style="max-width:560px; margin:0 auto; background:#0d0d14; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:40px;">
       <div style="font-size:1.5rem; font-weight:700; letter-spacing:-0.02em; margin-bottom:8px;">
-        Diamond<span style="background:linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip:text; background-clip:text; color:transparent;">.</span>Events
+        Diamond<span style="background:linear-gradient(135deg,#8a6a34,#c9a463,#a9803f); -webkit-background-clip:text; background-clip:text; color:transparent;">.</span>Events
       </div>
       <div style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; color:#8e8e93; margin-bottom:32px;">Premium Event Brand</div>
       <div style="color:#f5f5f7; line-height:1.65;">${htmlBody}</div>
@@ -447,7 +447,7 @@ function adminEmailHtml(b) {
   return `
   <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#050507; color:#f5f5f7; padding:40px 20px;">
     <div style="max-width:560px; margin:0 auto; background:#0d0d14; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:40px;">
-      <div style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; background:linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; margin-bottom:8px;">Neue Buchung</div>
+      <div style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; background:linear-gradient(135deg,#8a6a34,#c9a463,#a9803f); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; margin-bottom:8px;">Neue Buchung</div>
 
       <h1 style="font-size:1.75rem; font-weight:700; letter-spacing:-0.03em; line-height:1.15; margin:0 0 24px;">
         ${b.name}
@@ -1788,7 +1788,7 @@ app.post("/api/questionnaire/:bookingId", (req, res) => {
       html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#050507; color:#f5f5f7; padding:40px 20px;">
         <div style="max-width:560px; margin:0 auto; background:#0d0d14; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:40px;">
-          <div style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; background:linear-gradient(135deg,#00f0ff,#a855f7,#ff00e6); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; margin-bottom:8px;">Fragebogen ausgefüllt</div>
+          <div style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; background:linear-gradient(135deg,#8a6a34,#c9a463,#a9803f); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; margin-bottom:8px;">Fragebogen ausgefüllt</div>
           <h1 style="font-size:1.75rem; font-weight:700; letter-spacing:-0.03em; margin:0 0 24px;">${escapeHtmlServer(bookings[idx].name)}</h1>
           <p style="color:#8e8e93; font-size:0.85rem; line-height:1.5;">Hochzeit am ${fmtDate(bookings[idx].eventDate)}. Die Antworten stehen jetzt bei der Buchung im Admin-Dashboard.</p>
         </div>
