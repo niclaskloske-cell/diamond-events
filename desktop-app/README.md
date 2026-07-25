@@ -5,9 +5,22 @@ als eigenständiges Programm öffnet — eigenes Fenster, eigenes Icon, in der
 Taskleiste/im Dock anpinnbar, kein Browser-Tab. Es läuft weiterhin alles über die echte
 Website — die App speichert nichts lokal außer eurer Fenstergröße/-position.
 
-## Einmalig einrichten
+## Mac — kostenlos, ohne Signierung (empfohlen)
 
-Voraussetzung: [Node.js](https://nodejs.org) ist installiert (Version 18 oder neuer).
+Kein Apple-Entwicklerkonto nötig. Doppelklick auf **`Diamond Events Admin.command`**
+(liegt auf dem Desktop, oder im `desktop-app`-Ordner) — startet die App direkt
+aus dem Quellcode statt als fertiges App-Paket, deshalb prüft macOS hier gar
+nichts und blockiert auch nichts. Beim allerersten Start richtet sich alles
+selbst ein (dauert etwas länger), danach geht's beim nächsten Doppelklick sofort los.
+
+Einziger Haken: dabei öffnet sich kurz ein Terminal-Fenster im Hintergrund,
+das während der Nutzung offen bleiben muss (kann minimiert werden, nicht
+schließen — das würde auch die App beenden).
+
+Voraussetzung: [Node.js](https://nodejs.org) ist installiert (Version 18 oder
+neuer) — einmalig, danach läuft alles automatisch.
+
+## Einmalig einrichten (für alle anderen Varianten unten)
 
 ```bash
 cd desktop-app
@@ -40,7 +53,11 @@ Erzeugt zwei Dateien in `desktop-app/dist/`:
 Nur den Installer bauen: `npm run dist:installer`
 Nur die portable Version bauen: `npm run dist:portable`
 
-## Mac-App bauen
+## Mac — als richtiges App-Paket bauen (optional, nicht nötig für kostenlose Nutzung)
+
+Nur relevant, falls später mal eine "echte" installierbare `.dmg` gewünscht
+ist (z. B. zum Weitergeben). Für die eigene, kostenlose Nutzung reicht der
+`.command`-Starter oben völlig aus.
 
 ```bash
 npm run dist:mac
