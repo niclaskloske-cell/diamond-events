@@ -250,6 +250,46 @@ section {
   border-color: rgba(52, 211, 153, 0.4);
 }
 
+/* ---------- Skeleton loading ---------- */
+@keyframes skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(27, 24, 18, 0.06) 25%, rgba(27, 24, 18, 0.12) 37%, rgba(27, 24, 18, 0.06) 63%);
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+  display: block;
+}
+
+.skeleton-line { height: 13px; }
+.skeleton-line + .skeleton-line { margin-top: 8px; }
+.skeleton-line.w-25 { width: 25%; }
+.skeleton-line.w-40 { width: 40%; }
+.skeleton-line.w-60 { width: 60%; }
+.skeleton-line.w-80 { width: 80%; }
+.skeleton-line.w-100 { width: 100%; }
+
+.skeleton-pill { height: 22px; width: 70px; border-radius: 100px; }
+.skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+.skeleton-card { height: 90px; border-radius: 14px; }
+
+.skeleton-table-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1.4fr 1fr 1fr 0.8fr 1.6fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.skeleton-table-row:last-child { border-bottom: none; }
+
+@media (max-width: 860px) {
+  .skeleton-table-row { grid-template-columns: 1fr; gap: 0.5rem; padding: 1rem; }
+}
+
 /* ---------- Navbar ---------- */
 .nav {
   position: fixed;
@@ -1877,6 +1917,12 @@ footer .footer-links a:hover {
 }
 .an-bar-col:hover .an-bar-tooltip { opacity: 1; }
 
+.an-bar.skeleton {
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  background: linear-gradient(90deg, rgba(27, 24, 18, 0.07) 25%, rgba(27, 24, 18, 0.13) 37%, rgba(27, 24, 18, 0.07) 63%);
+  background-size: 400px 100%;
+}
+
 .an-list { display: flex; flex-direction: column; gap: 0.7rem; }
 .an-list-empty { color: var(--text-muted); font-size: 0.85rem; }
 .an-row { display: flex; flex-direction: column; gap: 0.3rem; }
@@ -2113,30 +2159,57 @@ footer .footer-links a:hover {
   border-radius: 7px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  border: 1px solid var(--line);
-  background: rgba(27, 24, 18, 0.03);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text-muted);
   transition: all 0.2s ease;
 }
 
 .row-actions button:hover {
   color: var(--text);
-  border-color: rgba(27, 24, 18, 0.2);
+  background: rgba(27, 24, 18, 0.04);
+  border-color: rgba(27, 24, 18, 0.15);
 }
 
-.row-actions button.success:hover {
+/* The one clear primary action per row — everything else stays quiet */
+.row-actions button[data-action="detail"] {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.row-actions button[data-action="detail"]:hover {
+  background: #000;
+  border-color: #000;
+  color: var(--bg);
+}
+
+/* Semantic colors visible at rest, not just on hover, so intent reads at a glance */
+.row-actions button.success {
   color: var(--status-angenommen);
+  border-color: rgba(52, 211, 153, 0.25);
+}
+.row-actions button.success:hover {
+  background: rgba(52, 211, 153, 0.1);
   border-color: rgba(52, 211, 153, 0.4);
 }
 
-.row-actions button.danger:hover {
+.row-actions button.danger {
   color: var(--status-abgelehnt);
+  border-color: rgba(248, 113, 113, 0.25);
+}
+.row-actions button.danger:hover {
+  background: rgba(248, 113, 113, 0.1);
   border-color: rgba(248, 113, 113, 0.4);
 }
 
+.row-actions button.warning {
+  color: #a9803f;
+  border-color: rgba(201, 164, 99, 0.3);
+}
 .row-actions button.warning:hover {
-  color: #fbbf24;
-  border-color: rgba(201, 164, 99, 0.4);
+  background: rgba(201, 164, 99, 0.1);
+  border-color: rgba(201, 164, 99, 0.5);
 }
 
 .empty-state {

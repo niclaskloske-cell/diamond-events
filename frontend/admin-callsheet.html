@@ -94,7 +94,27 @@
     </div>
   </div>
 
-  <div id="loadingState" class="cs-state">Lädt …</div>
+  <div id="loadingState">
+    <div class="cs-letterhead">
+      <div class="skeleton skeleton-line w-25" style="height:22px;"></div>
+      <div class="skeleton skeleton-line w-25" style="height:14px;"></div>
+    </div>
+    <div class="cs-section">
+      <div class="skeleton skeleton-line w-40" style="height:18px; margin-bottom:1.1rem;"></div>
+      <div class="form-row">
+        <div class="skeleton skeleton-line w-80" style="height:40px;"></div>
+        <div class="skeleton skeleton-line w-80" style="height:40px;"></div>
+      </div>
+    </div>
+    <div class="cs-section">
+      <div class="skeleton skeleton-line w-40" style="height:18px; margin-bottom:1.1rem;"></div>
+      <div class="skeleton skeleton-line w-100" style="height:40px; margin-bottom:0.8rem;"></div>
+      <div class="form-row">
+        <div class="skeleton skeleton-line w-80" style="height:40px;"></div>
+        <div class="skeleton skeleton-line w-80" style="height:40px;"></div>
+      </div>
+    </div>
+  </div>
   <div id="errorState" class="cs-state" hidden>Buchung nicht gefunden.</div>
 
   <div id="sheet" hidden>
@@ -320,6 +340,34 @@
     el.style.height = el.scrollHeight + "px";
   }
 
+  // ---------- Input masks ----------
+  function maskPhone(el) {
+    el.addEventListener("input", () => {
+      const digits = el.value.replace(/[^\d+]/g, "").replace(/(?!^)\+/g, "");
+      if (digits.startsWith("+")) {
+        const rest = digits.slice(1);
+        el.value = rest.length > 2 ? `+${rest.slice(0, 2)} ${rest.slice(2)}` : `+${rest}`;
+      } else {
+        el.value = digits.length > 4 ? `${digits.slice(0, 4)} ${digits.slice(4)}` : digits;
+      }
+    });
+  }
+
+  function maskTime(el) {
+    el.addEventListener("input", () => {
+      const digits = el.value.replace(/\D/g, "").slice(0, 4);
+      el.value = digits.length >= 3 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
+    });
+  }
+
+  function maskDigits(el) {
+    el.addEventListener("input", () => { el.value = el.value.replace(/\D/g, ""); });
+  }
+
+  maskPhone(document.getElementById("cs_contactPhone"));
+  maskPhone(document.getElementById("cs_contact2Phone"));
+  maskDigits(document.getElementById("cs_guestCount"));
+
   document.getElementById("csForm").addEventListener("submit", (e) => e.preventDefault());
 
   document.querySelectorAll("#csForm textarea").forEach((t) => {
@@ -343,6 +391,7 @@
       <td class="cs-noprint"><button type="button" class="cs-row-remove" title="Zeile entfernen">✕</button></td>
     `;
     tr.querySelectorAll("input").forEach((inp) => inp.addEventListener("input", scheduleSave));
+    maskTime(tr.querySelector(".tl-time"));
     tr.querySelector(".cs-row-remove").addEventListener("click", () => { tr.remove(); scheduleSave(); });
     return tr;
   }

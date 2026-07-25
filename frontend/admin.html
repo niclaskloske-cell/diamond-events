@@ -106,9 +106,29 @@
       <div id="listView">
         <div class="bookings-card">
           <div id="bookingsContent">
-            <div class="empty-state">
-              <h3>Lade Buchungen...</h3>
-              <p>Einen Moment bitte.</p>
+            <div class="skeleton-table-row">
+              <div class="skeleton-line w-80"></div>
+              <div class="skeleton-line w-60"></div>
+              <div class="skeleton-line w-40"></div>
+              <div class="skeleton-line w-40"></div>
+              <div class="skeleton-pill"></div>
+              <div class="skeleton-line w-60"></div>
+            </div>
+            <div class="skeleton-table-row">
+              <div class="skeleton-line w-60"></div>
+              <div class="skeleton-line w-80"></div>
+              <div class="skeleton-line w-25"></div>
+              <div class="skeleton-line w-40"></div>
+              <div class="skeleton-pill"></div>
+              <div class="skeleton-line w-60"></div>
+            </div>
+            <div class="skeleton-table-row">
+              <div class="skeleton-line w-40"></div>
+              <div class="skeleton-line w-60"></div>
+              <div class="skeleton-line w-40"></div>
+              <div class="skeleton-line w-25"></div>
+              <div class="skeleton-pill"></div>
+              <div class="skeleton-line w-60"></div>
             </div>
           </div>
         </div>
@@ -602,7 +622,16 @@
       <h2 style="font-size:1.2rem; margin:0;">Rezensionen</h2>
       <button class="btn btn-outline btn-sm" id="closeReviewsModal">✕</button>
     </div>
-    <div id="reviewsAdminList"><p style="color:var(--text-muted);">Lade...</p></div>
+    <div id="reviewsAdminList">
+      <div style="background:rgba(27,24,18,0.02);border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;">
+        <div class="skeleton-line w-40" style="margin-bottom:0.6rem;"></div>
+        <div class="skeleton-line w-80"></div>
+      </div>
+      <div style="background:rgba(27,24,18,0.02);border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem;">
+        <div class="skeleton-line w-25" style="margin-bottom:0.6rem;"></div>
+        <div class="skeleton-line w-60"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -630,8 +659,8 @@
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-bottom:0.9rem;">
         <div class="f-group" style="margin:0;">
-          <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Wert</label>
-          <input type="number" id="discValue" min="0" step="0.01" placeholder="10" style="width:100%; box-sizing:border-box; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:8px; padding:0.6rem 0.75rem; color:var(--text); font-family:inherit;" />
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Wert (<span id="discValueUnit">%</span>)</label>
+          <input type="number" id="discValue" min="0" max="100" step="0.01" placeholder="10" style="width:100%; box-sizing:border-box; background:rgba(27,24,18,0.03); border:1px solid var(--line); border-radius:8px; padding:0.6rem 0.75rem; color:var(--text); font-family:inherit;" />
         </div>
         <div class="f-group" style="margin:0;">
           <label style="display:block; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">Max. Nutzungen</label>
@@ -646,7 +675,22 @@
       <div id="discCreateError" style="color:#f87171; font-size:0.82rem; margin-top:0.6rem; display:none;"></div>
     </form>
 
-    <div id="discountsList"><p style="color:var(--text-muted);">Lade...</p></div>
+    <div id="discountsList">
+      <div style="background:rgba(27,24,18,0.02);border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center; gap:1rem;">
+        <div style="flex:1;">
+          <div class="skeleton-line w-25" style="margin-bottom:0.5rem;"></div>
+          <div class="skeleton-line w-40"></div>
+        </div>
+        <div class="skeleton-pill"></div>
+      </div>
+      <div style="background:rgba(27,24,18,0.02);border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; gap:1rem;">
+        <div style="flex:1;">
+          <div class="skeleton-line w-25" style="margin-bottom:0.5rem;"></div>
+          <div class="skeleton-line w-40"></div>
+        </div>
+        <div class="skeleton-pill"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -719,6 +763,14 @@
   });
   document.getElementById('closeDiscountsModal').addEventListener('click', () => modal.classList.remove('open'));
   modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+  document.getElementById('discType').addEventListener('change', (e) => {
+    const isPercent = e.target.value === 'percent';
+    document.getElementById('discValueUnit').textContent = isPercent ? '%' : '€';
+    const valueInput = document.getElementById('discValue');
+    if (isPercent) valueInput.setAttribute('max', '100');
+    else valueInput.removeAttribute('max');
+  });
 
   function fmtValue(c) {
     return c.type === 'percent' ? `${c.value}%` : `${c.value}€`;
@@ -871,8 +923,15 @@
 
   const DEVICE_LABELS = { desktop: "Desktop", mobile: "Mobile", tablet: "Tablet" };
 
+  function skeletonBars(n) {
+    return Array.from({ length: n }, (_, i) => {
+      const h = 25 + ((i * 37) % 65); // deterministic pseudo-random heights, no Math.random() needed
+      return `<div class="an-bar-col"><div class="an-bar skeleton" style="height:${h}%;"></div></div>`;
+    }).join("");
+  }
+
   async function loadAnalytics() {
-    chart.innerHTML = '<p class="an-list-empty">Lädt …</p>';
+    chart.innerHTML = skeletonBars(currentDays);
     try {
       const res = await fetch(`/api/admin/analytics?days=${currentDays}`);
       if (!res.ok) throw new Error("Fehler beim Laden");
