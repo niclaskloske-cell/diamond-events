@@ -42,6 +42,7 @@ SEED_PASSWORD='einlokalespasswort' npm run db:seed
 |---|---|
 | `npm test` | Unit-Tests |
 | `npm run typecheck` | TypeScript ohne Emit |
+| `npm run build` | Produktionsbuild (prüft auch die Edge-Grenze der Middleware) |
 | `npm run db:migrate` | Migration erzeugen und anwenden |
 | `npm run db:studio` | Prisma Studio zum Draufschauen |
 
@@ -79,7 +80,7 @@ kein Label mit Trackingnummer existiert. Diese Zusicherung ist in
 - [x] 1 Projekt-Setup, Env-Validierung, Logging
 - [x] 2 Datenmodell (Prisma-Schema) und Seed
 - [x] 3 Domain-Logik: Statusmaschine, Scan-Prüfung, Nachbestellung, Anweisungs-Parser
-- [ ] 4 Auth und Rollen (ADMIN / PACKER / VIEWER)
+- [x] 4 Auth und Rollen (ADMIN / PACKER / VIEWER)
 - [ ] 5 Shopify-Client, Produkt-Sync, Metafeld `custom.pack_instructions`
 - [ ] 6 Webhooks mit HMAC-Prüfung und Idempotenz
 - [ ] 7 Auftragsliste und Desktop-Dashboard
@@ -91,6 +92,34 @@ kein Label mit Trackingnummer existiert. Diese Zusicherung ist in
 - [ ] 13 Versand: Carrier-Adapter, Label, Tracking
 - [ ] 14 Dashboard-Kennzahlen und Bestandshistorie
 - [ ] 15 End-to-End-Test über den kompletten Ablauf
+
+## Rollen und Rechte
+
+Die Rechtematrix liegt in `src/domain/auth/permissions.ts` als **Whitelist je
+Rolle**: eine neu eingeführte Fähigkeit ist damit standardmäßig für niemanden
+freigeschaltet, bis sie dort eingetragen wird. Ein vergessener Eintrag sperrt
+aus statt zu öffnen — das ist die sichere Richtung.
+
+| Rolle | Darf |
+|---|---|
+| `ADMIN` | Alles, inklusive Stammdaten, Benutzer, Bestandskorrekturen und dem manuellen Abhaken ohne Scan |
+| `PACKER` | Den operativen Ablauf: picken, packen, Verbrauch erfassen, Label erstellen |
+| `VIEWER` | Ausschließlich lesen |
+
+Ein deaktiviertes Konto darf grundsätzlich nichts — auch als `ADMIN`.
+Die Rolle wird bei jedem Aufruf frisch aus der Datenbank gelesen und nicht aus
+dem Cookie übernommen: eine Sperre oder Herabstufung wirkt damit sofort und
+nicht erst, wenn die Sitzung abläuft.
+
+Sitzungen sind signierte, zustandslose Cookies (HMAC-SHA256). Bewusst kein
+Session-Speicher: mehrere Scanner arbeiten gleichzeitig, ein Dateispeicher
+würde dabei zum Engpass. Der Cookie-Inhalt ist lesbar, aber nicht fälschbar —
+deshalb steht dort nichts Vertrauliches.
+
+Die Middleware prüft nur, **ob** ein Cookie vorhanden ist, und ist ausdrücklich
+keine Sicherheitsgrenze: sie läuft in der Edge-Runtime, in der `node:crypto`
+und damit die Signaturprüfung fehlt. Die echte Prüfung passiert serverseitig in
+`requireUser()`.
 
 ## Sicherheit
 

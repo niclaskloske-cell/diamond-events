@@ -1,0 +1,77 @@
+/*
+ * Grundlagen der Oberflaeche.
+ *
+ * Zwei Nutzungsarten mit gegensaetzlichen Anforderungen:
+ *  - Lager-Dashboard am Desktop: viel Information, kompakt.
+ *  - Scanner am Handy: sehr grosse Schaltflaechen, wenig gleichzeitig.
+ * Die Groessen dafuer liegen als Tokens hier, damit sie nicht in den
+ * Komponenten auseinanderlaufen.
+ */
+
+:root {
+  --farbe-hintergrund: #f6f5f8;
+  --farbe-flaeche: #ffffff;
+  --farbe-rand: #e2e0e7;
+  --farbe-text: #1c1a22;
+  --farbe-text-leise: #5f5a6b;
+
+  --farbe-akzent: #7c4dff;
+  --farbe-akzent-text: #ffffff;
+
+  --farbe-erfolg: #0f7b4f;
+  --farbe-erfolg-flaeche: #e4f5ec;
+  --farbe-warnung: #8a5a00;
+  --farbe-warnung-flaeche: #fdf1d9;
+  --farbe-fehler: #b3261e;
+  --farbe-fehler-flaeche: #fdeceb;
+
+  --radius: 12px;
+  --abstand: 16px;
+
+  /* Mindestgroesse fuer alles, was am Scanner mit Handschuhen getroffen wird. */
+  --touch-ziel: 64px;
+  --schrift-scanner: 22px;
+  --schrift-scanner-gross: 40px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin: 0 0 0.5em;
+}
+
+a {
+  color: var(--farbe-akzent);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
