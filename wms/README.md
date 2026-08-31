@@ -81,8 +81,8 @@ kein Label mit Trackingnummer existiert. Diese Zusicherung ist in
 - [x] 2 Datenmodell (Prisma-Schema) und Seed
 - [x] 3 Domain-Logik: Statusmaschine, Scan-Prüfung, Nachbestellung, Anweisungs-Parser
 - [x] 4 Auth und Rollen (ADMIN / PACKER / VIEWER)
-- [ ] 5 Shopify-Client, Produkt-Sync, Metafeld `custom.pack_instructions`
-- [ ] 6 Webhooks mit HMAC-Prüfung und Idempotenz
+- [~] 5 Shopify: HMAC, Bestell-Mapping, Admin-API-Client (Produkt-Sync folgt)
+- [x] 6 Webhook-Endpunkt mit HMAC-Prüfung und Idempotenz
 - [ ] 7 Auftragsliste und Desktop-Dashboard
 - [ ] 8 Lagerplatzverwaltung
 - [ ] 9 Picking-Scanner (mobil)
@@ -120,6 +120,34 @@ Die Middleware prüft nur, **ob** ein Cookie vorhanden ist, und ist ausdrücklic
 keine Sicherheitsgrenze: sie läuft in der Edge-Runtime, in der `node:crypto`
 und damit die Signaturprüfung fehlt. Die echte Prüfung passiert serverseitig in
 `requireUser()`.
+
+## Shopify-Anbindung
+
+Shopify ist die Quelle der Wahrheit. Lokal liegt nur, was das Lager braucht.
+
+**Webhooks** (`POST /api/webhooks/shopify`) laufen in dieser Reihenfolge:
+
+1. Roher Body lesen — die Signatur wird über die unveränderten Bytes gebildet.
+   Geparstes und neu serialisiertes JSON ergäbe eine andere Signatur; ein Test
+   hält das fest.
+2. HMAC gegen das Shared Secret des Shops prüfen, bevor irgendetwas anderes
+   passiert. Die Signatur ist hier die Authentifizierung — Shopify schickt keine
+   Cookies, deshalb ist die Route in der Middleware vom Anmeldezwang ausgenommen.
+3. Ereignis ablegen und sofort mit 200 antworten. Die Verarbeitung läuft
+   getrennt, damit Shopify nicht in einen Timeout läuft und erneut zustellt.
+
+**Idempotenz** kommt aus dem UNIQUE-Index auf `WebhookEvent.shopifyEventId` —
+bewusst nicht aus einem vorherigen `SELECT`: zwei gleichzeitig eintreffende
+Zustellungen würden beide „noch nicht vorhanden" lesen und beide einfügen.
+
+Ein unbekannter Shop bekommt `401 Signatur ungültig`, nicht `404`. Sonst ließe
+sich über den Endpunkt herausfinden, welche Domains eingerichtet sind.
+
+Der **Admin-API-Client** wiederholt nur, was sich von selbst erledigen kann:
+429 und 5xx sowie Netzwerkfehler, mit `Retry-After` oder exponentiell wachsender
+Wartezeit. Ein 401 oder ein GraphQL-Fehler wird sofort im Klartext gemeldet —
+erneutes Senden erzeugt nur dieselbe Ablehnung. Die API-Version ist fest
+verdrahtet, weil ein stiller Versionssprung Feldnamen ändert.
 
 ## Sicherheit
 
