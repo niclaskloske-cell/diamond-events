@@ -1,0 +1,535 @@
+// Squishova WMS — Datenmodell
+//
+// Leitgedanken:
+//  1. Mandantenfaehig ab Tag eins (Tenant -> Shop / Warehouse), damit spaeter
+//     weitere Shops und Lager ohne Umbau dazukommen koennen.
+//  2. Bestand wird niemals direkt gesetzt, sondern ausschliesslich ueber
+//     StockMovement gebucht. Die Historie ist damit die Wahrheit, nicht ein
+//     nachtraeglich gefuehrtes Protokoll.
+//  3. Shopify bleibt Quelle der Wahrheit fuer Produkte, Varianten und
+//     Bestellungen. Lokal liegt nur, was das Lager wirklich braucht.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Mandanten und Stammdaten
+// ---------------------------------------------------------------------------
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shops      Shop[]
+  warehouses Warehouse[]
+  users      User[]
+  materials  PackagingMaterial[]
+  products   Product[]
+  orders     Order[]
+}
+
+model Shop {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name   String
+  /// myshopify-Domain, z. B. "squishova.myshopify.com"
+  domain String @unique
+
+  /// Verschluesselt abgelegtes Admin-API-Token. Niemals im Klartext.
+  accessTokenEncrypted String?
+  /// Shared Secret zur HMAC-Pruefung eingehender Webhooks.
+  webhookSecret        String?
+
+  active       Boolean   @default(true)
+  lastSyncedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+  orders   Order[]
+
+  @@index([tenantId])
+}
+
+model Warehouse {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name   String
+  code   String
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  locations Location[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+}
+
+/// Lagerplatz, z. B. A01 (Regal A, Fach 01).
+model Location {
+  id          String    @id @default(cuid())
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  /// Anzeigename und Scan-Code des Platzes, z. B. "A01".
+  code        String
+  name        String?
+  shelf       String?
+  bin         String?
+  description String?
+
+  /// Reihenfolge fuer die Pick-Route. Kleinere Werte werden zuerst angelaufen.
+  pickOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stocks ProductStock[]
+
+  @@unique([warehouseId, code])
+  @@index([warehouseId, active])
+}
+
+// ---------------------------------------------------------------------------
+// Produkte
+// ---------------------------------------------------------------------------
+
+model Product {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shopId   String
+  shop     Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  shopifyProductId String
+  shopifyVariantId String
+  sku              String
+  name             String
+  variantTitle     String?
+  barcode          String?
+  imageUrl         String?
+  weightGrams      Int?
+  active           Boolean @default(true)
+
+  /// Rohtext aus dem Shopify-Metafeld custom.pack_instructions.
+  /// Wird fuer die Oberflaeche in Einzelpunkte geparst, aber im Original
+  /// aufbewahrt, damit ein geaenderter Parser nichts zerstoert.
+  packInstructionsRaw String?
+
+  lastSyncedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  stocks     ProductStock[]
+  orderItems OrderItem[]
+
+  /// Eine Variante existiert pro Shop genau einmal — Basis fuer den Upsert
+  /// beim Sync, damit keine Duplikate der Shopify-Daten entstehen.
+  @@unique([shopId, shopifyVariantId])
+  @@index([tenantId, sku])
+  @@index([barcode])
+}
+
+/// Bestand eines Produkts auf einem konkreten Lagerplatz.
+/// n:m — ein Produkt darf auf mehreren Plaetzen liegen.
+model ProductStock {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  quantity Int @default(0)
+
+  /// Bevorzugter Platz beim Picken, falls ein Produkt mehrere hat.
+  isPrimary Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, locationId])
+  @@index([locationId])
+}
+
+// ---------------------------------------------------------------------------
+// Bestellungen und Picking
+// ---------------------------------------------------------------------------
+
+enum OrderStatus {
+  NEU
+  PICKING
+  GEPICKT
+  PACKEN
+  GEPACKT
+  LABEL_ERSTELLT
+  VERSANDBEREIT
+  ABGESCHLOSSEN
+  STORNIERT
+  FEHLER
+}
+
+model Order {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shopId   String
+  shop     Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  shopifyOrderId String
+  /// Menschenlesbare Nummer, z. B. "#1047".
+  orderNumber    String
+
+  status OrderStatus @default(NEU)
+
+  /// Kunden- und Adressdaten als Snapshot. Bewusst denormalisiert: das Label
+  /// muss auch dann korrekt sein, wenn der Kunde seine Adresse spaeter aendert.
+  customer        Json?
+  shippingAddress Json?
+
+  /// Letzter Fehlertext, wenn status == FEHLER. Wird beim Wiederholen geleert.
+  errorMessage String?
+
+  placedAt    DateTime
+  pickedAt    DateTime?
+  packedAt    DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items       OrderItem[]
+  pickEvents  PickEvent[]
+  packingTask PackingTask?
+  usages      MaterialUsage[]
+  movements   StockMovement[]
+  shipments   Shipment[]
+
+  @@unique([shopId, shopifyOrderId])
+  @@index([tenantId, status])
+  @@index([status, placedAt])
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  /// Snapshot der Shopify-Zeile. Bleibt lesbar, auch wenn das Produkt im Shop
+  /// spaeter geloescht oder umbenannt wird.
+  shopifyLineItemId String
+  sku               String
+  name              String
+
+  quantityOrdered Int
+  quantityPicked  Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pickEvents PickEvent[]
+
+  @@unique([orderId, shopifyLineItemId])
+  @@index([orderId])
+}
+
+/// Protokoll jedes Scanvorgangs — auch der fehlgeschlagenen.
+/// Damit ist nachvollziehbar, wer wann was gescannt hat, und falsche Scans
+/// lassen sich auswerten.
+model PickEvent {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  /// Der tatsaechlich gescannte Code — auch bei einem Fehlscan.
+  scannedCode    String
+  accepted       Boolean
+  /// Grund der Ablehnung, z. B. "FALSCHER_ARTIKEL" oder "MENGE_ERREICHT".
+  rejectReason   String?
+  /// True, wenn ein Admin die Position manuell bestaetigt hat statt zu scannen.
+  manualOverride Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([orderItemId])
+}
+
+// ---------------------------------------------------------------------------
+// Packanweisungen
+// ---------------------------------------------------------------------------
+
+model PackingTask {
+  id      String @id @default(cuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  confirmedById String?
+  confirmedBy   User?     @relation(fields: [confirmedById], references: [id], onDelete: SetNull)
+  confirmedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instructions PackingInstruction[]
+
+  @@index([confirmedById])
+}
+
+/// Einzelner abhakbarer Punkt, geparst aus dem Shopify-Metafeld.
+model PackingInstruction {
+  id            String      @id @default(cuid())
+  packingTaskId String
+  packingTask   PackingTask @relation(fields: [packingTaskId], references: [id], onDelete: Cascade)
+
+  text     String
+  /// Pflichtpunkte muessen abgehakt sein, bevor der Auftrag packfertig wird.
+  required Boolean @default(true)
+  position Int     @default(0)
+
+  checkedAt   DateTime?
+  checkedById String?
+  checkedBy   User?     @relation(fields: [checkedById], references: [id], onDelete: SetNull)
+
+  @@index([packingTaskId])
+  @@index([checkedById])
+}
+
+// ---------------------------------------------------------------------------
+// Verpackungsmaterial
+// ---------------------------------------------------------------------------
+
+/// Bewusst getrennt von Product: Verpackungsmaterial wird nicht verkauft,
+/// stammt nicht aus Shopify und hat eine eigene Beschaffungslogik.
+model PackagingMaterial {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name    String
+  sku     String
+  barcode String?
+
+  stock              Int @default(0)
+  minStock           Int @default(0)
+  /// Vorschlag beim Packen. 0 = wird nicht automatisch vorgeschlagen.
+  defaultConsumption Int @default(0)
+
+  supplier           String?
+  supplierUrl        String?
+  defaultOrderQty    Int?
+  leadTimeDays       Int?
+  /// Einkaufspreis in Cent — Ganzzahl, um Rundungsfehler zu vermeiden.
+  purchasePriceCents Int?
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  usages    MaterialUsage[]
+  movements StockMovement[]
+
+  @@unique([tenantId, sku])
+  @@index([tenantId, active])
+}
+
+/// Tatsaechlicher Verbrauch je Auftrag. Haelt Vorschlag und Ist-Menge fest,
+/// damit Abweichungen vom Standard auswertbar bleiben.
+model MaterialUsage {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  materialId String
+  material   PackagingMaterial @relation(fields: [materialId], references: [id], onDelete: Restrict)
+
+  suggestedQty Int
+  actualQty    Int
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orderId, materialId])
+  @@index([materialId])
+}
+
+// ---------------------------------------------------------------------------
+// Bestandshistorie
+// ---------------------------------------------------------------------------
+
+enum StockItemType {
+  PRODUCT
+  MATERIAL
+}
+
+enum StockMovementReason {
+  PICK
+  PACK_VERBRAUCH
+  WARENEINGANG
+  KORREKTUR
+  RETOURE
+  INVENTUR
+  STORNO
+}
+
+/// Einzige Quelle der Bestandshistorie. Jede Mengenaenderung erzeugt genau
+/// eine Zeile, in derselben Transaktion wie die Aenderung selbst.
+model StockMovement {
+  id String @id @default(cuid())
+
+  itemType   StockItemType
+  /// Produkt-Bewegungen zeigen zusaetzlich auf den betroffenen Lagerplatz.
+  productId  String?
+  locationId String?
+  materialId String?
+  material   PackagingMaterial? @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  /// Vorzeichenbehaftet: negativ bei Entnahme, positiv bei Zugang.
+  delta  Int
+  reason StockMovementReason
+  note   String?
+
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([itemType, createdAt])
+  @@index([materialId, createdAt])
+  @@index([productId, createdAt])
+  @@index([orderId])
+}
+
+// ---------------------------------------------------------------------------
+// Versand
+// ---------------------------------------------------------------------------
+
+enum ShipmentStatus {
+  ENTWURF
+  LABEL_ERSTELLT
+  FEHLGESCHLAGEN
+  VERSENDET
+  STORNIERT
+}
+
+model Shipment {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  /// Adapter-Kennung, z. B. "manual" oder "dhl".
+  carrier        String
+  status         ShipmentStatus @default(ENTWURF)
+  trackingNumber String?
+  trackingUrl    String?
+  labelUrl       String?
+
+  /// Klartext-Fehler aus dem Carrier-Adapter, damit der Versuch wiederholbar
+  /// ist und der Auftrag niemals faelschlich als versendet gilt.
+  errorMessage String?
+  attempts     Int     @default(0)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  shippedAt DateTime?
+
+  @@index([orderId])
+  @@index([trackingNumber])
+}
+
+// ---------------------------------------------------------------------------
+// Shopify-Webhooks (Idempotenz)
+// ---------------------------------------------------------------------------
+
+enum WebhookStatus {
+  EMPFANGEN
+  VERARBEITET
+  FEHLGESCHLAGEN
+}
+
+/// Der eindeutige Index auf shopifyEventId ist der Duplikatschutz: Shopify
+/// liefert Webhooks bei Timeouts mehrfach aus. Ein zweiter Insert schlaegt
+/// fehl und die Verarbeitung wird uebersprungen.
+model WebhookEvent {
+  id String @id @default(cuid())
+
+  shopifyEventId String @unique
+  shopDomain     String
+  topic          String
+  payload        Json
+
+  status       WebhookStatus @default(EMPFANGEN)
+  attempts     Int           @default(0)
+  errorMessage String?
+
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  @@index([status, receivedAt])
+  @@index([topic])
+}
+
+// ---------------------------------------------------------------------------
+// Benutzer
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  ADMIN
+  PACKER
+  VIEWER
+}
+
+model User {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  email        String
+  name         String
+  passwordHash String
+  role         UserRole @default(VIEWER)
+  active       Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pickEvents          PickEvent[]
+  packingTasks        PackingTask[]
+  checkedInstructions PackingInstruction[]
+  materialUsages      MaterialUsage[]
+  stockMovements      StockMovement[]
+
+  @@unique([email])
+  @@index([tenantId, role])
+}
